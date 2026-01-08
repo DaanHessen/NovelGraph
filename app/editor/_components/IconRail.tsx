@@ -61,21 +61,25 @@ export default function IconRail() {
                 href={`${item.href}${q}`}
                 className={cn(
                   "relative group flex items-center justify-center w-full aspect-square rounded-2xl transition-all duration-300",
-                  isActive ? "text-white bg-white/10 shadow-[inner_0_0_10px_rgba(255,255,255,0.05)] border border-white/10" : "text-gray-500 hover:text-white hover:bg-white/5"
+                  isActive ? "text-white" : "text-gray-500 hover:text-white hover:bg-white/5"
                 )}
                 title={item.label}
               >
                  {isActive && (
                     <motion.div 
                         layoutId="rail-active"
-                        className="absolute inset-0 border border-white/10 rounded-2xl shadow-[0_0_20px_rgba(255,255,255,0.05)]"
+                        className="absolute inset-0 bg-gradient-to-br from-white/10 to-white/5 border border-white/10 rounded-2xl shadow-[0_0_20px_rgba(255,255,255,0.05)]"
+                        initial={false}
+                        transition={{ type: "spring", stiffness: 300, damping: 30 }}
                     />
                  )}
-                 <item.icon size={22} className={cn("relative z-10 transition-transform duration-300 group-hover:scale-110", isActive && "text-accent")} />
+                 <item.icon size={22} className={cn("relative z-10 transition-transform duration-300 group-hover:scale-110", isActive && "text-accent drop-shadow-[0_0_8px_rgba(var(--accent-rgb),0.5)]")} />
                  
                  {/* Tooltip */}
-                 <div className="absolute left-full ml-4 px-3 py-1.5 bg-black/80 backdrop-blur-md border border-white/10 rounded-lg text-xs font-medium text-white opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50 translate-x-[-10px] group-hover:translate-x-0 duration-200">
+                 <div className="absolute left-full ml-4 px-3 py-1.5 bg-[#0f1113] border border-white/10 rounded-lg text-xs font-medium text-white opacity-0 group-hover:opacity-100 transition-all duration-200 pointer-events-none whitespace-nowrap z-50 translate-x-[-10px] group-hover:translate-x-0 shadow-xl">
                     {item.label}
+                    {/* Tiny arrow */}
+                    <div className="absolute top-1/2 right-full -mt-1 -mr-[1px] border-4 border-transparent border-r-white/10" />
                  </div>
               </Link>
             );
