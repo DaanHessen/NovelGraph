@@ -35,6 +35,12 @@ async function migrate() {
     console.log('Projects table ensured.');
 
     await client.query(`
+      ALTER TABLE projects 
+      ADD COLUMN IF NOT EXISTS graph_data JSONB DEFAULT '{"nodes":[], "edges":[]}';
+    `);
+    console.log('Graph data column ensured.');
+
+    await client.query(`
       CREATE TABLE IF NOT EXISTS app_settings (
         key TEXT PRIMARY KEY,
         value JSONB

@@ -25,13 +25,17 @@ const StoryNode = ({ data, selected }: NodeProps) => {
       Icon = MapPin;
       accentColor = 'bg-emerald-500';
       accentShadow = 'shadow-[0_0_15px_rgba(16,185,129,0.5)]';
+  } else if (type === 'family') {
+      Icon = User;
+      accentColor = 'bg-blue-500';
+      accentShadow = 'shadow-[0_0_15px_rgba(59,130,246,0.5)]';
   }
 
   return (
     <div 
         className={cn(
-            "relative min-w-[200px] rounded-2xl bg-[#0f1113]/80 backdrop-blur-xl border transition-all duration-300 group overflow-hidden",
-            selected ? "border-accent shadow-[0_0_30px_rgba(var(--accent-rgb),0.2)]" : "border-white/10 hover:border-white/20 hover:bg-[#0f1113]/90"
+            "relative min-w-[200px] rounded-2xl bg-[#0f1113]/95 border transition-all duration-300 group overflow-hidden will-change-transform",
+            selected ? "border-accent shadow-[0_0_30px_rgba(var(--accent-rgb),0.2)]" : "border-white/10 hover:border-white/20 hover:bg-[#0f1113]"
         )}
     >
       {/* Handles */}

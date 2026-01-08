@@ -7,13 +7,14 @@ import ContextSidebar from './ContextSidebar';
 
 export default function EditorShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const isContextVisible = pathname.includes('/settings') || pathname.includes('/write');
+  const isContextRoute = pathname.includes('/settings') || pathname.includes('/write') || pathname.includes('/graph');
+  const [rightOpen, setRightOpen] = useState(true);
+  
+  // If route doesn't support context, it's effectively closed
+  const isActuallyOpen = isContextRoute && rightOpen;
   
   // Base margin is 20 (IconRail, 5rem). Extra sidebar is 64 (16rem).
-  // Tailwind margins: ml-20 = 5rem. 
-  // We need dynamic margin: if context visible -> ml-[21rem] (5+16), else ml-20.
-  
-  const contentMargin = isContextVisible ? 'md:ml-[21rem]' : 'md:ml-20';
+  const contentMargin = isActuallyOpen ? 'md:ml-[21rem]' : 'md:ml-20';
 
   return (
     <div className="flex min-h-screen">
@@ -21,12 +22,12 @@ export default function EditorShell({ children }: { children: React.ReactNode })
          <IconRail />
       </Suspense>
       
-      <ContextSidebar />
+      <ContextSidebar open={isActuallyOpen} setOpen={setRightOpen} />
       
       <main 
         className={`flex-1 transition-all duration-300 min-h-screen bg-background text-foreground ${contentMargin}`}
       >
-        <div className="p-8">
+        <div className={pathname.includes('/graph') ? "" : "p-8"}>
             {children}
         </div>
       </main>
