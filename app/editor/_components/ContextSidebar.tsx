@@ -2,7 +2,7 @@ import { usePathname } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FileText, PanelRightClose, PanelRightOpen, Map as MapIcon, Plus, Trash2, User, SlidersHorizontal } from 'lucide-react';
 import { useState, useEffect } from 'react';
-import { useGraphStore } from '../graph/_store/useGraphStore';
+import { useGraphStore, type GraphPage } from '../graph/_store/useGraphStore';
 import SidebarItem from './SidebarItem';
 
 // ... existing components (GraphPageList, GraphSidebarContent, NodeEditor) ...
@@ -14,7 +14,6 @@ function GraphSidebarContent() {
     const [editingId, setEditingId] = useState<string | null>(null);
     const [editName, setEditName] = useState('');
 
-    // If a node is selected, show details panel instead of page list
     if (selectedNodeId) {
         return <NodeDetailsPanel key={selectedNodeId} />;
     }
@@ -23,7 +22,7 @@ function GraphSidebarContent() {
         addPage('New Graph');
     };
 
-    const startEditing = (page: any) => {
+    const startEditing = (page: GraphPage) => {
         setEditingId(page.id);
         setEditName(page.name);
     };

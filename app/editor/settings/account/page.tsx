@@ -44,7 +44,7 @@ export default function AccountSettingsPage() {
     }, [username, loading]);
 
     return (
-        <div className="max-w-4xl mx-auto space-y-10 animate-in slide-in-from-bottom-4 duration-500 ease-out py-10">
+        <div className="max-w-3xl mx-auto space-y-10 animate-in slide-in-from-bottom-4 duration-500 ease-out py-8">
              <SettingsHeader 
                 title="Profile Settings" 
                 description="Manage your public persona and how you appear across the platform."

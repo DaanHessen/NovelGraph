@@ -38,9 +38,18 @@ const StoryNode = ({ data, selected }: NodeProps) => {
             selected ? "border-accent shadow-[0_0_30px_rgba(var(--accent-rgb),0.2)]" : "border-white/10 hover:border-white/20 hover:bg-[#0f1113]"
         )}
     >
-      {/* Handles */}
-      <Handle type="target" position={Position.Top} className="!w-3 !h-3 !bg-gray-400 !border-2 !border-[#0f1113] transition-colors group-hover:!bg-white" />
-      <Handle type="source" position={Position.Bottom} className="!w-3 !h-3 !bg-gray-400 !border-2 !border-[#0f1113] transition-colors group-hover:!bg-white" />
+      {/* Ghost Handles - All Sides */}
+      <Handle type="target" position={Position.Top} className="w-3! h-3! bg-white/50! border-0! rounded-full opacity-0 group-hover:opacity-100 transition-all duration-200 hover:bg-accent! hover:scale-125" />
+      <Handle type="source" position={Position.Top} className="w-3! h-3! bg-white/50! border-0! rounded-full opacity-0 group-hover:opacity-100 transition-all duration-200 hover:bg-accent! hover:scale-125 z-50" />
+      
+      <Handle type="target" position={Position.Right} className="w-3! h-3! bg-white/50! border-0! rounded-full opacity-0 group-hover:opacity-100 transition-all duration-200 hover:bg-accent! hover:scale-125" />
+      <Handle type="source" position={Position.Right} className="w-3! h-3! bg-white/50! border-0! rounded-full opacity-0 group-hover:opacity-100 transition-all duration-200 hover:bg-accent! hover:scale-125 z-50" />
+
+      <Handle type="target" position={Position.Bottom} className="w-3! h-3! bg-white/50! border-0! rounded-full opacity-0 group-hover:opacity-100 transition-all duration-200 hover:bg-accent! hover:scale-125" />
+      <Handle type="source" position={Position.Bottom} className="w-3 h-3 bg-white/50 border-0 rounded-full opacity-0 group-hover:opacity-100 transition-all duration-200 hover:bg-accent hover:scale-125 z-50" />
+
+      <Handle type="target" position={Position.Left} className="w-3! h-3! bg-white/50! border-0! rounded-full opacity-0 group-hover:opacity-100 transition-all duration-200 hover:bg-accent! hover:scale-125" />
+      <Handle type="source" position={Position.Left} className="w-3 h-3 bg-white/50 border-0 rounded-full opacity-0 group-hover:opacity-100 transition-all duration-200 hover:bg-accent hover:scale-125 z-50" />
 
       {/* Header with Type Indicator */}
       <div className="flex items-center gap-3 p-3 border-b border-white/5 bg-white/5">

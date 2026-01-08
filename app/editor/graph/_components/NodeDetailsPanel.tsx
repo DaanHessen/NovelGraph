@@ -17,7 +17,7 @@ export default function NodeDetailsPanel() {
     const [type, setType] = useState(node?.data.type as string || 'chapter');
 
 
-    const handleSave = (key: string, value: any) => {
+    const handleSave = (key: string, value: unknown) => {
         if (!node) return;
         updateNodeData(node.id, { ...node.data, [key]: value });
     };

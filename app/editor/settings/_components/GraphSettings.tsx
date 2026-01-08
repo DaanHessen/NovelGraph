@@ -55,7 +55,7 @@ export default function GraphSettings() {
         return () => clearTimeout(timeout);
     }, [settings]);
 
-    const handleChange = (key: keyof GraphSettingsState, value: any) => {
+    const handleChange = (key: keyof GraphSettingsState, value: GraphSettingsState[keyof GraphSettingsState]) => {
         setSettings(prev => ({ ...prev, [key]: value }));
     };
 

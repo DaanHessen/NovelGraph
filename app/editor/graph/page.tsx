@@ -110,7 +110,7 @@ function GraphContent() {
                  const safeActiveId = parsed.activePageId || parsed.pages[0].id;
                  setActivePage(safeActiveId);
                  
-                 const page = parsed.pages.find((p: any) => p.id === safeActiveId);
+                 const page = parsed.pages.find((p: GraphPage) => p.id === safeActiveId);
                  if (page && page.viewport) {
                      setViewport(page.viewport);
                  }
@@ -132,10 +132,10 @@ function GraphContent() {
       .then(data => {
         if (data.pages && data.pages.length > 0) {
              setPages(data.pages);
-             const safeActiveId = data.pages.find((p: any) => p.id === data.activePageId) ? data.activePageId : data.pages[0].id;
+             const safeActiveId = data.pages.find((p: GraphPage) => p.id === data.activePageId) ? data.activePageId : data.pages[0].id;
              setActivePage(safeActiveId);
              
-             const page = data.pages.find((p: any) => p.id === safeActiveId);
+             const page = data.pages.find((p: GraphPage) => p.id === safeActiveId);
              if (page && page.viewport) {
                  setViewport(page.viewport);
              }
@@ -308,7 +308,7 @@ function GraphContent() {
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [nodes, setNodes, setStoreNodes]);
+  }, [nodes, setNodes, setStoreNodes, store]);
 
   const onConnect = useCallback((params: Connection) => {
       setEdges((eds) => addEdge(params, eds));
@@ -460,7 +460,7 @@ function GraphContent() {
             {graphSettings?.showMinimap && (
                 <MiniMap
                     position="top-right"
-                    className="!m-4 rounded-xl border border-white/10 overflow-hidden shadow-2xl backdrop-blur-md"
+                    className="m-4 rounded-xl border border-white/10 overflow-hidden shadow-2xl backdrop-blur-md"
                     style={{ height: 100, width: 150, backgroundColor: 'rgba(15, 17, 19, 0.5)' }}
                     maskColor="rgba(0,0,0,0.3)"
                     nodeColor="#555"

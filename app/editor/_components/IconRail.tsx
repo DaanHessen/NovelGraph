@@ -80,7 +80,7 @@ export default function IconRail() {
     <div className="fixed top-0 left-0 h-full w-20 bg-background/90 backdrop-blur-xl border-r border-white/5 z-50 flex flex-col items-center py-6 shadow-2xl">
 
        {/* Logo Icon */}
-       <div className="mb-8 p-2 rounded-xl bg-gradient-to-br from-accent to-purple-600 text-white shadow-[0_0_15px_var(--accent)]">
+       <div className="mb-8 p-2 rounded-xl bg-linear-to-br from-accent to-purple-600 text-white shadow-[0_0_15px_var(--accent)]">
           <Globe size={24} />
        </div>
 
@@ -101,7 +101,7 @@ export default function IconRail() {
                  {isActive && (
                     <motion.div 
                         layoutId="rail-active"
-                        className="absolute inset-0 bg-gradient-to-br from-white/10 to-white/5 border border-white/10 rounded-2xl shadow-[0_0_20px_rgba(255,255,255,0.05)]"
+                        className="absolute inset-0 bg-linear-to-br from-white/10 to-white/5 border border-white/10 rounded-2xl shadow-[0_0_20px_rgba(255,255,255,0.05)]"
                         initial={false}
                         transition={{ type: "spring", stiffness: 300, damping: 30 }}
                     />
@@ -142,7 +142,7 @@ export default function IconRail() {
            <Link
                 href="/"
                 className={clsx("w-full aspect-square rounded-2xl flex items-center justify-center transition-all duration-300",
-                  "bg-linear-to-br from-indigo-500 to-purple-600 text-white shadow-lg"
+                  "text-gray-500 hover:text-red-400 hover:bg-red-500/10"
                 )}
                 title="Exit"
             >
@@ -150,7 +150,7 @@ export default function IconRail() {
             </Link>
 
              {/* Profile */}
-            <div className="relative group w-10 h-10 rounded-full bg-gradient-to-br from-indigo-500 to-pink-500 p-[1px] shadow-lg mt-2 mx-auto cursor-default">
+            <div className="relative group w-10 h-10 rounded-full bg-linear-to-br from-indigo-500 to-pink-500 p-px shadow-lg mt-2 mx-auto cursor-default">
                  <div className="w-full h-full rounded-full bg-black flex items-center justify-center text-xs font-bold text-white overflow-hidden">
                     {username ? username[0].toUpperCase() : <User size={14} />}
                  </div>
