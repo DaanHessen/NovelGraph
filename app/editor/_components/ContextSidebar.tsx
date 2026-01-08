@@ -1,9 +1,10 @@
 import { usePathname } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FileText, PanelRightClose, PanelRightOpen, Map as MapIcon, Plus, Trash2, User, SlidersHorizontal } from 'lucide-react';
+import { PanelRightClose, PanelRightOpen, Map as MapIcon, Plus, Trash2, User, SlidersHorizontal } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { useGraphStore, type GraphPage } from '../graph/_store/useGraphStore';
 import SidebarItem from './SidebarItem';
+import WriteSidebarContent from '../write/_components/WriteSidebarContent';
 
 // ... existing components (GraphPageList, GraphSidebarContent, NodeEditor) ...
 
@@ -143,22 +144,7 @@ export default function ContextSidebar({ open, setOpen }: { open: boolean, setOp
   }
   else if (isWrite) {
       title = 'Manuscript';
-       content = (
-         <div className="space-y-1">
-            {[1, 2, 3].map((i) => (
-                <SidebarItem 
-                    key={i}
-                    icon={FileText}
-                    label={`Chapter ${i}`}
-                    subLabel="The Beginning..."
-                    isActive={i === 1}
-                />
-            ))}
-            <button className="w-full mt-4 py-2 border border-dashed border-white/10 rounded-lg text-xs text-gray-500 hover:text-accent hover:border-accent/20 hover:bg-accent/5 transition-all">
-                + New Chapter
-            </button>
-         </div>
-      );
+       content = <WriteSidebarContent />;
   } else if (isGraph) {
       title = 'Graphs';
       content = <GraphSidebarContent />;

@@ -1,7 +1,7 @@
 'use client';
 
 import { Suspense } from 'react';
-import { BookOpen, Users, FileText, Target, Clock, ArrowUpRight } from 'lucide-react';
+import { BookOpen, Users, FileText, Target, ArrowUpRight } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 function StatsCard({ title, value, icon: Icon, trend }: { title: string, value: string, icon: React.ComponentType<{ size: number }>, trend?: string }) {
@@ -34,75 +34,50 @@ function StatsCard({ title, value, icon: Icon, trend }: { title: string, value: 
   );
 }
 
-function EditorContent() {
+import { useManuscriptStore } from './write/_store/useManuscriptStore';
+import { useGraphStore } from './graph/_store/useGraphStore';
+import { useMemo } from 'react';
 
+function EditorContent() {
+  const { nodes } = useManuscriptStore();
+  const { pages } = useGraphStore();
+
+  const stats = useMemo(() => {
+      const chapters = nodes.filter(n => n.type === 'chapter');
+      const totalWords = chapters.reduce((acc, curr) => acc + (curr.wordCount || 0), 0);
+      
+      const allNodes = pages.flatMap(p => p.nodes);
+      const characters = allNodes.filter(n => n.data.type === 'character').length;
+      const locations = allNodes.filter(n => n.data.type === 'location').length;
+
+      return {
+          words: totalWords,
+          chapters: chapters.length,
+          characters,
+          locations
+      };
+  }, [nodes, pages]);
 
   return (
     <div className="max-w-6xl mx-auto py-10">
       <div className="flex items-center justify-between mb-12">
         <div>
             <h1 className="text-5xl font-bold text-white mb-2 tracking-tight">Overview</h1>
-            <p className="text-gray-400 text-lg">Manage your project statistics and goals.</p>
+            <p className="text-gray-400 text-lg">Your manuscript at a glance.</p>
         </div>
       </div>
       
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-         <StatsCard title="Total Words" value="12,405" icon={FileText} trend="+2.4k this week" />
-         <StatsCard title="Chapters" value="8" icon={BookOpen} />
-         <StatsCard title="Characters" value="24" icon={Users} trend="+3 new" />
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+         <StatsCard title="Total Words" value={stats.words.toLocaleString()} icon={FileText} />
+         <StatsCard title="Chapters" value={stats.chapters.toString()} icon={BookOpen} />
+         <StatsCard title="Characters" value={stats.characters.toString()} icon={Users} />
+         <StatsCard title="Locations" value={stats.locations.toString()} icon={Target} />
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          <div className="bg-card/20 border border-white/5 rounded-3xl p-8 min-h-[300px] flex flex-col justify-between relative overflow-hidden">
-               <div className="absolute inset-0 bg-linear-to-br from-accent/5 to-transparent pointer-events-none" />
-               <div>
-                  <h3 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
-                      <Target size={20} className="text-accent" />
-                       Writing Goals
-                  </h3>
-                   <div className="space-y-6">
-                       <div>
-                           <div className="flex justify-between text-sm mb-2">
-                               <span className="text-gray-400">Daily Target (1000 words)</span>
-                               <span className="text-white font-medium">75%</span>
-                           </div>
-                           <div className="h-2 w-full bg-white/5 rounded-full overflow-hidden">
-                               <div className="h-full bg-accent w-3/4 rounded-full shadow-[0_0_10px_var(--accent)]" />
-                           </div>
-                       </div>
-                        <div>
-                           <div className="flex justify-between text-sm mb-2">
-                               <span className="text-gray-400">Chapter 9 Completion</span>
-                               <span className="text-white font-medium">30%</span>
-                           </div>
-                           <div className="h-2 w-full bg-white/5 rounded-full overflow-hidden">
-                               <div className="h-full bg-blue-500 w-[30%] rounded-full shadow-[0_0_10px_#3b82f6]" />
-                           </div>
-                       </div>
-                   </div>
-               </div>
-          </div>
-
-           <div className="bg-card/20 border border-white/5 rounded-3xl p-8 min-h-[300px]">
-                <h3 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
-                   <Clock size={20} className="text-orange-400" />
-                   Recent Activity
-                </h3>
-               <div className="space-y-4">
-                   {[1, 2, 3].map((i) => (
-                       <div key={i} className="flex items-center gap-4 p-3 hover:bg-white/5 rounded-xl transition-colors cursor-pointer group">
-                           <div className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-gray-400 group-hover:text-white group-hover:bg-accent/20 transition-all">
-                               <FileText size={18} />
-                           </div>
-                           <div>
-                               <p className="text-white font-medium">Edited Chapter {9-i}</p>
-                               <p className="text-xs text-gray-500">2 hours ago</p>
-                           </div>
-                       </div>
-                   ))}
-               </div>
-           </div>
-      </div>
+       {/* Placeholder for future detailed metrics if needed, currently clean as requested */}
+       <div className="bg-white/5 border border-white/5 rounded-3xl p-12 text-center text-gray-500">
+           <p>Start writing in the &quot;Write&quot; tab or plan in the &quot;Graph&quot; tab to see your progress grow!</p>
+       </div>
     </div>
   );
 }

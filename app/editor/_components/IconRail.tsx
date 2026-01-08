@@ -130,7 +130,7 @@ export default function IconRail() {
                 className={cn(
                   "relative group flex items-center justify-center w-full aspect-square rounded-2xl transition-all duration-300",
                   pathname.includes('/settings') 
-                ? "bg-linear-to-br from-emerald-400 to-cyan-500 text-white shadow-emerald-500/25 shadow-lg scale-110" 
+                ? "bg-white/5 border border-purple-500/50 text-white shadow-[0_0_15px_rgba(168,85,247,0.2)] scale-110" 
                 : "text-gray-500 hover:text-gray-300 hover:bg-white/5"
                 )}
                 title="Settings"
