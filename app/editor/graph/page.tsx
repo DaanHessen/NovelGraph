@@ -65,44 +65,58 @@ function GraphContent() {
   // Cast store to any to avoid Zundo type issues for now
   const store = useGraphStore as any;
 
-  // 1. Initial Load
+  // 1. Initial Load (Modified for Persistence)
   useEffect(() => {
     if (!initialProjectSlug) return;
     setProjectSlug(initialProjectSlug);
     
-    setLoading(true);
-    fetch(`/api/projects/graph?project_slug=${initialProjectSlug}`)
-      .then(res => res.json())
-      .then(data => {
-        if (data.pages && data.pages.length > 0) {
-             setPages(data.pages);
-             // Use saved activePageId, or default to first page
-             const safeActiveId = data.pages.find((p: any) => p.id === data.activePageId) ? data.activePageId : data.pages[0].id;
-             setActivePage(safeActiveId);
-             
-             // Restore viewport if exists
-             const page = data.pages.find((p: any) => p.id === safeActiveId);
-             if (page && page.viewport) {
-                 setViewport(page.viewport);
-             }
-
-             isLoaded.current = true;
-        } else {
-             // Fallback if empty
-             const defaultPageId = crypto.randomUUID();
-             const newPage: any = { id: defaultPageId, name: 'Story Map', nodes: [], edges: [], viewport: { x: 0, y: 0, zoom: 1 } };
-             setPages([newPage]);
-             setActivePage(defaultPageId);
-             isLoaded.current = true;
-        }
-      })
-      .catch(err => console.error("Failed to load graph", err))
-      .finally(() => setLoading(false));
-  }, [initialProjectSlug, setPages, setActivePage, setViewport]);
+    // If we already have pages in store (from localStorage), mark as loaded immediately.
+    // background fetch can still happen to sync, but priority is local for "instant" feel.
+    if (pages.length > 0) {
+        setLoading(false);
+        isLoaded.current = true;
+    }
+    
+    // Always fetch latest in background? 
+    // If we want "instant" persistence, we should probably trust local state first.
+    // Fetching from server might overwrite unsaved local changes if we aren't careful.
+    // For now, if we have local pages, we DO NOT fetch from server on load to prevent overwrite.
+    // Ideally, we'd have a timestamp or versioning.
+    
+    if (pages.length === 0) {
+        setLoading(true);
+        fetch(`/api/projects/graph?project_slug=${initialProjectSlug}`)
+          .then(res => res.json())
+          .then(data => {
+            if (data.pages && data.pages.length > 0) {
+                 setPages(data.pages);
+                 const safeActiveId = data.pages.find((p: any) => p.id === data.activePageId) ? data.activePageId : data.pages[0].id;
+                 setActivePage(safeActiveId);
+                 
+                 const page = data.pages.find((p: any) => p.id === safeActiveId);
+                 if (page && page.viewport) {
+                     setViewport(page.viewport);
+                 }
+    
+                 isLoaded.current = true;
+            } else {
+                 const defaultPageId = crypto.randomUUID();
+                 const newPage: any = { id: defaultPageId, name: 'Story Map', nodes: [], edges: [], viewport: { x: 0, y: 0, zoom: 1 } };
+                 setPages([newPage]);
+                 setActivePage(defaultPageId);
+                 isLoaded.current = true;
+            }
+          })
+          .catch(err => console.error("Failed to load graph", err))
+          .finally(() => setLoading(false));
+    }
+  }, [initialProjectSlug, pages.length, setPages, setActivePage, setViewport]);
 
   // 2. Sync Active Page (Smart Merge)
   useEffect(() => {
-      if (!isLoaded.current) return;
+      // NOTE: We relaxed the check for activePageId/pages length in the dependency array
+      // to avoid weird loops, but we need to ensure local state sync
+      if (!isLoaded.current && pages.length === 0) return;
       if (!activePageId) return;
       
       const activePage = pages.find(p => p.id === activePageId);
@@ -125,14 +139,7 @@ function GraphContent() {
       });
       setEdges(activePage.edges);
       
-      // Sync viewport on page switch? 
-      // Only if we haven't touched it... but switching pages implies jump.
-      // But we shouldn't force setViewport on every render.
-      // We can rely on a separate mechanism or just trust the user knows.
-      // Ideally, we only setViewport when `activePageId` actually CHANGES.
-      // But `useEffect` fires on `pages` updates too (dragging).
-      // So we can't put `setViewport` here blindly.
-      // We need a separate effect that tracks *current* activePageId ref.
+      // Viewport sync logic remains separate
   }, [activePageId, pages, setNodes, setEdges]);
   
   // Separate effect for Viewport Restore on Page Change
@@ -150,12 +157,9 @@ function GraphContent() {
 
   // 3. Debounced Auto-Save
   useEffect(() => {
-    if (!isLoaded.current) return;
     if (!projectSlug) return;
     
-    // We don't save on every render, but we need to capture viewport.
-    // The viewport is in the store now (if we sync it).
-    
+    // Auto-save logic...
     const timeout = setTimeout(() => {
       setSaving(true);
       const snapshot = getSnapshot();
@@ -177,22 +181,42 @@ function GraphContent() {
   }, [projectSlug, pages, activePageId, getSnapshot]);
 
 
-  // 4. Sync Local Node Changes to Store
+  // 4. Sync Local Node Changes to Store (unchanged)
   const onNodesChangeHandler = useCallback((changes: any) => {
       onNodesChange(changes);
   }, [onNodesChange]);
 
   const onNodeDragStop = useCallback((e: any, node: any) => {
-      // update store
       const p = pages.find(p => p.id === activePageId);
       if (p) {
           const newNodes = p.nodes.map(n => n.id === node.id ? { ...n, position: node.position } : n);
           setStoreNodes(newNodes);
       }
   }, [pages, activePageId, setStoreNodes]);
+
   // 5. Keyboard Shortcuts
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
+        // Delete Node
+        if (e.key === 'Delete' || e.key === 'Backspace') {
+             // Avoid deleting if editing text inputs (though we are in a graph, check target?)
+             const target = e.target as HTMLElement;
+             if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable) return;
+
+             const selected = nodes.filter(n => n.selected);
+             if (selected.length > 0) {
+                 e.preventDefault();
+                 selected.forEach(node => {
+                     store.getState().deleteNode(node.id);
+                 });
+                 // Also remove from local state immediately to feel snappy
+                 // setNodes(nodes => nodes.filter(n => !n.selected));
+                 // (But re-render from store update will handle it?)
+                 // Store update -> useEffect syncs nodes -> UI updates.
+                 // Ideally we want it instant.
+             }
+        }
+
         // Undo/Redo
         if ((e.metaKey || e.ctrlKey) && e.key === 'z') {
             e.preventDefault();
@@ -298,7 +322,11 @@ function GraphContent() {
   }, []);
 
   if (loading && !isLoaded.current) {
-      return <div className="h-full flex items-center justify-center text-gray-500"><Loader2 className="animate-spin" /></div>;
+      return (
+        <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-50">
+            <Loader2 className="animate-spin text-gray-500" />
+        </div>
+      );
   }
   
   return (
