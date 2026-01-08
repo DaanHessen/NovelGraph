@@ -36,11 +36,9 @@ interface GraphState {
 }
 
 import { temporal } from 'zundo';
-import { persist } from 'zustand/middleware';
 
 export const useGraphStore = create<GraphState>()(
   temporal(
-    persist(
       (set, get) => ({
         pages: [],
         activePageId: '',
@@ -106,11 +104,6 @@ export const useGraphStore = create<GraphState>()(
             return { pages: state.pages, activePageId: state.activePageId };
         }
       }),
-      {
-        name: 'graph-storage',
-        partialize: (state) => ({ pages: state.pages, activePageId: state.activePageId }),
-      }
-    ),
     {
       partialize: (state) => ({ pages: state.pages }), // Only track pages (nodes/edges) history
       limit: 100

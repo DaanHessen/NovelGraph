@@ -23,6 +23,7 @@ import { useSearchParams } from 'next/navigation';
 import { Loader2, User, MapPin, FileText, GripHorizontal, Undo, Redo, Plus } from 'lucide-react';
 import { motion } from 'framer-motion';
 
+import NodeDetailsPanel from './_components/NodeDetailsPanel';
 import StoryNode from './_components/StoryNode';
 import { useGraphStore } from './_store/useGraphStore';
 
@@ -65,52 +66,76 @@ function GraphContent() {
   // Cast store to any to avoid Zundo type issues for now
   const store = useGraphStore as any;
 
-  // 1. Initial Load (Modified for Persistence)
+  // 1. Initial Load (Modified for Project-Scoped Persistence)
   useEffect(() => {
     if (!initialProjectSlug) return;
-    setProjectSlug(initialProjectSlug);
     
-    // If we already have pages in store (from localStorage), mark as loaded immediately.
-    // background fetch can still happen to sync, but priority is local for "instant" feel.
-    if (pages.length > 0) {
-        setLoading(false);
-        isLoaded.current = true;
-    }
-    
-    // Always fetch latest in background? 
-    // If we want "instant" persistence, we should probably trust local state first.
-    // Fetching from server might overwrite unsaved local changes if we aren't careful.
-    // For now, if we have local pages, we DO NOT fetch from server on load to prevent overwrite.
-    // Ideally, we'd have a timestamp or versioning.
-    
-    if (pages.length === 0) {
+    // Reset store if switching projects
+    if (projectSlug && projectSlug !== initialProjectSlug) {
+        setPages([]);
+        setActivePage('');
+        setNodes([]);
+        setEdges([]);
         setLoading(true);
-        fetch(`/api/projects/graph?project_slug=${initialProjectSlug}`)
-          .then(res => res.json())
-          .then(data => {
-            if (data.pages && data.pages.length > 0) {
-                 setPages(data.pages);
-                 const safeActiveId = data.pages.find((p: any) => p.id === data.activePageId) ? data.activePageId : data.pages[0].id;
+        isLoaded.current = false;
+    }
+
+    setProjectSlug(initialProjectSlug);
+    setLoading(true);
+
+    const storageKey = `graph-store-${initialProjectSlug}`;
+    const localData = localStorage.getItem(storageKey);
+
+    if (localData) {
+        try {
+            const parsed = JSON.parse(localData);
+            if (parsed.pages && parsed.pages.length > 0) {
+                 setPages(parsed.pages);
+                 const safeActiveId = parsed.activePageId || parsed.pages[0].id;
                  setActivePage(safeActiveId);
                  
-                 const page = data.pages.find((p: any) => p.id === safeActiveId);
+                 const page = parsed.pages.find((p: any) => p.id === safeActiveId);
                  if (page && page.viewport) {
                      setViewport(page.viewport);
                  }
-    
+
                  isLoaded.current = true;
-            } else {
-                 const defaultPageId = crypto.randomUUID();
-                 const newPage: any = { id: defaultPageId, name: 'Story Map', nodes: [], edges: [], viewport: { x: 0, y: 0, zoom: 1 } };
-                 setPages([newPage]);
-                 setActivePage(defaultPageId);
-                 isLoaded.current = true;
+                 setLoading(false);
+                 // We trust local data, but we could trigger background sync here if needed.
+                 // For now, local wins.
+                 return;
             }
-          })
-          .catch(err => console.error("Failed to load graph", err))
-          .finally(() => setLoading(false));
+        } catch (e) {
+            console.error("Failed to parse local graph data", e);
+        }
     }
-  }, [initialProjectSlug, pages.length, setPages, setActivePage, setViewport]);
+
+    // Fallback to API if no local data
+    fetch(`/api/projects/graph?project_slug=${initialProjectSlug}`)
+      .then(res => res.json())
+      .then(data => {
+        if (data.pages && data.pages.length > 0) {
+             setPages(data.pages);
+             const safeActiveId = data.pages.find((p: any) => p.id === data.activePageId) ? data.activePageId : data.pages[0].id;
+             setActivePage(safeActiveId);
+             
+             const page = data.pages.find((p: any) => p.id === safeActiveId);
+             if (page && page.viewport) {
+                 setViewport(page.viewport);
+             }
+
+             isLoaded.current = true;
+        } else {
+             const defaultPageId = crypto.randomUUID();
+             const newPage: any = { id: defaultPageId, name: 'Story Map', nodes: [], edges: [], viewport: { x: 0, y: 0, zoom: 1 } };
+             setPages([newPage]);
+             setActivePage(defaultPageId);
+             isLoaded.current = true;
+        }
+      })
+      .catch(err => console.error("Failed to load graph", err))
+      .finally(() => setLoading(false));
+  }, [initialProjectSlug, setPages, setActivePage, setViewport, projectSlug, setNodes, setEdges]);
 
   // 2. Sync Active Page (Smart Merge)
   useEffect(() => {
@@ -155,15 +180,20 @@ function GraphContent() {
   }, [activePageId, pages, setViewport]);
 
 
-  // 3. Debounced Auto-Save
+  // 3. Debounced Auto-Save (Local + Remote)
   useEffect(() => {
     if (!projectSlug) return;
     
-    // Auto-save logic...
+    // Save to LocalStorage immediately (or throttled slightly)
+    const snapshot = getSnapshot();
+    if (snapshot.pages.length > 0) {
+        const storageKey = `graph-store-${projectSlug}`;
+        localStorage.setItem(storageKey, JSON.stringify(snapshot));
+    }
+
+    // Remote Save
     const timeout = setTimeout(() => {
       setSaving(true);
-      const snapshot = getSnapshot();
-      
       fetch('/api/projects/graph', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -465,6 +495,9 @@ function GraphContent() {
         <div className="absolute top-4 right-4 z-50 text-[10px] font-mono text-gray-600 flex items-center gap-2">
             {saving ? <span className="text-yellow-500">Saving...</span> : <span>Saved</span>}
         </div>
+
+        {/* Node Details Panel */}
+        <NodeDetailsPanel />
     </div>
   );
 }
