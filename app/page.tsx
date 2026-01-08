@@ -207,7 +207,7 @@ export default function HomePage() {
              <div className="p-3 rounded-full bg-gray-800 text-gray-400 group-hover:bg-white/20 group-hover:text-white transition-colors duration-300">
                 <FolderOpen size={24} />
             </div>
-            <span className="font-medium text-gray-300 group-hover:text-white transition-colors">Open File</span>
+            <span className="font-medium text-gray-300 group-hover:text-white transition-colors">Open Project</span>
           </button>
           
           <input
