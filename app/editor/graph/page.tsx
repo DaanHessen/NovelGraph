@@ -26,6 +26,7 @@ import { motion } from 'framer-motion';
 
 import StoryNode from './_components/StoryNode';
 import { useGraphStore } from './_store/useGraphStore';
+import { useGraphSync } from './_hooks/useGraphSync';
 
 const nodeTypes = {
   story: StoryNode,
@@ -58,30 +59,8 @@ function GraphContent() {
   const [nodes, setNodes, onNodesChange] = useNodesState<Node>([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>([]);
 
-  // 6. Sync Edge Styles with Settings
-  useEffect(() => {
-     // Only run if we have edges and a setting to apply
-     if (!graphSettings?.edgeType) return;
-     
-     setEdges((currentEdges) => {
-         if (currentEdges.length === 0) return currentEdges;
-         
-         // Check if update is needed
-         const needsUpdate = currentEdges.some(e => e.type !== graphSettings.edgeType);
-         if (!needsUpdate) return currentEdges;
-
-         const newEdges = currentEdges.map(e => ({ 
-             ...e, 
-             type: graphSettings.edgeType 
-         }));
-         
-         // Update store as well so it persists
-         // We do this in a timeout to avoid strict mode/render cycle issues
-         setTimeout(() => setStoreEdges(newEdges), 0);
-         
-         return newEdges;
-     });
-  }, [graphSettings?.edgeType, setEdges, setStoreEdges]);
+  // Use the extracted hook for syncing
+  useGraphSync(graphSettings, setEdges, setStoreEdges);
   
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -468,7 +447,15 @@ function GraphContent() {
                 />
             )}
             <Controls className="bg-[#0f1113] border border-white/10 text-white" />
-            {graphSettings?.showMinimap && <MiniMap className="right-4 top-4" style={{ backgroundColor: '#0f1113', height: 100, width: 150 }} maskColor="#050505" nodeColor="#555" />}
+            {graphSettings?.showMinimap && (
+                <MiniMap 
+                    position="top-right"
+                    className="!m-4 rounded-xl border border-white/10 overflow-hidden shadow-2xl backdrop-blur-md" 
+                    style={{ height: 100, width: 150, backgroundColor: 'rgba(15, 17, 19, 0.5)' }} 
+                    maskColor="rgba(0,0,0,0.3)" 
+                    nodeColor="#555" 
+                />
+            )}
         </ReactFlow>
 
         {/* Floating Toolbar */}

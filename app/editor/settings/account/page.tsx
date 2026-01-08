@@ -3,7 +3,10 @@
 import { useState, useEffect } from 'react';
 import { Loader2 } from 'lucide-react';
 
+import SettingsHeader from '../_components/SettingsHeader';
+
 export default function AccountSettingsPage() {
+    // ... (keep state)
     const [username, setUsername] = useState('');
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
@@ -41,15 +44,16 @@ export default function AccountSettingsPage() {
     }, [username, loading]);
 
     return (
-        <div className="max-w-2xl mx-auto space-y-10 animate-in slide-in-from-bottom-4 duration-700 ease-out py-10">
-             <div className="space-y-2">
-                 <h1 className="text-3xl font-bold bg-gradient-to-r from-emerald-400 via-teal-500 to-cyan-500 bg-clip-text text-transparent tracking-tight">Profile Settings</h1>
-                 <p className="text-gray-400 font-light leading-relaxed">Manage your public persona and how you appear across the platform.</p>
-             </div>
+        <div className="max-w-4xl mx-auto space-y-10 animate-in slide-in-from-bottom-4 duration-500 ease-out py-10">
+             <SettingsHeader 
+                title="Profile Settings" 
+                description="Manage your public persona and how you appear across the platform."
+                gradient="bg-gradient-to-r from-emerald-400 via-teal-500 to-cyan-500"
+             />
 
              <div className="group relative">
-                 {/* Glow effect behind the card */}
-                 <div className="absolute -inset-0.5 bg-gradient-to-r from-emerald-500 to-cyan-500 rounded-3xl opacity-20 blur-xl group-hover:opacity-30 transition-opacity duration-1000"></div>
+                 {/* Glow effect behind the card - HOVER ONLY */}
+                 <div className="absolute -inset-0.5 bg-gradient-to-r from-emerald-500 to-cyan-500 rounded-3xl opacity-0 group-hover:opacity-30 transition-opacity duration-500"></div>
                  
                  <div className="relative space-y-8 bg-[#0a0a0a]/80 backdrop-blur-2xl border border-white/10 rounded-2xl p-8 shadow-2xl">
                      <div className="space-y-4">
