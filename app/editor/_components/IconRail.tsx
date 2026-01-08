@@ -74,7 +74,8 @@ export default function IconRail() {
   };
 
   return (
-    <div className="fixed top-0 left-0 h-full w-20 bg-[#0a0a0a]/90 backdrop-blur-xl border-r border-white/5 z-50 flex flex-col items-center py-6 shadow-2xl">
+    <div className="fixed top-0 left-0 h-full w-20 bg-background/90 backdrop-blur-xl border-r border-white/5 z-50 flex flex-col items-center py-6 shadow-2xl">
+
        {/* Logo Icon */}
        <div className="mb-8 p-2 rounded-xl bg-gradient-to-br from-accent to-purple-600 text-white shadow-[0_0_15px_var(--accent)]">
           <Globe size={24} />

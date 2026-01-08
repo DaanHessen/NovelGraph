@@ -1,22 +1,9 @@
-'use client';
-
 import { usePathname } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FileText, PanelRightClose, PanelRightOpen, Map as MapIcon, Plus, Trash2, User, SlidersHorizontal } from 'lucide-react';
-import clsx from 'clsx';
-import Link from 'next/link';
 import { useState, useEffect } from 'react';
 import { useGraphStore } from '../graph/_store/useGraphStore';
-
-function cn(...inputs: (string | undefined | null | false)[]) {
-  return clsx(inputs);
-}
-
-// ... existing interfaces ...
-interface ContextSidebarProps {
-    open: boolean;
-    setOpen: (v: boolean) => void;
-}
+import SidebarItem from './SidebarItem';
 
 // ... existing components (GraphPageList, GraphSidebarContent, NodeEditor) ...
 
@@ -64,18 +51,13 @@ function GraphSidebarContent() {
                 
                 <div className="space-y-1">
                     {pages.map(page => (
-                        <div 
-                            key={page.id}
-                            onClick={() => setActivePage(page.id)}
-                            className={cn(
-                                "group flex items-center justify-between px-3 py-2 rounded-lg cursor-pointer transition-all border border-transparent",
-                                activePageId === page.id 
-                                    ? "bg-white/5 text-white border-white/5 shadow-sm" 
-                                    : "text-gray-400 hover:bg-white/5 hover:text-white"
-                            )}
-                        >
-                            <div className="flex items-center gap-3 overflow-hidden">
-                                <MapIcon size={14} className={activePageId === page.id ? "text-emerald-500" : "text-gray-600 group-hover:text-gray-500"} />
+                        <div key={page.id} onDoubleClick={() => startEditing(page)} className="relative group">
+                            <SidebarItem
+                                icon={MapIcon}
+                                label={page.name}
+                                isActive={activePageId === page.id}
+                                onClick={() => setActivePage(page.id)}
+                            >
                                 {editingId === page.id ? (
                                     <input 
                                         autoFocus
@@ -84,27 +66,26 @@ function GraphSidebarContent() {
                                         onBlur={saveEditing}
                                         onKeyDown={(e) => e.key === 'Enter' && saveEditing()}
                                         onClick={(e) => e.stopPropagation()}
-                                        className="bg-transparent border-none outline-none text-xs w-full p-0 font-medium"
+                                        className="bg-transparent border-none outline-none text-xs w-full p-0 font-medium text-white"
                                     />
                                 ) : (
-                                    <span className="text-sm font-medium truncate select-none" onDoubleClick={() => startEditing(page)}>{page.name}</span>
+                                    <div className="flex items-center justify-between w-full">
+                                        <span className="text-xs font-medium truncate select-none">{page.name}</span>
+                                        <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                            <span className="text-[9px] text-gray-600 tabular-nums">{page.nodes.length}</span>
+                                            <button 
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    if(confirm('Delete graph?')) deletePage(page.id);
+                                                }}
+                                                className="hover:text-red-400 text-gray-600 transition-colors"
+                                            >
+                                                <Trash2 size={12} />
+                                            </button>
+                                        </div>
+                                    </div>
                                 )}
-                            </div>
-                            
-                            <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                                <div className="text-[9px] text-gray-600 tabular-nums">
-                                    {page.nodes.length} nodes
-                                </div>
-                                <button 
-                                    onClick={(e) => {
-                                        e.stopPropagation();
-                                        if(confirm('Delete graph?')) deletePage(page.id);
-                                    }}
-                                    className="p-1 hover:text-red-400 text-gray-600 transition-colors"
-                                >
-                                    <Trash2 size={12} />
-                                </button>
-                            </div>
+                            </SidebarItem>
                         </div>
                     ))}
                 </div>
@@ -119,7 +100,10 @@ function GraphSidebarContent() {
     );
 }
 
-
+interface ContextSidebarProps {
+    open: boolean;
+    setOpen: (v: boolean) => void;
+}
 
 export default function ContextSidebar({ open, setOpen }: ContextSidebarProps) {
   const pathname = usePathname();
@@ -145,27 +129,18 @@ export default function ContextSidebar({ open, setOpen }: ContextSidebarProps) {
       
       content = (
         <div className="space-y-1">
-            <Link 
+            <SidebarItem 
+                icon={User}
+                label="Profile"
                 href="/editor/settings/account"
-                className={cn(
-                    "flex items-center gap-3 px-3 py-2 rounded-lg transition-all cursor-pointer group mb-1",
-                    isProfile ? "bg-white/5 text-white shadow-sm" : "text-gray-400 hover:bg-white/5 hover:text-white"
-                )}
-            >
-                <User size={16} className={isProfile ? "text-emerald-500" : "text-gray-600 group-hover:text-gray-400"} />
-                <span className="text-sm font-medium">Profile</span>
-            </Link>
-
-            <Link 
+                isActive={isProfile}
+            />
+            <SidebarItem 
+                icon={SlidersHorizontal}
+                label="Graph Editor"
                 href="/editor/settings/graph"
-                className={cn(
-                    "flex items-center gap-3 px-3 py-2 rounded-lg transition-all cursor-pointer group",
-                    isGraphSettings ? "bg-white/5 text-white shadow-sm" : "text-gray-400 hover:bg-white/5 hover:text-white"
-                )}
-            >
-                <SlidersHorizontal size={16} className={isGraphSettings ? "text-emerald-500" : "text-gray-600 group-hover:text-gray-400"} />
-                <span className="text-sm font-medium">Graph Editor</span>
-            </Link>
+                isActive={isGraphSettings}
+            />
         </div>
       );
       title = 'Settings';
@@ -175,18 +150,13 @@ export default function ContextSidebar({ open, setOpen }: ContextSidebarProps) {
        content = (
          <div className="space-y-1">
             {[1, 2, 3].map((i) => (
-                <div key={i} className={cn(
-                    "flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all cursor-pointer group",
-                    i === 1 
-                        ? "bg-white/5 text-white border border-white/5 shadow-sm" 
-                        : "text-gray-400 hover:bg-white/5 hover:text-white border border-transparent"
-                )}>
-                    <FileText size={16} className={i === 1 ? "text-accent" : "text-gray-600 group-hover:text-gray-400"} />
-                    <div className="flex-1 min-w-0">
-                        <div className="text-sm font-medium truncate">Chapter {i}</div>
-                        <div className="text-[10px] text-gray-600 truncate">The Beginning...</div>
-                    </div>
-                </div>
+                <SidebarItem 
+                    key={i}
+                    icon={FileText}
+                    label={`Chapter ${i}`}
+                    subLabel="The Beginning..."
+                    isActive={i === 1}
+                />
             ))}
             <button className="w-full mt-4 py-2 border border-dashed border-white/10 rounded-lg text-xs text-gray-500 hover:text-accent hover:border-accent/20 hover:bg-accent/5 transition-all">
                 + New Chapter
@@ -209,7 +179,7 @@ export default function ContextSidebar({ open, setOpen }: ContextSidebarProps) {
                     animate={{ opacity: 1, x: 0 }}
                     exit={{ opacity: 0, x: -10 }}
                     onClick={() => setOpen(true)}
-                    className="fixed top-4 left-24 z-50 p-2 bg-[#0f1113]/50 backdrop-blur-md border border-white/10 rounded-lg text-gray-400 hover:text-white hover:bg-white/10 transition-colors"
+                    className="fixed top-4 left-24 z-50 p-2 bg-panel/50 backdrop-blur-md border border-white/10 rounded-lg text-gray-400 hover:text-white hover:bg-white/10 transition-colors"
                 >
                     <PanelRightOpen size={18} />
                 </motion.button>
@@ -222,7 +192,7 @@ export default function ContextSidebar({ open, setOpen }: ContextSidebarProps) {
                     initial={{ x: -100, opacity: 0 }}
                     animate={{ x: 0, opacity: 1, transition: { duration: 0.5, ease: [0.19, 1, 0.22, 1] } }}
                     exit={{ x: -50, opacity: 0, transition: { duration: 0.3, ease: "easeIn" } }}
-                    className="fixed top-0 left-20 h-full w-64 bg-[#050505] z-40 py-8 px-4 flex flex-col shadow-2xl border-r border-white/5"
+                    className="fixed top-0 left-20 h-full w-64 bg-background/95 backdrop-blur-xl z-40 py-8 px-4 flex flex-col shadow-2xl border-r border-white/5"
                 >
                     <div className="flex items-center justify-between mb-6 px-2">
                         <motion.h2 

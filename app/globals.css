@@ -1,24 +1,36 @@
 @import "tailwindcss";
 
 :root {
-  --background: #0f1113;
+  --background: #0a0a0a;
   --foreground: #e2e8f0;
+  
+  --panel: #0f1113;
+  --panel-foreground: #e2e8f0;
+
   --accent: #a78bfa;
   --accent-rgb: 167, 139, 250;
   --accent-foreground: #1e1b4b;
-  --card: #1a1d21;
+
+  --card: #0f1113;
   --card-foreground: #f8fafc;
-  --border: #2d3139;
+  
+  /* Glassmorphism helpers */
+  --glass-border: rgba(255, 255, 255, 0.05);
+  --glass-bg: rgba(15, 17, 19, 0.8);
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-panel: var(--panel);
+  --color-panel-foreground: var(--panel-foreground);
   --color-accent: var(--accent);
   --color-accent-foreground: var(--accent-foreground);
   --color-card: var(--card);
   --color-card-foreground: var(--card-foreground);
-  --color-border: var(--border);
+  
+  --color-glass-border: var(--glass-border);
+  --color-glass-bg: var(--glass-bg);
 }
 
 body {

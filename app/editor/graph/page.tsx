@@ -46,6 +46,8 @@ function GraphContent() {
       graphSettings
   } = useGraphStore();
 
+
+
   useOnSelectionChange({
     onChange: ({ nodes }) => {
         setSelectedNode(nodes.length > 0 ? nodes[0].id : null);
@@ -55,6 +57,31 @@ function GraphContent() {
   // Local ReactFlow state (synced with store)
   const [nodes, setNodes, onNodesChange] = useNodesState<Node>([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>([]);
+
+  // 6. Sync Edge Styles with Settings
+  useEffect(() => {
+     // Only run if we have edges and a setting to apply
+     if (!graphSettings?.edgeType) return;
+     
+     setEdges((currentEdges) => {
+         if (currentEdges.length === 0) return currentEdges;
+         
+         // Check if update is needed
+         const needsUpdate = currentEdges.some(e => e.type !== graphSettings.edgeType);
+         if (!needsUpdate) return currentEdges;
+
+         const newEdges = currentEdges.map(e => ({ 
+             ...e, 
+             type: graphSettings.edgeType 
+         }));
+         
+         // Update store as well so it persists
+         // We do this in a timeout to avoid strict mode/render cycle issues
+         setTimeout(() => setStoreEdges(newEdges), 0);
+         
+         return newEdges;
+     });
+  }, [graphSettings?.edgeType, setEdges, setStoreEdges]);
   
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -407,7 +434,7 @@ function GraphContent() {
   }
   
   return (
-    <div className="w-full h-screen overflow-hidden bg-[#0a0a0a] relative group" ref={constraintsRef} style={{ height: '100vh' }}>
+    <div className="w-full h-screen overflow-hidden bg-background relative group" ref={constraintsRef} style={{ height: '100vh' }}>
         <ReactFlow
             nodes={nodes}
             edges={edges}
@@ -447,7 +474,7 @@ function GraphContent() {
         {/* Floating Toolbar */}
         <Panel position="bottom-center" className="mb-8 z-40">
             <motion.div 
-                className="pointer-events-auto flex items-center gap-2 p-1.5 bg-[#0f1113]/80 backdrop-blur-xl border border-white/10 rounded-full shadow-2xl cursor-grab active:cursor-grabbing"
+                className="pointer-events-auto flex items-center gap-2 p-1.5 bg-panel/80 backdrop-blur-xl border border-white/10 rounded-full shadow-2xl cursor-grab active:cursor-grabbing"
                 drag
                 dragMomentum={false}
                 dragConstraints={constraintsRef}
