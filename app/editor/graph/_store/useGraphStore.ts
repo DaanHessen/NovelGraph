@@ -32,55 +32,65 @@ interface GraphState {
   getSnapshot: () => { pages: GraphPage[], activePageId: string };
 }
 
-export const useGraphStore = create<GraphState>((set, get) => ({
-  pages: [],
-  activePageId: '',
-  selectedNodeId: null,
+import { temporal } from 'zundo';
 
-  setPages: (pages) => set({ pages }),
-  setActivePage: (id) => set({ activePageId: id, selectedNodeId: null }),
-  setSelectedNode: (id) => set({ selectedNodeId: id }),
-  
-  addPage: (name) => set((state) => {
-    const newPage: GraphPage = {
-        id: crypto.randomUUID(),
-        name,
-        nodes: [],
-        edges: [] 
-    };
-    return { 
-        pages: [...state.pages, newPage],
-        activePageId: newPage.id
-    };
-  }),
-  
-  updatePageName: (id, name) => set((state) => ({
-      pages: state.pages.map(p => p.id === id ? { ...p, name } : p)
-  })),
-  
-  deletePage: (id) => set((state) => {
-      const newPages = state.pages.filter(p => p.id !== id);
-      const newActive = newPages.length > 0 ? newPages[0].id : '';
-      return { pages: newPages, activePageId: newActive };
-  }),
+export const useGraphStore = create<GraphState>()(
+  temporal(
+    (set, get) => ({
+      pages: [],
+      activePageId: '',
+      selectedNodeId: null,
 
-  updateNodeData: (id, data) => set((state) => ({
-      pages: state.pages.map(p => p.id === state.activePageId ? {
-          ...p,
-          nodes: p.nodes.map(n => n.id === id ? { ...n, data: { ...n.data, ...data } } : n)
-      } : p)
-  })),
+      setPages: (pages) => set({ pages }),
+      setActivePage: (id) => set({ activePageId: id, selectedNodeId: null }),
+      setSelectedNode: (id) => set({ selectedNodeId: id }),
+      
+      addPage: (name) => set((state) => {
+        const newPage: GraphPage = {
+            id: crypto.randomUUID(),
+            name,
+            nodes: [],
+            edges: [] 
+        };
+        return { 
+            pages: [...state.pages, newPage],
+            activePageId: newPage.id
+        };
+      }),
+      
+      updatePageName: (id, name) => set((state) => ({
+          pages: state.pages.map(p => p.id === id ? { ...p, name } : p)
+      })),
+      
+      deletePage: (id) => set((state) => {
+          const newPages = state.pages.filter(p => p.id !== id);
+          const newActive = newPages.length > 0 ? newPages[0].id : '';
+          return { pages: newPages, activePageId: newActive };
+      }),
 
-  setNodes: (nodes) => set((state) => ({
-      pages: state.pages.map(p => p.id === state.activePageId ? { ...p, nodes } : p)
-  })),
+      updateNodeData: (id, data) => set((state) => ({
+          pages: state.pages.map(p => p.id === state.activePageId ? {
+              ...p,
+              nodes: p.nodes.map(n => n.id === id ? { ...n, data: { ...n.data, ...data } } : n)
+          } : p)
+      })),
 
-  setEdges: (edges) => set((state) => ({
-      pages: state.pages.map(p => p.id === state.activePageId ? { ...p, edges } : p)
-  })),
-  
-  getSnapshot: () => {
-      const state = get();
-      return { pages: state.pages, activePageId: state.activePageId };
-  }
-}));
+      setNodes: (nodes) => set((state) => ({
+          pages: state.pages.map(p => p.id === state.activePageId ? { ...p, nodes } : p)
+      })),
+
+      setEdges: (edges) => set((state) => ({
+          pages: state.pages.map(p => p.id === state.activePageId ? { ...p, edges } : p)
+      })),
+      
+      getSnapshot: () => {
+          const state = get();
+          return { pages: state.pages, activePageId: state.activePageId };
+      }
+    }),
+    {
+      partialize: (state) => ({ pages: state.pages }), // Only track pages (nodes/edges) history
+      limit: 100
+    }
+  )
+);

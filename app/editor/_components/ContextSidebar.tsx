@@ -264,13 +264,13 @@ export default function ContextSidebar({ open, setOpen }: ContextSidebarProps) {
                     initial={{ x: -20, opacity: 0 }}
                     animate={{ x: 0, opacity: 1, transition: { duration: 0.4, ease: [0.22, 1, 0.36, 1] } }}
                     exit={{ x: -10, opacity: 0, transition: { duration: 0.2, ease: "easeIn" } }}
-                    className="fixed top-0 left-20 h-full w-64 bg-[#0f1113]/95 backdrop-blur-xl border-r border-white/5 z-40 py-8 px-4 flex flex-col shadow-[20px_0_40px_rgba(0,0,0,0.2)]"
+                    className="fixed top-0 left-20 h-full w-64 bg-[#050505] border-r border-white/5 z-40 py-8 px-4 flex flex-col shadow-2xl"
                 >
                     <div className="flex items-center justify-between mb-6 px-2">
                         <motion.h2 
                             initial={{ opacity: 0, y: 5 }}
                             animate={{ opacity: 1, y: 0, transition: { delay: 0.1 } }}
-                            className="text-xs font-bold text-gray-500 uppercase tracking-widest"
+                            className="text-[10px] font-bold text-gray-400 uppercase tracking-widest"
                         >
                             {title}
                         </motion.h2>
