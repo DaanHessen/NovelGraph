@@ -1,11 +1,10 @@
 'use client';
 
-import { useSearchParams } from 'next/navigation';
 import { Suspense } from 'react';
 import { BookOpen, Users, FileText, Target, Clock, ArrowUpRight } from 'lucide-react';
 import { motion } from 'framer-motion';
 
-function StatsCard({ title, value, icon: Icon, trend }: { title: string, value: string, icon: any, trend?: string }) {
+function StatsCard({ title, value, icon: Icon, trend }: { title: string, value: string, icon: React.ComponentType<{ size: number }>, trend?: string }) {
   return (
     <motion.div 
         whileHover={{ y: -5 }}
@@ -36,8 +35,7 @@ function StatsCard({ title, value, icon: Icon, trend }: { title: string, value: 
 }
 
 function EditorContent() {
-  const searchParams = useSearchParams();
-  const projectSlug = searchParams.get('project');
+
 
   return (
     <div className="max-w-6xl mx-auto py-10">
@@ -45,9 +43,6 @@ function EditorContent() {
         <div>
             <h1 className="text-5xl font-bold text-white mb-2 tracking-tight">Overview</h1>
             <p className="text-gray-400 text-lg">Manage your project statistics and goals.</p>
-        </div>
-        <div className="px-4 py-2 bg-accent/10 border border-accent/20 rounded-full text-accent font-mono text-sm">
-            {projectSlug}
         </div>
       </div>
       
@@ -59,7 +54,7 @@ function EditorContent() {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           <div className="bg-card/20 border border-white/5 rounded-3xl p-8 min-h-[300px] flex flex-col justify-between relative overflow-hidden">
-               <div className="absolute inset-0 bg-gradient-to-br from-accent/5 to-transparent pointer-events-none" />
+               <div className="absolute inset-0 bg-linear-to-br from-accent/5 to-transparent pointer-events-none" />
                <div>
                   <h3 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
                       <Target size={20} className="text-accent" />

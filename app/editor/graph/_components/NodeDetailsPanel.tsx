@@ -3,25 +3,26 @@
 import { X, Type, FileText, User, MapPin, AlignLeft } from 'lucide-react';
 import { useState } from 'react';
 import { useGraphStore } from '../_store/useGraphStore';
+import { Node } from '@xyflow/react';
 
 export default function NodeDetailsPanel() {
     const { pages, activePageId, selectedNodeId, updateNodeData, setSelectedNode } = useGraphStore();
     
     const activePage = pages.find(p => p.id === activePageId);
-    const selectedNode = activePage?.nodes.find(n => n.id === selectedNodeId);
+    const node: Node | undefined = activePage?.nodes.find(n => n.id === selectedNodeId);
 
     // State initializes from prop. Component is re-mounted when selectedNodeId changes via key={selectedNodeId} 
-    const [label, setLabel] = useState(selectedNode?.data.label as string || '');
-    const [description, setDescription] = useState(selectedNode?.data.description as string || '');
-    const [type, setType] = useState(selectedNode?.data.type as string || 'chapter');
+    const [label, setLabel] = useState(node?.data.label as string || '');
+    const [description, setDescription] = useState(node?.data.description as string || '');
+    const [type, setType] = useState(node?.data.type as string || 'chapter');
 
 
     const handleSave = (key: string, value: any) => {
-        if (!selectedNodeId) return;
-        updateNodeData(selectedNodeId, { [key]: value });
+        if (!node) return;
+        updateNodeData(node.id, { ...node.data, [key]: value });
     };
 
-    if (!selectedNode) return null;
+    if (!selectedNodeId || !node) return null;
 
     return (
         <div className="flex flex-col h-full animate-in slide-in-from-right duration-300">
@@ -110,8 +111,8 @@ export default function NodeDetailsPanel() {
                 {/* Meta Info */}
                 <div className="pt-4 border-t border-white/5">
                     <div className="flex items-center justify-between text-[9px] text-gray-700 font-mono">
-                        <span>ID: {selectedNode.id.slice(0,8)}</span>
-                        <span>{Math.round(selectedNode.position.x)}, {Math.round(selectedNode.position.y)}</span>
+                        <span>ID: {node.id.slice(0,8)}</span>
+                        <span>{Math.round(node.position.x)}, {Math.round(node.position.y)}</span>
                     </div>
                 </div>
 

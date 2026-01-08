@@ -41,7 +41,10 @@ export default function IconRail() {
   useEffect(() => {
       // Load saved slug on mount
       const saved = localStorage.getItem('last_project_slug');
-      if (saved) setStoredSlug(saved);
+      if (saved) {
+          // Defer to avoid synchronous update warning
+          setTimeout(() => setStoredSlug(saved), 0);
+      }
   }, []);
 
   useEffect(() => {
@@ -106,11 +109,10 @@ export default function IconRail() {
                  <item.icon size={22} className={cn("relative z-10 transition-transform duration-300 group-hover:scale-110", isActive && "text-accent drop-shadow-[0_0_8px_rgba(var(--accent-rgb),0.5)]")} />
                  
                  {/* Tooltip */}
-                 <div className="absolute left-full ml-4 px-3 py-1.5 bg-[#0f1113] border border-white/10 rounded-lg text-xs font-medium text-white opacity-0 group-hover:opacity-100 transition-all duration-200 pointer-events-none whitespace-nowrap z-50 translate-x-[-10px] group-hover:translate-x-0 shadow-xl">
-                    {item.label}
-                    {/* Tiny arrow */}
-                    <div className="absolute top-1/2 right-full -mt-1 -mr-[1px] border-4 border-transparent border-r-white/10" />
-                 </div>
+                    <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-1.5 bg-linear-to-br from-gray-800 to-black text-xs font-medium text-white rounded-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none border border-white/10 shadow-xl z-50 p-px">
+                        <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-black border-r border-b border-white/10 rotate-45 transform"></div>
+                        {item.label}
+                    </div>
               </Link>
             );
           })}
@@ -127,7 +129,9 @@ export default function IconRail() {
                 href={getHref('/editor/settings')}
                 className={cn(
                   "relative group flex items-center justify-center w-full aspect-square rounded-2xl transition-all duration-300",
-                  pathname.includes('/settings') ? "text-white bg-white/10 border border-white/10" : "text-gray-500 hover:text-white hover:bg-white/5"
+                  pathname.includes('/settings') 
+                ? "bg-linear-to-br from-emerald-400 to-cyan-500 text-white shadow-emerald-500/25 shadow-lg scale-110" 
+                : "text-gray-500 hover:text-gray-300 hover:bg-white/5"
                 )}
                 title="Settings"
             >
@@ -137,7 +141,9 @@ export default function IconRail() {
            {/* Exit */}
            <Link
                 href="/"
-                className="group flex items-center justify-center w-full aspect-square rounded-2xl text-gray-600 hover:text-red-400 hover:bg-red-500/10 transition-all"
+                className={clsx("w-full aspect-square rounded-2xl flex items-center justify-center transition-all duration-300",
+                  "bg-linear-to-br from-indigo-500 to-purple-600 text-white shadow-lg"
+                )}
                 title="Exit"
             >
                  <LogOut size={22} />

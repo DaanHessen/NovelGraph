@@ -100,12 +100,9 @@ function GraphSidebarContent() {
     );
 }
 
-interface ContextSidebarProps {
-    open: boolean;
-    setOpen: (v: boolean) => void;
-}
 
-export default function ContextSidebar({ open, setOpen }: ContextSidebarProps) {
+
+export default function ContextSidebar({ open, setOpen }: { open: boolean, setOpen: (v: boolean) => void }) {
   const pathname = usePathname();
   const isSettings = pathname.includes('/settings');
   const isWrite = pathname.includes('/write');

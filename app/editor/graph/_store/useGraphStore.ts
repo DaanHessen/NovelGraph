@@ -16,34 +16,36 @@ export interface GraphSettings {
     showGrid: boolean;
     showMinimap: boolean;
     snapToGrid: boolean;
+    snapGrid: [number, number];
 }
 
 interface GraphState {
-  pages: GraphPage[];
-  activePageId: string;
-  selectedNodeId: string | null;
-  graphSettings: GraphSettings;
+    // ... (keep unused parts simple/same if not changing)
+    pages: GraphPage[];
+    activePageId: string;
+    selectedNodeId: string | null;
+    graphSettings: GraphSettings;
   
-  // Actions
-  setPages: (pages: GraphPage[]) => void;
-  setActivePage: (id: string) => void;
-  setSelectedNode: (id: string | null) => void;
-  setGraphSettings: (settings: Partial<GraphSettings>) => void;
-  addPage: (name: string) => void;
-  updatePageName: (id: string, name: string) => void;
-  deletePage: (id: string) => void; // This deletes a graph page
+    // Actions
+    setPages: (pages: GraphPage[]) => void;
+    setActivePage: (id: string) => void;
+    setSelectedNode: (id: string | null) => void;
+    setGraphSettings: (settings: Partial<GraphSettings>) => void;
+    addPage: (name: string) => void;
+    updatePageName: (id: string, name: string) => void;
+    deletePage: (id: string) => void;
 
-  // Node Actions
-  updateNodeData: (id: string, data: any) => void;
-  deleteNode: (id: string) => void; // New action to delete a node from the store
+    // Node Actions
+    updateNodeData: (id: string, data: Record<string, unknown>) => void;
+    deleteNode: (id: string) => void;
 
-  // Active Page Helpers
-  setNodes: (nodes: Node[]) => void;
-  setEdges: (edges: Edge[]) => void;
-  updateViewport: (viewport: { x: number; y: number; zoom: number }) => void;
+    // Active Page Helpers
+    setNodes: (nodes: Node[]) => void;
+    setEdges: (edges: Edge[]) => void;
+    updateViewport: (viewport: { x: number; y: number; zoom: number }) => void;
   
-  // Persistence Helper
-  getSnapshot: () => { pages: GraphPage[], activePageId: string, graphSettings: GraphSettings };
+    // Persistence Helper
+    getSnapshot: () => { pages: GraphPage[], activePageId: string, graphSettings: GraphSettings };
 }
 
 import { temporal } from 'zundo';
@@ -61,6 +63,7 @@ export const useGraphStore = create<GraphState>()(
             showGrid: true,
             showMinimap: true,
             snapToGrid: true,
+            snapGrid: [15, 15],
         },
 
         setPages: (pages) => set({ pages }),

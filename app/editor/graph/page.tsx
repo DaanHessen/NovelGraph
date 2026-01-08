@@ -16,17 +16,19 @@ import {
   useReactFlow,
   ReactFlowProvider,
   Panel,
-  useOnSelectionChange
+  useOnSelectionChange,
+  ConnectionLineType
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import { useSearchParams } from 'next/navigation';
-import { Loader2, User, MapPin, FileText, GripHorizontal, Undo, Redo, Plus } from 'lucide-react';
+import { Loader2, User, MapPin, FileText, GripHorizontal, Undo, Redo } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 
 import StoryNode from './_components/StoryNode';
-import { useGraphStore } from './_store/useGraphStore';
+import { useGraphStore, type GraphPage } from './_store/useGraphStore';
 import { useGraphSync } from './_hooks/useGraphSync';
+import NodeDetailsPanel from './_components/NodeDetailsPanel';
 
 const nodeTypes = {
   story: StoryNode,
@@ -70,8 +72,10 @@ function GraphContent() {
   const constraintsRef = useRef(null);
   const { setViewport } = useReactFlow();
 
-  // Cast store to any to avoid Zundo type issues for now
-  const store = useGraphStore as any;
+  const store = useGraphStore as unknown as { 
+      temporal: { getState: () => { undo: () => void, redo: () => void } },
+      getState: () => { deleteNode: (id: string) => void }
+  };
 
   // 1. Initial Load (Modified for Project-Scoped Persistence)
   useEffect(() => {
@@ -139,7 +143,7 @@ function GraphContent() {
              isLoaded.current = true;
         } else {
              const defaultPageId = crypto.randomUUID();
-             const newPage: any = { id: defaultPageId, name: 'Story Map', nodes: [], edges: [], viewport: { x: 0, y: 0, zoom: 1 } };
+             const newPage: GraphPage = { id: defaultPageId, name: 'Story Map', nodes: [], edges: [], viewport: { x: 0, y: 0, zoom: 1 } };
              setPages([newPage]);
              setActivePage(defaultPageId);
              isLoaded.current = true;
@@ -223,12 +227,9 @@ function GraphContent() {
   }, [projectSlug, pages, activePageId, getSnapshot]);
 
 
-  // 4. Sync Local Node Changes to Store (unchanged)
-  const onNodesChangeHandler = useCallback((changes: any) => {
-      onNodesChange(changes);
-  }, [onNodesChange]);
 
-  const onNodeDragStop = useCallback((e: any, node: any) => {
+
+  const onNodeDragStop = useCallback((e: React.MouseEvent, node: Node) => {
       const p = pages.find(p => p.id === activePageId);
       if (p) {
           const newNodes = p.nodes.map(n => n.id === node.id ? { ...n, position: node.position } : n);
@@ -307,20 +308,20 @@ function GraphContent() {
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [nodes, setNodes, setStoreNodes, store]);
+  }, [nodes, setNodes, setStoreNodes]);
 
   const onConnect = useCallback((params: Connection) => {
       setEdges((eds) => addEdge(params, eds));
       setStoreEdges(addEdge(params, edges));
   }, [setEdges, setStoreEdges, edges]);
-  
+
   const addNode = (type: string) => {
     const id = crypto.randomUUID();
     const position = screenToFlowPosition({
         x: window.innerWidth / 2,
         y: window.innerHeight / 2,
     });
-    
+
     // Add jitter
     position.x += Math.random() * 50 - 25;
     position.y += Math.random() * 50 - 25;
@@ -329,23 +330,23 @@ function GraphContent() {
         id,
         type: 'story',
         position,
-        data: { 
+        data: {
             label: type === 'chapter' ? 'New Chapter' : type === 'character' ? 'New Character' : type === 'family' ? 'Family Member' : 'New Location',
             type,
             description: 'Click to edit details...'
         },
     };
-    
+
     // Update Local
     const newNodes = nodes.concat(newNode);
     setNodes(newNodes);
-    
+
     // Update Store IMMEDIATELY
     setStoreNodes(newNodes);
   };
 
   // Viewport Sync
-  const onMoveEnd = useCallback((event: any, viewport: any) => {
+  const onMoveEnd = useCallback((event: unknown, viewport: { x: number; y: number; zoom: number }) => {
       updateViewport(viewport);
   }, [updateViewport]);
 
@@ -387,12 +388,12 @@ function GraphContent() {
   }, []);
 
   // Viewport Metric Sync
-  const onMove = useCallback((evt: any, viewport: any) => {
-     setMetrics(prev => ({ 
-         ...prev, 
-         x: Math.round(viewport.x), 
-         y: Math.round(viewport.y), 
-         zoom: Number(viewport.zoom.toFixed(2)) 
+  const onMove = useCallback((evt: unknown, viewport: { x: number; y: number; zoom: number }) => {
+     setMetrics(prev => ({
+         ...prev,
+         x: Math.round(viewport.x),
+         y: Math.round(viewport.y),
+         zoom: Number(viewport.zoom.toFixed(2))
      }));
   }, []);
 
@@ -411,13 +412,13 @@ function GraphContent() {
           </div>
       );
   }
-  
+
   return (
-    <div className="w-full h-screen overflow-hidden bg-background relative group" ref={constraintsRef} style={{ height: '100vh' }}>
+    <div className="w-full h-full text-foreground" ref={constraintsRef}>
         <ReactFlow
             nodes={nodes}
             edges={edges}
-            onNodesChange={onNodesChangeHandler}
+            onNodesChange={onNodesChange}
             onEdgesChange={onEdgesChange}
             onNodeDragStop={onNodeDragStop}
             onConnect={onConnect}
@@ -429,9 +430,14 @@ function GraphContent() {
             minZoom={0.1}
             maxZoom={2}
             snapToGrid={graphSettings?.snapToGrid}
-            snapGrid={[20, 20]} // Fixed spacing for now, or add to settings if needed
+            snapGrid={graphSettings?.snapGrid}
             proOptions={{ hideAttribution: true }}
-            connectionLineType={graphSettings?.connectionLineType as any}
+            connectionLineType={
+                graphSettings?.connectionLineType === 'straight' ? ConnectionLineType.Straight :
+                graphSettings?.connectionLineType === 'step' ? ConnectionLineType.Step :
+                graphSettings?.connectionLineType === 'smoothstep' ? ConnectionLineType.SmoothStep :
+                ConnectionLineType.Bezier
+            }
             defaultEdgeOptions={{
                 type: graphSettings?.edgeType,
                 animated: true,
@@ -439,90 +445,92 @@ function GraphContent() {
             }}
         >
             {graphSettings?.showGrid && (
-                <Background 
-                    color="#333" 
-                    gap={graphSettings?.gridType === 'dots' ? 20 : 40} 
-                    size={1} 
-                    variant={graphSettings?.gridType === 'lines' ? BackgroundVariant.Lines : graphSettings?.gridType === 'cross' ? BackgroundVariant.Cross : BackgroundVariant.Dots} 
+                <Background
+                    color="#333"
+                    gap={graphSettings?.gridType === 'dots' ? 20 : 40}
+                    size={1}
+                    variant={
+                        graphSettings?.gridType === 'lines' ? BackgroundVariant.Lines :
+                        graphSettings?.gridType === 'cross' ? BackgroundVariant.Cross :
+                        BackgroundVariant.Dots
+                    }
                 />
             )}
             <Controls className="bg-[#0f1113] border border-white/10 text-white" />
             {graphSettings?.showMinimap && (
-                <MiniMap 
+                <MiniMap
                     position="top-right"
-                    className="!m-4 rounded-xl border border-white/10 overflow-hidden shadow-2xl backdrop-blur-md" 
-                    style={{ height: 100, width: 150, backgroundColor: 'rgba(15, 17, 19, 0.5)' }} 
-                    maskColor="rgba(0,0,0,0.3)" 
-                    nodeColor="#555" 
+                    className="!m-4 rounded-xl border border-white/10 overflow-hidden shadow-2xl backdrop-blur-md"
+                    style={{ height: 100, width: 150, backgroundColor: 'rgba(15, 17, 19, 0.5)' }}
+                    maskColor="rgba(0,0,0,0.3)"
+                    nodeColor="#555"
                 />
             )}
+            <Panel position="bottom-center" className="mb-8 z-40">
+                <motion.div
+                    className="pointer-events-auto flex items-center gap-2 p-1.5 bg-panel/80 backdrop-blur-xl border border-white/10 rounded-full shadow-2xl cursor-grab active:cursor-grabbing"
+                    drag
+                    dragMomentum={false}
+                    dragConstraints={constraintsRef}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{
+                        opacity: toolbarLoaded ? 1 : 0,
+                        y: toolbarLoaded ? (toolbarPos.y || 0) : 20,
+                        x: toolbarLoaded ? (toolbarPos.x || 0) : 0
+                    }}
+                >
+                     <div className="pl-3 pr-1 text-gray-500">
+                         <GripHorizontal size={14} />
+                     </div>
+                     <div className="w-px h-4 bg-white/10" />
+
+                     <button
+                       onClick={() => addNode('chapter')}
+                       className="flex items-center gap-2 px-3 py-1.5 rounded-full hover:bg-white/10 transition-colors text-xs font-medium text-white"
+                     >
+                         <FileText size={14} className="text-accent" />
+                         <span>Chapter</span>
+                     </button>
+                      <button
+                       onClick={() => addNode('character')}
+                       className="flex items-center gap-2 px-3 py-1.5 rounded-full hover:bg-white/10 transition-colors text-xs font-medium text-white"
+                     >
+                         <User size={14} className="text-pink-500" />
+                         <span>Character</span>
+                     </button>
+                      <button
+                       onClick={() => addNode('location')}
+                       className="flex items-center gap-2 px-3 py-1.5 rounded-full hover:bg-white/10 transition-colors text-xs font-medium text-white"
+                     >
+                         <MapPin size={14} className="text-emerald-500" />
+                         <span>Location</span>
+                     </button>
+
+                     <div className="w-px h-4 bg-white/10" />
+
+                     <button onClick={() => useGraphStore.temporal.getState().undo()} className="p-2 rounded-full hover:bg-white/10 text-white/50 hover:text-white transition-colors" title="Undo (Ctrl+Z)">
+                         <Undo size={14} />
+                     </button>
+                     <button onClick={() => useGraphStore.temporal.getState().redo()} className="p-2 rounded-full hover:bg-white/10 text-white/50 hover:text-white transition-colors" title="Redo (Ctrl+Y)">
+                         <Redo size={14} />
+                     </button>
+                </motion.div>
+            </Panel>
+
+            <Panel position="bottom-right" className="m-4">
+                <div className="text-[10px] font-mono text-gray-600 flex items-center gap-4 bg-[#0f1113]/80 backdrop-blur border border-white/5 px-3 py-1.5 rounded-full pointer-events-none select-none">
+                     <span>{metrics.fps} FPS</span>
+                     <span className="text-gray-700">|</span>
+                     <span>X: {metrics.x}</span>
+                     <span>Y: {metrics.y}</span>
+                     <span>Z: {metrics.zoom}x</span>
+                     <span className="text-gray-700">|</span>
+                    {saving ? <span className="text-yellow-500">Saving...</span> : <span>Saved</span>}
+                </div>
+            </Panel>
         </ReactFlow>
 
-        {/* Floating Toolbar */}
-        <Panel position="bottom-center" className="mb-8 z-40">
-            <motion.div 
-                className="pointer-events-auto flex items-center gap-2 p-1.5 bg-panel/80 backdrop-blur-xl border border-white/10 rounded-full shadow-2xl cursor-grab active:cursor-grabbing"
-                drag
-                dragMomentum={false}
-                dragConstraints={constraintsRef}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ 
-                    opacity: toolbarLoaded ? 1 : 0, 
-                    y: toolbarLoaded ? (toolbarPos.y || 0) : 20,
-                    x: toolbarLoaded ? (toolbarPos.x || 0) : 0
-                }}
-            >
-                 <div className="pl-3 pr-1 text-gray-500">
-                     <GripHorizontal size={14} />
-                 </div>
-                 <div className="w-px h-4 bg-white/10" />
-                 
-                 <button 
-                   onClick={() => addNode('chapter')}
-                   className="flex items-center gap-2 px-3 py-1.5 rounded-full hover:bg-white/10 transition-colors text-xs font-medium text-white"
-                 >
-                     <FileText size={14} className="text-accent" />
-                     <span>Chapter</span>
-                 </button>
-                  <button 
-                   onClick={() => addNode('character')}
-                   className="flex items-center gap-2 px-3 py-1.5 rounded-full hover:bg-white/10 transition-colors text-xs font-medium text-white"
-                 >
-                     <User size={14} className="text-pink-500" />
-                     <span>Character</span>
-                 </button>
-                  <button 
-                   onClick={() => addNode('location')}
-                   className="flex items-center gap-2 px-3 py-1.5 rounded-full hover:bg-white/10 transition-colors text-xs font-medium text-white"
-                 >
-                     <MapPin size={14} className="text-emerald-500" />
-                     <span>Location</span>
-                 </button>
- 
-                 <div className="w-px h-4 bg-white/10" />
-                 
-                 <button onClick={() => store.temporal.getState().undo()} className="p-2 rounded-full hover:bg-white/10 text-white/50 hover:text-white transition-colors" title="Undo (Ctrl+Z)">
-                     <Undo size={14} />
-                 </button>
-                 <button onClick={() => store.temporal.getState().redo()} className="p-2 rounded-full hover:bg-white/10 text-white/50 hover:text-white transition-colors" title="Redo (Ctrl+Y)">
-                     <Redo size={14} />
-                 </button>
-            </motion.div>
-        </Panel>
-        
-        {/* Metrics Display */}
-        <div className="absolute bottom-4 right-4 z-40 text-[10px] font-mono text-gray-600 flex items-center gap-4 bg-[#0f1113]/80 backdrop-blur border border-white/5 px-3 py-1.5 rounded-full pointer-events-none select-none">
-             <span>{metrics.fps} FPS</span>
-             <span className="text-gray-700">|</span>
-             <span>X: {metrics.x}</span>
-             <span>Y: {metrics.y}</span>
-             <span>Z: {metrics.zoom}x</span>
-             <span className="text-gray-700">|</span>
-            {saving ? <span className="text-yellow-500">Saving...</span> : <span>Saved</span>}
-        </div>
-
-        {/* Node Details Panel */}
-
+        <NodeDetailsPanel />
     </div>
   );
 }

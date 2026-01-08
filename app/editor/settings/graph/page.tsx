@@ -5,7 +5,9 @@ import { Map as MapIcon, Magnet, ArrowRight, Activity, Grid } from 'lucide-react
 import clsx from 'clsx';
 import SettingsHeader from '../_components/SettingsHeader';
 
-function Select({ value, onChange, options, icon: Icon }: { value: string, onChange: (v: string) => void, options: { label: string, value: string }[], icon: any }) {
+
+// Use React.ComponentType for the icon prop to avoid 'any'
+function Select({ value, onChange, options, icon: Icon }: { value: string, onChange: (v: string) => void, options: { label: string, value: string }[], icon: React.ComponentType<{ size: number }> }) {
     return (
         <div className="relative">
             <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none">
@@ -35,7 +37,7 @@ function Toggle({ value, onChange }: { value: boolean, onChange: (v: boolean) =>
             onClick={() => onChange(!value)}
             className={clsx(
                 "relative h-6 w-11 rounded-full transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-[#0a0a0a] focus:ring-indigo-500",
-                value ? "bg-gradient-to-r from-indigo-500 to-purple-500" : "bg-white/10"
+                value ? "bg-linear-to-r from-indigo-500 to-purple-500" : "bg-white/10"
             )}
         >
             <span 
@@ -60,9 +62,9 @@ function SettingsSection({ title, children }: { title: string, children: React.R
     );
 }
 
-function SettingRow({ icon: Icon, label, description, control }: { icon: any, label: string, description?: string, control: React.ReactNode }) {
+function SettingRow({ icon: Icon, label, description, control }: { icon: React.ComponentType<{ size: number }>, label: string, description?: string, control: React.ReactNode }) {
     return (
-        <div className="flex items-center justify-between p-4 hover:bg-white/[0.02] transition-colors">
+        <div className="flex items-center justify-between p-4 hover:bg-white/2 transition-colors">
             <div className="flex items-start gap-4">
                 <div className="p-2 bg-white/5 rounded-lg text-gray-400 mt-0.5">
                     <Icon size={18} />
@@ -72,7 +74,7 @@ function SettingRow({ icon: Icon, label, description, control }: { icon: any, la
                     {description && <div className="text-xs text-gray-500 leading-relaxed">{description}</div>}
                 </div>
             </div>
-            <div className="flex-shrink-0 ml-4">
+            <div className="shrink-0 ml-4">
                 {control}
             </div>
         </div>
@@ -84,7 +86,7 @@ export default function GraphSettingsPage() {
     
     if (!graphSettings) return null;
 
-    const update = (key: keyof GraphSettings, value: any) => {
+    const update = (key: keyof GraphSettings, value: unknown) => {
         setGraphSettings({ [key]: value });
     };
 
@@ -93,7 +95,6 @@ export default function GraphSettingsPage() {
              <SettingsHeader 
                 title="Graph Experience" 
                 description="Customize interactions, visual style, and performance of the node graph."
-                gradient="bg-gradient-to-r from-indigo-400 via-purple-500 to-pink-500"
              />
 
              <div className="space-y-8">
@@ -108,7 +109,7 @@ export default function GraphSettingsPage() {
                                     value={graphSettings.edgeType}
                                     onChange={(v) => update('edgeType', v)}
                                     options={[
-                                        { label: 'Beziér Curves', value: 'default' },
+                                        { label: 'Bezier Curves', value: 'default' },
                                         { label: 'Straight Lines', value: 'straight' },
                                         { label: 'Stepped', value: 'step' },
                                         { label: 'Smooth Stepped', value: 'smoothstep' },
@@ -150,7 +151,7 @@ export default function GraphSettingsPage() {
                                     value={graphSettings.connectionLineType}
                                     onChange={(v) => update('connectionLineType', v)}
                                     options={[
-                                        { label: 'Beziér Curves', value: 'default' },
+                                        { label: 'Bezier Curves', value: 'default' },
                                         { label: 'Straight', value: 'straight' },
                                         { label: 'Stepped', value: 'step' },
                                         { label: 'Smooth Stepped', value: 'smoothstep' },
@@ -173,7 +174,27 @@ export default function GraphSettingsPage() {
                         label="Snap to Grid"
                         description="Automatically align nodes to the grid layout."
                         control={
-                            <Toggle value={graphSettings.snapToGrid} onChange={(v) => update('snapToGrid', v)} />
+                            <div className="flex items-center gap-3">
+                                {graphSettings.snapToGrid && (
+                                    <div className="w-24">
+                                         <Select 
+                                            value={String(graphSettings.snapGrid?.[0] || 15)}
+                                            onChange={(v) => {
+                                                const size = parseInt(v);
+                                                update('snapGrid', [size, size]);
+                                            }}
+                                            options={[
+                                                { label: '10px', value: '10' },
+                                                { label: '15px', value: '15' },
+                                                { label: '20px', value: '20' },
+                                                { label: '25px', value: '25' },
+                                            ]}
+                                            icon={Grid}
+                                        />
+                                    </div>
+                                )}
+                                <Toggle value={graphSettings.snapToGrid} onChange={(v) => update('snapToGrid', v)} />
+                            </div>
                         }
                     />
                      <SettingRow 
