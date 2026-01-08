@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { usePathname, useSearchParams } from 'next/navigation';
-import { Home, Globe, Network, PenTool, Settings, LogOut, User } from 'lucide-react';
+import { Home, Globe, Network, PenTool, Settings, LogOut, User, Download } from 'lucide-react';
 import { motion } from 'framer-motion';
 import clsx from 'clsx';
 import { useState, useEffect } from 'react';
@@ -62,6 +62,7 @@ export default function IconRail() {
     { label: 'Write', icon: PenTool, href: '/editor/write' },
     { label: 'World', icon: Globe, href: '/editor/world' },
     { label: 'Graph', icon: Network, href: '/editor/graph' },
+    { label: 'Export', icon: Download, href: '/editor/export' },
   ];
   
   // Helper to construct href with slug if needed

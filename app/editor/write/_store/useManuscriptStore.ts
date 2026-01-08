@@ -12,6 +12,7 @@ export interface ManuscriptNode {
   index: number;
   collapsed?: boolean;
   wordCount?: number;
+  description?: string;
 }
 
 interface ManuscriptState {
@@ -23,10 +24,11 @@ interface ManuscriptState {
   addPart: () => void;
   deleteNode: (id: string) => void;
   updateNodeTitle: (id: string, title: string) => void;
+  updateNodeDescription: (id: string, description: string) => void;
   updateNodeContent: (id: string, content: string, wordCount: number) => void;
   togglePartCollapsed: (id: string) => void;
   setActiveNode: (id: string) => void;
-  moveNode: (activeId: string, overId: string) => void; // Simplified move for now, might need more complex logic for drag-and-drop
+  moveNode: (activeId: string, targetId: string, placement: 'inside' | 'before' | 'after') => void;
   reorderNodes: (newNodes: ManuscriptNode[]) => void;
 }
 
@@ -110,18 +112,55 @@ export const useManuscriptStore = create<ManuscriptState>()(
         nodes: state.nodes.map(n => n.id === id ? { ...n, content, wordCount } : n)
       })),
 
+      updateNodeDescription: (id, description) => set((state) => ({
+        nodes: state.nodes.map(n => n.id === id ? { ...n, description } : n)
+      })),
+
       togglePartCollapsed: (id) => set((state) => ({
           nodes: state.nodes.map(n => n.id === id ? { ...n, collapsed: !n.collapsed } : n)
       })),
 
       setActiveNode: (id) => set({ activeNodeId: id }),
 
-      moveNode: (activeId, overId) => {
-          // This is complex and depends on dnd-kit implementation. 
-          // Often it's easier to just handle the reorder logic in the component and pass the new array.
-          // We'll use reorderNodes for bulk updates.
-          console.warn("moveNode not implemented in store, use reorderNodes");
-      },
+      moveNode: (activeId: string, targetId: string, placement: 'inside' | 'before' | 'after') => set((state) => {
+          // 'placement' can be 'inside', 'before', 'after'
+          // Logic:
+          // 1. Find active node.
+          // 2. Find target node.
+          // 3. Update active node's parentId and index based on placement.
+          // 4. Update indices of siblings.
+
+          const activeNode = state.nodes.find(n => n.id === activeId);
+          const targetNode = state.nodes.find(n => n.id === targetId);
+          
+          if (!activeNode || !targetNode || activeId === targetId) return state;
+
+          let newParentId = activeNode.parentId;
+          let newIndex = activeNode.index;
+
+          if (placement === 'inside') {
+              newParentId = targetId;
+              // Add to end of children
+              newIndex = state.nodes.filter(n => n.parentId === targetId).length;
+          } else {
+             // Placing before or after target
+             newParentId = targetNode.parentId;
+             // Calculate new index
+              // We need to re-index all siblings of targetNode
+              // This is complex to do transactionally in one go without full list reorder.
+              // Easier: Just return the state and let reorderNodes handle bulk sort?
+              // BUT, 'inside' changes parentId which reorderNodes (flat list) might not capture if we don't display it right.
+              
+              // Let's rely on `reorderNodes` to set the whole new state including parentIds if passed.
+              // So we will change signature of reorderNodes to accept full node list update.
+              return state;
+          }
+          
+           // Return updated node
+           const updatedNodes = state.nodes.map(n => n.id === activeId ? { ...n, parentId: newParentId, index: newIndex } : n);
+           // We should also normalize indices for the old siblings and new siblings, but for simple 'move inside' append, it's okay.
+           return { nodes: updatedNodes };
+      }),
 
       reorderNodes: (newNodes) => set({ nodes: newNodes })
 

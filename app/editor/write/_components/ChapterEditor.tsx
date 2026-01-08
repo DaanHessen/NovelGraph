@@ -4,15 +4,16 @@ import Placeholder from '@tiptap/extension-placeholder';
 import Underline from '@tiptap/extension-underline';
 import Typography from '@tiptap/extension-typography';
 import CharacterCount from '@tiptap/extension-character-count';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useManuscriptStore } from '../_store/useManuscriptStore';
+import { FolderOpen } from 'lucide-react';
 
 export default function ChapterEditor() {
-    const { activeNodeId, nodes, updateNodeContent } = useManuscriptStore();
+    const { activeNodeId, nodes, updateNodeContent, updateNodeTitle, updateNodeDescription } = useManuscriptStore();
     const activeNode = nodes.find(n => n.id === activeNodeId);
     
-    // Add local state to track if we're saving to avoid re-render loops or cursor jumps
-    // Tiptap handles its own state well, but we need to push to store.
+    // Language state for spellcheck
+    const [language, setLanguage] = useState('en');
 
     const editor = useEditor({
         extensions: [
@@ -27,71 +28,94 @@ export default function ChapterEditor() {
         editorProps: {
             attributes: {
                 class: 'prose prose-invert prose-lg max-w-none focus:outline-none min-h-[50vh]',
-                spellcheck: 'true', // Native spellcheck for red wobbly lines
+                spellcheck: 'true',
+                lang: language, // Explicit language for spellcheck
             },
         },
         onUpdate: ({ editor }) => {
             if (activeNodeId) {
-                // We update the store on every keystroke? Maybe debounce in real app, but for now direct is fine for responsiveness.
-                // Actually, store updates trigger re-renders. 
-                // Since this component uses `activeNode` from store, it might re-render.
-                // But `activeNode` changes will be referential.
-                // We should be careful not to reset editor content if the update came from us.
                 updateNodeContent(activeNodeId, editor.getHTML(), editor.storage.characterCount.words());
             }
         },
-    });
+    }, [activeNodeId, language]); // Re-create editor if ID or Language changes
 
-    // When the active node changes, we must update the editor content.
     useEffect(() => {
-        if (editor && activeNode) {
-            // Only set content if it's different to avoid cursor jumps?
-            // Tiptap's setContent keeps history if not emitted?
-            // Actually, we check if the content in editor matches node content.
-            // But node content might be stale vs editor if we just typed.
-            // If we switched chapters, we definitely want to setContent.
-            
-            // To distinguish "Switched Chapter" from "Typed and Store Updated", we rely on activeNodeId change?
-            // But if we define `useEffect` on `activeNodeId`, we are good.
-            // If we define it on `activeNode`, it triggers on every keystroke save.
-            
-            // So we separate the effect:
-            // 1. One generic effect to handle content setting WHEN active ID changes.
-        }
-    }, [activeNodeId, editor]); // activeNode excluded to avoid re-loop
-
-    // We also need to set content initially or when activeNodeId changes
-    useEffect(() => {
-        if (editor && activeNode) {
+        if (editor && activeNode && activeNode.type === 'chapter') {
             const currentContent = editor.getHTML();
             if (currentContent !== activeNode.content) {
-                // If the IDs match (we are looking at the node), and content differs.
-                // Wait, if we just typed, `activeNode.content` is updated by us.
-                // So `currentContent` === `activeNode.content` roughly.
-                // BUT if we switch chapters, `activeNode` is the NEW chapter.
-                // So `currentContent` (old chapter) != `activeNode.content` (new chapter).
-                
-                // We basically want to set content ONLY when we switch to a new ID.
                 editor.commands.setContent(activeNode.content || '');
             }
         }
-    }, [activeNodeId, editor]); // Only when ID changes (or editor inits)
+    }, [activeNodeId, editor, activeNode]); 
 
-    if (!activeNode || activeNode.type === 'part') {
+    if (!activeNode) {
         return (
             <div className="flex items-center justify-center h-[50vh] text-gray-500">
-                Select a chapter to start writing.
+                Select a chapter or part to view.
+            </div>
+        );
+    }
+
+    // Part / Folder View
+    if (activeNode.type === 'part') {
+        return (
+             <div className="max-w-2xl mx-auto py-20 animate-in fade-in duration-300">
+                <div className="bg-white/5 border border-white/10 rounded-xl p-8 space-y-6">
+                    <div className="flex items-center gap-4 text-purple-400 mb-4">
+                        <FolderOpen size={32} />
+                        <h2 className="text-sm font-bold uppercase tracking-widest text-gray-400">Folder Details</h2>
+                    </div>
+                    
+                    <div className="space-y-2">
+                        <label className="text-xs uppercase font-bold text-gray-500">Title</label>
+                        <input 
+                            value={activeNode.title}
+                            onChange={(e) => updateNodeTitle(activeNode.id, e.target.value)}
+                            className="w-full bg-transparent text-3xl font-serif text-white outline-none border-b border-white/10 focus:border-purple-500 transition-colors pb-2 placeholder-gray-600"
+                            placeholder="Folder Name"
+                        />
+                    </div>
+
+                    <div className="space-y-2">
+                        <label className="text-xs uppercase font-bold text-gray-500">Description / Subtext</label>
+                        <textarea 
+                            value={activeNode.description || ''}
+                            onChange={(e) => updateNodeDescription(activeNode.id, e.target.value)}
+                            className="w-full bg-transparent text-lg text-gray-300 outline-none border-b border-white/10 focus:border-purple-500 transition-colors pb-2 resize-none h-32 placeholder-gray-600"
+                            placeholder="Add a brief description or subtext for this part..."
+                        />
+                    </div>
+                    
+                    <div className="pt-4 flex items-center gap-2 text-xs text-gray-500">
+                        <span>Folder ID: {activeNode.id}</span>
+                    </div>
+                </div>
             </div>
         );
     }
 
     return (
         <div className="max-w-3xl mx-auto py-10 animate-in fade-in duration-500">
-            <div className="mb-8">
-                <h1 className="text-4xl font-serif text-white mb-2">{activeNode.title}</h1>
-                <p className="text-gray-400 font-serif italic text-sm">
-                    {editor?.storage.characterCount.words()} words
-                </p>
+            <div className="mb-8 flex items-end justify-between">
+                <div>
+                    <h1 className="text-4xl font-serif text-white mb-2">{activeNode.title}</h1>
+                    <p className="text-gray-400 font-serif italic text-sm">
+                        {editor?.storage.characterCount.words()} words
+                    </p>
+                </div>
+                
+                {/* Language / Spellcheck Selection */}
+                <select 
+                    value={language}
+                    onChange={(e) => setLanguage(e.target.value)}
+                    className="bg-zinc-900 border border-white/10 text-xs text-gray-400 rounded px-2 py-1 outline-none hover:border-purple-500 transition-colors"
+                >
+                    <option value="en">English</option>
+                    <option value="nl">Dutch</option>
+                    <option value="de">German</option>
+                    <option value="fr">French</option>
+                    <option value="es">Spanish</option>
+                </select>
             </div>
             
             <EditorContent editor={editor} />

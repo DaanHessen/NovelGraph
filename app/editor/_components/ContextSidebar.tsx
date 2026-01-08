@@ -1,13 +1,11 @@
 import { usePathname } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import { PanelRightClose, PanelRightOpen, Map as MapIcon, Plus, Trash2, User, SlidersHorizontal } from 'lucide-react';
+import { PanelRightClose, PanelRightOpen, Map as MapIcon, Plus, Trash2, User, SlidersHorizontal, Settings } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { useGraphStore, type GraphPage } from '../graph/_store/useGraphStore';
 import SidebarItem from './SidebarItem';
 import WriteSidebarContent from '../write/_components/WriteSidebarContent';
-
-// ... existing components (GraphPageList, GraphSidebarContent, NodeEditor) ...
-
+import ExportSidebarContent from '../export/_components/ExportSidebarContent';
 import NodeDetailsPanel from '../graph/_components/NodeDetailsPanel';
 
 function GraphSidebarContent() {
@@ -100,21 +98,20 @@ function GraphSidebarContent() {
     );
 }
 
-
-
 export default function ContextSidebar({ open, setOpen }: { open: boolean, setOpen: (v: boolean) => void }) {
   const pathname = usePathname();
   const isSettings = pathname.includes('/settings');
   const isWrite = pathname.includes('/write');
   const isGraph = pathname.includes('/graph');
+  const isExport = pathname.includes('/export');
 
   useEffect(() => {
-    if (isSettings || isWrite || isGraph) {
+    if (isSettings || isWrite || isGraph || isExport) {
         setOpen(true);
     } else {
         setOpen(false);
     }
-  }, [isSettings, isWrite, isGraph, setOpen]);
+  }, [isSettings, isWrite, isGraph, isExport, setOpen]);
 
   // Decide which content to show
   let content = null;
@@ -145,6 +142,9 @@ export default function ContextSidebar({ open, setOpen }: { open: boolean, setOp
   else if (isWrite) {
       title = 'Manuscript';
        content = <WriteSidebarContent />;
+  } else if (isExport) {
+      title = 'Export';
+      content = <ExportSidebarContent />;
   } else if (isGraph) {
       title = 'Graphs';
       content = <GraphSidebarContent />;
@@ -155,7 +155,7 @@ export default function ContextSidebar({ open, setOpen }: { open: boolean, setOp
   return (
     <>
         <AnimatePresence>
-            {!open && (isSettings || isWrite || isGraph) && (
+            {!open && (isSettings || isWrite || isGraph || isExport) && (
                 <motion.button
                     initial={{ opacity: 0, x: -10 }}
                     animate={{ opacity: 1, x: 0 }}
