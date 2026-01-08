@@ -2,7 +2,7 @@
 
 import { usePathname } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Settings, FileText, ChevronRight, ChevronsRight, PanelRightClose, PanelRightOpen, Map as MapIcon, Plus, Trash2 } from 'lucide-react';
+import { FileText, PanelRightClose, PanelRightOpen, Map as MapIcon, Plus, Trash2, User, SlidersHorizontal } from 'lucide-react';
 import clsx from 'clsx';
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
@@ -12,169 +12,121 @@ function cn(...inputs: (string | undefined | null | false)[]) {
   return clsx(inputs);
 }
 
+// ... existing interfaces ...
 interface ContextSidebarProps {
     open: boolean;
     setOpen: (v: boolean) => void;
 }
 
-function GraphPageList() {
-    const { pages, activePageId, setActivePage, addPage, deletePage, updatePageName } = useGraphStore();
+// ... existing components (GraphPageList, GraphSidebarContent, NodeEditor) ...
+
+import NodeDetailsPanel from '../graph/_components/NodeDetailsPanel';
+
+function GraphSidebarContent() {
+    const { pages, activePageId, setActivePage, addPage, deletePage, updatePageName, selectedNodeId } = useGraphStore();
     const [editingId, setEditingId] = useState<string | null>(null);
     const [editName, setEditName] = useState('');
 
-    const startEditing = (e: React.MouseEvent, page: { id: string, name: string }) => {
-        e.stopPropagation();
+    // If a node is selected, show details panel instead of page list
+    if (selectedNodeId) {
+        return <NodeDetailsPanel key={selectedNodeId} />;
+    }
+
+    const handleCreatePage = () => {
+        addPage('New Graph');
+    };
+
+    const startEditing = (page: any) => {
         setEditingId(page.id);
         setEditName(page.name);
     };
 
-    const saveName = () => {
+    const saveEditing = () => {
         if (editingId && editName.trim()) {
-            updatePageName(editingId, editName.trim());
+            updatePageName(editingId, editName);
         }
         setEditingId(null);
     };
 
     return (
-        <div className="space-y-1">
-            {pages.map((page) => (
-                <div 
-                    key={page.id} 
-                    onClick={() => setActivePage(page.id)}
-                    className={cn(
-                        "flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all cursor-pointer group relative",
-                        page.id === activePageId
-                            ? "bg-white/5 text-white border border-white/5 shadow-sm" 
-                            : "text-gray-400 hover:bg-white/5 hover:text-white border border-transparent"
-                    )}
-                >
-                    <MapIcon size={16} className={page.id === activePageId ? "text-emerald-500" : "text-gray-600 group-hover:text-gray-400"} />
-                    <div className="flex-1 min-w-0">
-                        {editingId === page.id ? (
-                            <input
-                                autoFocus
-                                value={editName}
-                                onChange={(e) => setEditName(e.target.value)}
-                                onBlur={saveName}
-                                onKeyDown={(e) => e.key === 'Enter' && saveName()}
-                                onClick={(e) => e.stopPropagation()}
-                                className="w-full bg-black/50 text-xs border border-accent/50 rounded px-1 py-0.5 outline-none text-white"
-                            />
-                        ) : (
-                            <>
-                                <div className="text-sm font-medium truncate" onDoubleClick={(e) => startEditing(e, page)}>{page.name}</div>
-                                <div className="text-[10px] text-gray-600 truncate">{page.nodes.length} nodes</div>
-                            </>
-                        )}
-                    </div>
-                    {pages.length > 1 && !editingId && (
-                        <button 
-                            onClick={(e) => { e.stopPropagation(); deletePage(page.id); }}
-                            className="opacity-0 group-hover:opacity-100 p-1 hover:text-red-400 transition-opacity"
+        <div className="space-y-4 animate-in slide-in-from-right duration-300">
+             <div className="space-y-1">
+                <div className="flex items-center justify-between px-2 pb-2">
+                    <span className="text-[10px] uppercase tracking-wider text-gray-500 font-bold">Your Graphs</span>
+                    <button 
+                        onClick={handleCreatePage}
+                        className="p-1 hover:bg-white/10 rounded text-gray-500 hover:text-white transition-colors"
+                        title="New Graph"
+                    >
+                        <Plus size={14} />
+                    </button>
+                </div>
+                
+                <div className="space-y-1">
+                    {pages.map(page => (
+                        <div 
+                            key={page.id}
+                            onClick={() => setActivePage(page.id)}
+                            className={cn(
+                                "group flex items-center justify-between px-3 py-2 rounded-lg cursor-pointer transition-all border border-transparent",
+                                activePageId === page.id 
+                                    ? "bg-white/5 text-white border-white/5 shadow-sm" 
+                                    : "text-gray-400 hover:bg-white/5 hover:text-white"
+                            )}
                         >
-                            <Trash2 size={12} />
-                        </button>
-                    )}
-                </div>
-            ))}
-            <button 
-                onClick={() => addPage('New Page')}
-                className="w-full mt-4 py-2 border border-dashed border-white/10 rounded-lg text-xs text-gray-500 hover:text-emerald-500 hover:border-emerald-500/20 hover:bg-emerald-500/5 transition-all flex items-center justify-center gap-2"
-            >
-                <Plus size={12} /> New Page
-            </button>
-        </div>
-    );
-}
-
-function GraphSidebarContent() {
-    const { selectedNodeId } = useGraphStore();
-    return (
-        <div className="flex flex-col h-full">
-            <div className="mb-6">
-                 <GraphPageList />
-            </div>
-            
-            {selectedNodeId && (
-                <>
-                    <div className="h-px bg-white/10 mb-6" />
-                    <NodeEditor />
-                </>
-            )}
-        </div>
-    );
-}
-
-function NodeEditor() {
-    const { pages, activePageId, selectedNodeId, updateNodeData, setSelectedNode } = useGraphStore();
-    
-    // Derived state
-    const activePage = pages.find(p => p.id === activePageId);
-    const node = activePage?.nodes.find(n => n.id === selectedNodeId);
-
-    if (!node) return null;
-
-    return (
-        <div className="space-y-4 animate-in slide-in-from-bottom-4 duration-300">
-             <div className="flex items-center gap-2 mb-4">
-                <div className="text-xs font-bold text-gray-500 uppercase tracking-widest">Node Properties</div>
-                <button onClick={() => setSelectedNode(null)} className="ml-auto text-gray-500 hover:text-white transition-colors">
-                    <PanelRightClose size={14} />
-                </button>
-             </div>
-
-             <div className="space-y-3">
-                <div className="space-y-1">
-                    <label className="text-[10px] uppercase tracking-wider text-gray-500 font-bold">Label</label>
-                    <input 
-                        type="text" 
-                        value={node.data.label as string} 
-                        onChange={(e) => updateNodeData(node.id, { label: e.target.value })}
-                        className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-accent transition-colors"
-                    />
-                </div>
-
-                <div className="space-y-1">
-                    <label className="text-[10px] uppercase tracking-wider text-gray-500 font-bold">Type</label>
-                    <div className="grid grid-cols-3 gap-2">
-                        {['chapter', 'character', 'location'].map(t => (
-                            <button
-                                key={t}
-                                onClick={() => updateNodeData(node.id, { type: t })}
-                                className={cn(
-                                    "px-1 py-1.5 rounded-md text-[9px] uppercase font-bold border transition-all truncate",
-                                    node.data.type === t 
-                                        ? "bg-white/10 border-accent text-white" 
-                                        : "bg-transparent border-white/10 text-gray-500 hover:border-white/20"
+                            <div className="flex items-center gap-3 overflow-hidden">
+                                <MapIcon size={14} className={activePageId === page.id ? "text-emerald-500" : "text-gray-600 group-hover:text-gray-500"} />
+                                {editingId === page.id ? (
+                                    <input 
+                                        autoFocus
+                                        value={editName}
+                                        onChange={(e) => setEditName(e.target.value)}
+                                        onBlur={saveEditing}
+                                        onKeyDown={(e) => e.key === 'Enter' && saveEditing()}
+                                        onClick={(e) => e.stopPropagation()}
+                                        className="bg-transparent border-none outline-none text-xs w-full p-0 font-medium"
+                                    />
+                                ) : (
+                                    <span className="text-sm font-medium truncate select-none" onDoubleClick={() => startEditing(page)}>{page.name}</span>
                                 )}
-                                title={t}
-                            >
-                                {t}
-                            </button>
-                        ))}
-                    </div>
+                            </div>
+                            
+                            <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                <div className="text-[9px] text-gray-600 tabular-nums">
+                                    {page.nodes.length} nodes
+                                </div>
+                                <button 
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        if(confirm('Delete graph?')) deletePage(page.id);
+                                    }}
+                                    className="p-1 hover:text-red-400 text-gray-600 transition-colors"
+                                >
+                                    <Trash2 size={12} />
+                                </button>
+                            </div>
+                        </div>
+                    ))}
                 </div>
 
-                <div className="space-y-1">
-                    <label className="text-[10px] uppercase tracking-wider text-gray-500 font-bold">Description</label>
-                    <textarea 
-                        value={node.data.description as string || ''} 
-                        onChange={(e) => updateNodeData(node.id, { description: e.target.value })}
-                        className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-accent transition-colors min-h-[100px] resize-none"
-                    />
-                </div>
+                {pages.length === 0 && (
+                    <div className="text-center py-8 text-gray-600 text-xs">
+                        No graphs yet.
+                    </div>
+                )}
              </div>
         </div>
     );
 }
+
+
 
 export default function ContextSidebar({ open, setOpen }: ContextSidebarProps) {
   const pathname = usePathname();
   const isSettings = pathname.includes('/settings');
   const isWrite = pathname.includes('/write');
   const isGraph = pathname.includes('/graph');
-  
-  // Auto-open on route change if relevant, but allow user to toggle
+
   useEffect(() => {
     if (isSettings || isWrite || isGraph) {
         setOpen(true);
@@ -187,30 +139,38 @@ export default function ContextSidebar({ open, setOpen }: ContextSidebarProps) {
   let content = null;
   let title = '';
 
-  // Graph has custom sidebar or just nothing? 
-  // User asked for "right side be able to be hidden".
-  // If we are on graph, maybe we show graph tools? 
-  // For now, let's stick to Settings/Write. 
-  // If User wants graph tools in sidebar, we can add them.
-  // But standard graph tools are floating. 
-  // Let's assume this sidebar is primarily for navigation/context.
-
   if (isSettings) {
-      title = 'Settings';
+      const isProfile = pathname.includes('/account');
+      const isGraphSettings = pathname.includes('/settings/graph');
+      
       content = (
         <div className="space-y-1">
             <Link 
-                href="/editor/settings"
-                className="flex items-center gap-3 px-3 py-2 bg-white/5 text-white rounded-lg border border-white/5 cursor-pointer shadow-sm"
+                href="/editor/settings/account"
+                className={cn(
+                    "flex items-center gap-3 px-3 py-2 rounded-lg transition-all cursor-pointer group mb-1",
+                    isProfile ? "bg-white/5 text-white shadow-sm" : "text-gray-400 hover:bg-white/5 hover:text-white"
+                )}
             >
-                <Settings size={16} className="text-accent" />
+                <User size={16} className={isProfile ? "text-emerald-500" : "text-gray-600 group-hover:text-gray-400"} />
                 <span className="text-sm font-medium">Profile</span>
-                <ChevronRight size={14} className="ml-auto text-gray-500" />
+            </Link>
+
+            <Link 
+                href="/editor/settings/graph"
+                className={cn(
+                    "flex items-center gap-3 px-3 py-2 rounded-lg transition-all cursor-pointer group",
+                    isGraphSettings ? "bg-white/5 text-white shadow-sm" : "text-gray-400 hover:bg-white/5 hover:text-white"
+                )}
+            >
+                <SlidersHorizontal size={16} className={isGraphSettings ? "text-emerald-500" : "text-gray-600 group-hover:text-gray-400"} />
+                <span className="text-sm font-medium">Graph Editor</span>
             </Link>
         </div>
       );
-  } else if (isWrite) {
-      // ... existing write logic ...
+      title = 'Settings';
+  }
+  else if (isWrite) {
       title = 'Manuscript';
        content = (
          <div className="space-y-1">
@@ -237,13 +197,11 @@ export default function ContextSidebar({ open, setOpen }: ContextSidebarProps) {
       title = 'Graphs';
       content = <GraphSidebarContent />;
   } else {
-      // If nothing active, don't show sidebar at all (EditorShell handles this logic too, but good to be safe)
       return null; 
   }
 
   return (
     <>
-        {/* Toggle Button (Visible when closed but context exists) */}
         <AnimatePresence>
             {!open && (isSettings || isWrite || isGraph) && (
                 <motion.button
@@ -261,10 +219,10 @@ export default function ContextSidebar({ open, setOpen }: ContextSidebarProps) {
         <AnimatePresence mode="wait">
             {open && (
                 <motion.div 
-                    initial={{ x: -20, opacity: 0 }}
-                    animate={{ x: 0, opacity: 1, transition: { duration: 0.4, ease: [0.22, 1, 0.36, 1] } }}
-                    exit={{ x: -10, opacity: 0, transition: { duration: 0.2, ease: "easeIn" } }}
-                    className="fixed top-0 left-20 h-full w-64 bg-[#050505] border-r border-white/5 z-40 py-8 px-4 flex flex-col shadow-2xl"
+                    initial={{ x: -100, opacity: 0 }}
+                    animate={{ x: 0, opacity: 1, transition: { duration: 0.5, ease: [0.19, 1, 0.22, 1] } }}
+                    exit={{ x: -50, opacity: 0, transition: { duration: 0.3, ease: "easeIn" } }}
+                    className="fixed top-0 left-20 h-full w-64 bg-[#050505] z-40 py-8 px-4 flex flex-col shadow-2xl border-r border-white/5"
                 >
                     <div className="flex items-center justify-between mb-6 px-2">
                         <motion.h2 
@@ -285,6 +243,7 @@ export default function ContextSidebar({ open, setOpen }: ContextSidebarProps) {
                     <motion.div
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0, transition: { delay: 0.2, staggerChildren: 0.05 } }}
+                        className="flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-white/10"
                     >
                         {content}
                     </motion.div>

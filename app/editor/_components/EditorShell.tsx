@@ -25,11 +25,9 @@ export default function EditorShell({ children }: { children: React.ReactNode })
       <ContextSidebar open={isActuallyOpen} setOpen={setRightOpen} />
       
       <main 
-        className={`flex-1 transition-all duration-300 min-h-screen bg-background text-foreground ${contentMargin}`}
+        className={`flex-1 transition-all duration-500 ease-[cubic-bezier(0.19,1,0.22,1)] min-h-screen bg-background text-foreground ${contentMargin}`}
       >
-        <div className={pathname.includes('/graph') ? "" : "p-8"}>
             {children}
-        </div>
       </main>
     </div>
   );

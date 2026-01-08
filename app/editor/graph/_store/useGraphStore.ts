@@ -9,15 +9,26 @@ export interface GraphPage {
   viewport: { x: number; y: number; zoom: number };
 }
 
+export interface GraphSettings {
+    edgeType: 'default' | 'straight' | 'step' | 'smoothstep';
+    connectionLineType: 'default' | 'straight' | 'step' | 'smoothstep';
+    gridType: 'dots' | 'lines' | 'cross';
+    showGrid: boolean;
+    showMinimap: boolean;
+    snapToGrid: boolean;
+}
+
 interface GraphState {
   pages: GraphPage[];
   activePageId: string;
   selectedNodeId: string | null;
+  graphSettings: GraphSettings;
   
   // Actions
   setPages: (pages: GraphPage[]) => void;
   setActivePage: (id: string) => void;
   setSelectedNode: (id: string | null) => void;
+  setGraphSettings: (settings: Partial<GraphSettings>) => void;
   addPage: (name: string) => void;
   updatePageName: (id: string, name: string) => void;
   deletePage: (id: string) => void; // This deletes a graph page
@@ -32,7 +43,7 @@ interface GraphState {
   updateViewport: (viewport: { x: number; y: number; zoom: number }) => void;
   
   // Persistence Helper
-  getSnapshot: () => { pages: GraphPage[], activePageId: string };
+  getSnapshot: () => { pages: GraphPage[], activePageId: string, graphSettings: GraphSettings };
 }
 
 import { temporal } from 'zundo';
@@ -43,10 +54,21 @@ export const useGraphStore = create<GraphState>()(
         pages: [],
         activePageId: '',
         selectedNodeId: null,
+        graphSettings: {
+            edgeType: 'smoothstep',
+            connectionLineType: 'smoothstep',
+            gridType: 'dots',
+            showGrid: true,
+            showMinimap: true,
+            snapToGrid: true,
+        },
 
         setPages: (pages) => set({ pages }),
         setActivePage: (id) => set({ activePageId: id, selectedNodeId: null }),
         setSelectedNode: (id) => set({ selectedNodeId: id }),
+        setGraphSettings: (settings) => set((state) => ({ 
+            graphSettings: { ...state.graphSettings, ...settings } 
+        })),
         
         addPage: (name) => set((state) => {
           const newPage: GraphPage = {
@@ -101,11 +123,11 @@ export const useGraphStore = create<GraphState>()(
         
         getSnapshot: () => {
             const state = get();
-            return { pages: state.pages, activePageId: state.activePageId };
+            return { pages: state.pages, activePageId: state.activePageId, graphSettings: state.graphSettings };
         }
       }),
     {
-      partialize: (state) => ({ pages: state.pages }), // Only track pages (nodes/edges) history
+      partialize: (state) => ({ pages: state.pages, graphSettings: state.graphSettings }), // Track pages and settings history
       limit: 100
     }
   )

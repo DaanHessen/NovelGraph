@@ -1,47 +1,70 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Settings, Save, Loader2, Grid3X3, Monitor, Map } from 'lucide-react';
+import { Settings, Grid3X3, Monitor, Map } from 'lucide-react';
+
+interface GraphSettingsState {
+    snapToGrid: boolean;
+    gridSpacing: number;
+    showControls: boolean;
+    showMiniMap: boolean;
+    edgeStyle: string;
+    connectionLineStyle: string;
+    gridType: string;
+    backgroundVariant: string;
+}
 
 export default function GraphSettings() {
-    const [settings, setSettings] = useState({
-        snapToGrid: true,
-        gridSpacing: 20,
-        showControls: true,
-        showMiniMap: false,
-    });
-    const [saving, setSaving] = useState(false);
-    const [success, setSuccess] = useState(false);
-
-    useEffect(() => {
-        const saved = localStorage.getItem('graph-settings-global');
-        if (saved) {
-            try {
-                setSettings({ ...settings, ...JSON.parse(saved) });
-            } catch (e) { console.error(e); }
+    // Lazy initialization to read from localStorage just once on mount
+    const [settings, setSettings] = useState<GraphSettingsState>(() => {
+        if (typeof window !== 'undefined') {
+            const saved = localStorage.getItem('graph-settings-global');
+            if (saved) {
+                try {
+                    return {
+                         snapToGrid: true,
+                         gridSpacing: 20,
+                         showControls: true,
+                         showMiniMap: false,
+                         edgeStyle: 'smoothstep',
+                         connectionLineStyle: 'smoothstep',
+                         gridType: 'dots',
+                         backgroundVariant: 'dots',
+                         ...JSON.parse(saved)
+                    };
+                } catch (e) { console.error(e); }
+            }
         }
-    }, []);
+        return {
+            snapToGrid: true,
+            gridSpacing: 20,
+            showControls: true,
+            showMiniMap: false,
+            edgeStyle: 'smoothstep', 
+            connectionLineStyle: 'smoothstep',
+            gridType: 'dots',
+            backgroundVariant: 'dots', 
+        };
+    });
 
-    const handleChange = (key: string, value: any) => {
-        setSettings(prev => ({ ...prev, [key]: value }));
-        setSuccess(false);
-    };
-
-    const handleSave = () => {
-        setSaving(true);
-        // Simulate a small delay for feel, though generic localStorage is instant
-        setTimeout(() => {
+    // Auto-save effect with debounce
+    useEffect(() => {
+        const timeout = setTimeout(() => {
             localStorage.setItem('graph-settings-global', JSON.stringify(settings));
-            setSaving(false);
-            setSuccess(true);
-            
-            // Dispatch event for instant update if graph is open in another tab/window (optional, but good practice)
-            //window.dispatchEvent(new Event('graph-settings-updated'));
         }, 500);
+        return () => clearTimeout(timeout);
+    }, [settings]);
+
+    const handleChange = (key: keyof GraphSettingsState, value: any) => {
+        setSettings(prev => ({ ...prev, [key]: value }));
     };
+
+    // Derived states for UI
+    const gridOptions = ['dots', 'lines', 'cross'];
+    const edgeOptions = ['default', 'straight', 'step', 'smoothstep', 'simple_bezier'];
 
     return (
-        <div className="bg-card/20 border border-white/5 rounded-3xl p-8 backdrop-blur-md">
+        <div>
             <h2 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
                 <Settings size={20} className="text-accent" />
                 Graph Editor
@@ -82,6 +105,64 @@ export default function GraphSettings() {
                     </div>
                 </div>
 
+
+                <div className="w-full h-px bg-white/5" />
+
+                {/* Visual Customization */}
+                <div className="space-y-4">
+                     <h3 className="text-sm font-semibold text-gray-400 uppercase tracking-wider flex items-center gap-2">
+                        <Monitor size={14} /> Visual Style
+                    </h3>
+
+                    {/* Grid Type */}
+                    <div className="space-y-2">
+                        <label className="text-xs text-gray-500">Grid Style</label>
+                        <div className="flex bg-black/20 rounded-lg p-1 border border-white/5">
+                            {gridOptions.map(opt => (
+                                <button
+                                    key={opt}
+                                    onClick={() => handleChange('gridType', opt)}
+                                    className={`flex-1 py-1.5 text-xs font-medium rounded-md transition-all uppercase ${settings.gridType === opt ? 'bg-accent text-white shadow-lg' : 'text-gray-500 hover:text-gray-300'}`}
+                                >
+                                    {opt}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+
+                    {/* Edge Style */}
+                    <div className="space-y-2">
+                        <label className="text-xs text-gray-500">Edge Style</label>
+                         <div className="grid grid-cols-3 gap-2">
+                            {edgeOptions.map(opt => (
+                                <button
+                                    key={opt}
+                                    onClick={() => handleChange('edgeStyle', opt)}
+                                    className={`py-2 px-2 text-[10px] font-medium rounded-lg border transition-all uppercase truncate ${settings.edgeStyle === opt ? 'bg-accent/20 border-accent text-accent' : 'bg-black/20 border-transparent text-gray-500 hover:border-white/10'}`}
+                                >
+                                    {opt.replace('_', ' ')}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+
+                     {/* Connection Line Style */}
+                    <div className="space-y-2">
+                        <label className="text-xs text-gray-500">Connection Line Style</label>
+                         <div className="grid grid-cols-3 gap-2">
+                            {edgeOptions.map(opt => (
+                                <button
+                                    key={opt}
+                                    onClick={() => handleChange('connectionLineStyle', opt)}
+                                    className={`py-2 px-2 text-[10px] font-medium rounded-lg border transition-all uppercase truncate ${settings.connectionLineStyle === opt ? 'bg-accent/20 border-accent text-accent' : 'bg-black/20 border-transparent text-gray-500 hover:border-white/10'}`}
+                                >
+                                    {opt.replace('_', ' ')}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+
                 <div className="w-full h-px bg-white/5" />
 
                 {/* UI Controls */}
@@ -114,22 +195,7 @@ export default function GraphSettings() {
                     </div>
                 </div>
 
-                {/* Save Button */}
-                <div className="pt-4 flex items-center gap-4">
-                    <button 
-                        onClick={handleSave}
-                        disabled={saving}
-                        className="px-6 py-3 bg-white/5 hover:bg-white/10 border border-white/10 text-white font-medium rounded-xl disabled:opacity-50 flex items-center gap-2 transition-all ml-auto"
-                    >
-                        {saving ? <Loader2 size={18} className="animate-spin" /> : <Save size={18} />}
-                        Save Preferences
-                    </button>
-                </div>
-                 {success && (
-                    <p className="text-emerald-500 text-sm font-medium animate-in fade-in slide-in-from-top-1 text-right">
-                        Settings saved locally!
-                    </p>
-                )}
+
 
             </div>
         </div>

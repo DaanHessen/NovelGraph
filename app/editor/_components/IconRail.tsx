@@ -1,5 +1,3 @@
-'use client';
-
 import Link from 'next/link';
 import { usePathname, useSearchParams } from 'next/navigation';
 import { Home, Globe, Network, PenTool, Settings, LogOut, User } from 'lucide-react';
@@ -17,7 +15,7 @@ export default function IconRail() {
   const projectSlug = searchParams.get('project');
   const [username, setUsername] = useState<string | null>(null);
 
-  const q = projectSlug ? `?project=${projectSlug}` : '';
+
 
   useEffect(() => {
      // Fetch profile for avatar
@@ -37,12 +35,43 @@ export default function IconRail() {
   }, []);
 
 
+  // State to hold the active project slug for navigation
+  const [storedSlug, setStoredSlug] = useState<string | null>(null);
+
+  useEffect(() => {
+      // Load saved slug on mount
+      const saved = localStorage.getItem('last_project_slug');
+      if (saved) setStoredSlug(saved);
+  }, []);
+
+  useEffect(() => {
+      // Sync URL slug to local storage
+      if (projectSlug) {
+          localStorage.setItem('last_project_slug', projectSlug);
+      }
+  }, [projectSlug]);
+
+  // Derived active slug: URL content takes precedence
+  const activeProjectSlug = projectSlug || storedSlug;
+
   const navItems = [
     { label: 'Overview', icon: Home, href: '/editor' },
     { label: 'Write', icon: PenTool, href: '/editor/write' },
     { label: 'World', icon: Globe, href: '/editor/world' },
     { label: 'Graph', icon: Network, href: '/editor/graph' },
   ];
+  
+  // Helper to construct href with slug if needed
+  const getHref = (baseHref: string) => {
+      // If we have an active slug, append it to graph/write/world links
+      // (Assuming these pages require context)
+      if (activeProjectSlug && (baseHref.includes('/graph') || baseHref.includes('/write') || baseHref.includes('/world'))) {
+          // If the baseHref matches the current path, preserve current params is handled by simple link, 
+          // but here we are forcing the slug back in if we lost it.
+          return `${baseHref}?project=${activeProjectSlug}`;
+      }
+      return baseHref;
+  };
 
   return (
     <div className="fixed top-0 left-0 h-full w-20 bg-[#0a0a0a]/90 backdrop-blur-xl border-r border-white/5 z-50 flex flex-col items-center py-6 shadow-2xl">
@@ -58,7 +87,7 @@ export default function IconRail() {
             return (
               <Link
                 key={item.href}
-                href={`${item.href}${q}`}
+                href={getHref(item.href)}
                 className={cn(
                   "relative group flex items-center justify-center w-full aspect-square rounded-2xl transition-all duration-300",
                   isActive ? "text-white" : "text-gray-500 hover:text-white hover:bg-white/5"
@@ -88,9 +117,13 @@ export default function IconRail() {
 
        {/* Bottom Actions */}
        <div className="flex flex-col gap-4 w-full px-2 mt-auto">
-          {/* Settings - Special Placement */}
+           
+
+
+
+          {/* Settings - Special Placement (Global / Profile) */}
            <Link
-                href={`/editor/settings${q}`}
+                href={getHref('/editor/settings')}
                 className={cn(
                   "relative group flex items-center justify-center w-full aspect-square rounded-2xl transition-all duration-300",
                   pathname.includes('/settings') ? "text-white bg-white/10 border border-white/10" : "text-gray-500 hover:text-white hover:bg-white/5"

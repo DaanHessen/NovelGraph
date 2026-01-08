@@ -23,7 +23,7 @@ import { useSearchParams } from 'next/navigation';
 import { Loader2, User, MapPin, FileText, GripHorizontal, Undo, Redo, Plus } from 'lucide-react';
 import { motion } from 'framer-motion';
 
-import NodeDetailsPanel from './_components/NodeDetailsPanel';
+
 import StoryNode from './_components/StoryNode';
 import { useGraphStore } from './_store/useGraphStore';
 
@@ -42,7 +42,8 @@ function GraphContent() {
       setPages, setActivePage, setSelectedNode,
       setNodes: setStoreNodes, setEdges: setStoreEdges,
       updateViewport,
-      getSnapshot 
+      getSnapshot,
+      graphSettings
   } = useGraphStore();
 
   useOnSelectionChange({
@@ -68,7 +69,10 @@ function GraphContent() {
 
   // 1. Initial Load (Modified for Project-Scoped Persistence)
   useEffect(() => {
-    if (!initialProjectSlug) return;
+    if (!initialProjectSlug) {
+        setLoading(false);
+        return;
+    }
     
     // Reset store if switching projects
     if (projectSlug && projectSlug !== initialProjectSlug) {
@@ -81,6 +85,8 @@ function GraphContent() {
     }
 
     setProjectSlug(initialProjectSlug);
+    // Persist slug globally for navigation recovery
+    localStorage.setItem('last_project_slug', initialProjectSlug);
     setLoading(true);
 
     const storageKey = `graph-store-${initialProjectSlug}`;
@@ -351,28 +357,52 @@ function GraphContent() {
       setToolbarLoaded(true);
   }, []);
 
-  const [settings, setSettings] = useState({
-      snapToGrid: true,
-      gridSpacing: 20,
-      showControls: true,
-      showMiniMap: false,
-  });
+
+
+  // Performance Metrics
+  const [metrics, setMetrics] = useState({ x: 0, y: 0, zoom: 1, fps: 60 });
+  const lastTimeRef = useRef(performance.now());
+  const frameCountRef = useRef(0);
 
   useEffect(() => {
-      // Load settings just once on mount (or listen to event if we want cross-tab sync)
-      const saved = localStorage.getItem('graph-settings-global');
-      if (saved) {
-          try {
-              setSettings({ ...settings, ...JSON.parse(saved) });
-          } catch (e) { console.error(e); }
-      }
+      let rafId: number;
+      const loop = () => {
+          const now = performance.now();
+          frameCountRef.current++;
+          if (now - lastTimeRef.current >= 1000) {
+              setMetrics(prev => ({ ...prev, fps: frameCountRef.current }));
+              frameCountRef.current = 0;
+              lastTimeRef.current = now;
+          }
+          rafId = requestAnimationFrame(loop);
+      };
+      rafId = requestAnimationFrame(loop);
+      return () => cancelAnimationFrame(rafId);
+  }, []);
+
+  // Viewport Metric Sync
+  const onMove = useCallback((evt: any, viewport: any) => {
+     setMetrics(prev => ({ 
+         ...prev, 
+         x: Math.round(viewport.x), 
+         y: Math.round(viewport.y), 
+         zoom: Number(viewport.zoom.toFixed(2)) 
+     }));
   }, []);
 
   if (loading && !isLoaded.current) {
       return (
-        <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-50">
+        <div className="flex h-screen w-full items-center justify-center bg-[#0a0a0a] z-50">
             <Loader2 className="animate-spin text-gray-500" />
         </div>
+      );
+  }
+
+  if (!initialProjectSlug) {
+      return (
+          <div className="flex h-screen w-full items-center justify-center bg-[#0a0a0a] text-gray-500">
+              <p>No project selected.</p>
+          </div>
       );
   }
   
@@ -386,28 +416,36 @@ function GraphContent() {
             onNodeDragStop={onNodeDragStop}
             onConnect={onConnect}
             onMoveEnd={onMoveEnd}
+            onMove={onMove}
             nodeTypes={nodeTypes}
             className="bg-[#050505]"
             colorMode="dark"
             minZoom={0.1}
             maxZoom={2}
-            snapToGrid={settings.snapToGrid}
-            snapGrid={[settings.gridSpacing, settings.gridSpacing]}
+            snapToGrid={graphSettings?.snapToGrid}
+            snapGrid={[20, 20]} // Fixed spacing for now, or add to settings if needed
             proOptions={{ hideAttribution: true }}
+            connectionLineType={graphSettings?.connectionLineType as any}
             defaultEdgeOptions={{
-                type: 'smoothstep',
+                type: graphSettings?.edgeType,
                 animated: true,
                 style: { stroke: '#555' },
             }}
         >
-            {/* Boost visibility: lighter color of dots, smaller gap for better debugging */}
-            <Background color="#555" gap={20} size={1} variant={BackgroundVariant.Dots} />
-            {settings.showControls && <Controls className="bg-[#0f1113] border border-white/10 text-white" />}
-            {settings.showMiniMap && <MiniMap className="right-4 top-4" style={{ backgroundColor: '#0f1113', height: 100, width: 150 }} maskColor="#050505" nodeColor="#555" />}
+            {graphSettings?.showGrid && (
+                <Background 
+                    color="#333" 
+                    gap={graphSettings?.gridType === 'dots' ? 20 : 40} 
+                    size={1} 
+                    variant={graphSettings?.gridType === 'lines' ? BackgroundVariant.Lines : graphSettings?.gridType === 'cross' ? BackgroundVariant.Cross : BackgroundVariant.Dots} 
+                />
+            )}
+            <Controls className="bg-[#0f1113] border border-white/10 text-white" />
+            {graphSettings?.showMinimap && <MiniMap className="right-4 top-4" style={{ backgroundColor: '#0f1113', height: 100, width: 150 }} maskColor="#050505" nodeColor="#555" />}
         </ReactFlow>
 
         {/* Floating Toolbar */}
-        <Panel position="bottom-center" className="mb-8 z-50">
+        <Panel position="bottom-center" className="mb-8 z-40">
             <motion.div 
                 className="pointer-events-auto flex items-center gap-2 p-1.5 bg-[#0f1113]/80 backdrop-blur-xl border border-white/10 rounded-full shadow-2xl cursor-grab active:cursor-grabbing"
                 drag
@@ -419,106 +457,58 @@ function GraphContent() {
                     y: toolbarLoaded ? (toolbarPos.y || 0) : 20,
                     x: toolbarLoaded ? (toolbarPos.x || 0) : 0
                 }}
-                onDragEnd={(e, info) => {
-                   // Save the transform since we are using x/y motion values via animate
-                   // Actually, with `drag`, the element's transform is modified.
-                   // We need to just save the point relative to the page center/start?
-                   // No, framer motion `drag` applies `transform: translate3d(x, y, 0)`.
-                   // `info.point` is page coordinates. `info.offset` is delta.
-                   // To persist, we should probably rely on the `transform` values.
-                   // Getting them is cleaner via the ref or style.
-                   // For now, let's just assume we want to restore *relative* offset if possible.
-                   // BUT for simple "stay where I put you", we might need `useMotionValue`.
-                   // Given time constraints, saving just the visual offset if possible.
-                   // Let's grab the computed style transform... or just use info.offset?
-                   // If we use info.offset, correct restoration requires `x: saved.x, y: saved.y`.
-                   
-                   // WORKAROUND: For this iteration, we accept that it resets to center if complex.
-                   // But user surely wants it.
-                   // Let's try saving `info.offset`.
-                   const offset = { x: info.offset.x, y: info.offset.y };
-                   // BUT `info.offset` is total drag from start. 
-                   // If we start at x=100, drag +50, offset is 50. Total is 150.
-                   // We need to save `currentPos = initialPos + offset`.
-                   
-                   // Let's rely on the fact we are setting `x` and `y` in animate?
-                   // No, `drag` overrides `animate` x/y unless we use `dragControls`.
-                   
-                   // Simplest valid persistence:
-                   // Just use top/left absolute positioning via style if we weren't using `Panel`?
-                   // Since we are in `Panel position="bottom-center"`, `x` and `y` are transforms.
-                   // We need to save the NET translation.
-                   // `transform` string is `translateX(...) translateY(...)`.
-                   // Let's just save valid info.point? No, that's screen coords.
-                   
-                   // Let's try saving `x` and `y` from the element style if reachable?
-                   // Or just use `info.offset` + `initial`.
-                   
-                   const currentX = (toolbarPos.x || 0) + info.offset.x;
-                   const currentY = (toolbarPos.y || 0) + info.offset.y;
-                   // Use these for next load?
-                   // Yes, but we must update state to avoid weird jumps on next render?
-                   // Actually, updating state might re-render and reset drag?
-                   // For now, just SAVE to localstorage.
-                   // On reload, we load these as initial.
-                   
-                   // But wait, `info.offset` resets on every drag start? 
-                   // No, `drag` component maintains its own state.
-                   // If we don't update `toolbarPos` (state), `info.offset` is relative to *render*.
-                   
-                   // Let's just try to save what we can:
-                   // The element's transform style is the source of truth.
-                   // (e.target as HTMLElement).style.transform
-                   
-                   // Just saving {x,y} is tricky without motion values.
-                }}
-                style={{ x: toolbarPos.x, y: toolbarPos.y }}
-             >
-                <div className="pl-3 pr-1 text-gray-500">
-                    <GripHorizontal size={14} />
-                </div>
-                <div className="w-px h-4 bg-white/10" />
-                
-                <button 
-                  onClick={() => addNode('chapter')}
-                  className="flex items-center gap-2 px-3 py-1.5 rounded-full hover:bg-white/10 transition-colors text-xs font-medium text-white"
-                >
-                    <FileText size={14} className="text-accent" />
-                    <span>Chapter</span>
-                </button>
+            >
+                 <div className="pl-3 pr-1 text-gray-500">
+                     <GripHorizontal size={14} />
+                 </div>
+                 <div className="w-px h-4 bg-white/10" />
+                 
                  <button 
-                  onClick={() => addNode('character')}
-                  className="flex items-center gap-2 px-3 py-1.5 rounded-full hover:bg-white/10 transition-colors text-xs font-medium text-white"
-                >
-                    <User size={14} className="text-pink-500" />
-                    <span>Character</span>
-                </button>
-                 <button 
-                  onClick={() => addNode('location')}
-                  className="flex items-center gap-2 px-3 py-1.5 rounded-full hover:bg-white/10 transition-colors text-xs font-medium text-white"
-                >
-                    <MapPin size={14} className="text-emerald-500" />
-                    <span>Location</span>
-                </button>
-
-                <div className="w-px h-4 bg-white/10" />
-                
-                <button onClick={() => store.temporal.getState().undo()} className="p-2 rounded-full hover:bg-white/10 text-white/50 hover:text-white transition-colors" title="Undo (Ctrl+Z)">
-                    <Undo size={14} />
-                </button>
-                <button onClick={() => store.temporal.getState().redo()} className="p-2 rounded-full hover:bg-white/10 text-white/50 hover:text-white transition-colors" title="Redo (Ctrl+Y)">
-                    <Redo size={14} />
-                </button>
+                   onClick={() => addNode('chapter')}
+                   className="flex items-center gap-2 px-3 py-1.5 rounded-full hover:bg-white/10 transition-colors text-xs font-medium text-white"
+                 >
+                     <FileText size={14} className="text-accent" />
+                     <span>Chapter</span>
+                 </button>
+                  <button 
+                   onClick={() => addNode('character')}
+                   className="flex items-center gap-2 px-3 py-1.5 rounded-full hover:bg-white/10 transition-colors text-xs font-medium text-white"
+                 >
+                     <User size={14} className="text-pink-500" />
+                     <span>Character</span>
+                 </button>
+                  <button 
+                   onClick={() => addNode('location')}
+                   className="flex items-center gap-2 px-3 py-1.5 rounded-full hover:bg-white/10 transition-colors text-xs font-medium text-white"
+                 >
+                     <MapPin size={14} className="text-emerald-500" />
+                     <span>Location</span>
+                 </button>
+ 
+                 <div className="w-px h-4 bg-white/10" />
+                 
+                 <button onClick={() => store.temporal.getState().undo()} className="p-2 rounded-full hover:bg-white/10 text-white/50 hover:text-white transition-colors" title="Undo (Ctrl+Z)">
+                     <Undo size={14} />
+                 </button>
+                 <button onClick={() => store.temporal.getState().redo()} className="p-2 rounded-full hover:bg-white/10 text-white/50 hover:text-white transition-colors" title="Redo (Ctrl+Y)">
+                     <Redo size={14} />
+                 </button>
             </motion.div>
         </Panel>
         
-        {/* Status indicator */}
-        <div className="absolute top-4 right-4 z-50 text-[10px] font-mono text-gray-600 flex items-center gap-2">
+        {/* Metrics Display */}
+        <div className="absolute bottom-4 right-4 z-40 text-[10px] font-mono text-gray-600 flex items-center gap-4 bg-[#0f1113]/80 backdrop-blur border border-white/5 px-3 py-1.5 rounded-full pointer-events-none select-none">
+             <span>{metrics.fps} FPS</span>
+             <span className="text-gray-700">|</span>
+             <span>X: {metrics.x}</span>
+             <span>Y: {metrics.y}</span>
+             <span>Z: {metrics.zoom}x</span>
+             <span className="text-gray-700">|</span>
             {saving ? <span className="text-yellow-500">Saving...</span> : <span>Saved</span>}
         </div>
 
         {/* Node Details Panel */}
-        <NodeDetailsPanel />
+
     </div>
   );
 }
