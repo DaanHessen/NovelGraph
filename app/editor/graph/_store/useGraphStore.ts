@@ -6,6 +6,7 @@ export interface GraphPage {
   name: string;
   nodes: Node[];
   edges: Edge[];
+  viewport: { x: number; y: number; zoom: number };
 }
 
 interface GraphState {
@@ -27,6 +28,7 @@ interface GraphState {
   // Active Page Helpers
   setNodes: (nodes: Node[]) => void;
   setEdges: (edges: Edge[]) => void;
+  updateViewport: (viewport: { x: number; y: number; zoom: number }) => void;
   
   // Persistence Helper
   getSnapshot: () => { pages: GraphPage[], activePageId: string };
@@ -50,7 +52,8 @@ export const useGraphStore = create<GraphState>()(
             id: crypto.randomUUID(),
             name,
             nodes: [],
-            edges: [] 
+            edges: [],
+            viewport: { x: 0, y: 0, zoom: 1 }
         };
         return { 
             pages: [...state.pages, newPage],
@@ -81,6 +84,10 @@ export const useGraphStore = create<GraphState>()(
 
       setEdges: (edges) => set((state) => ({
           pages: state.pages.map(p => p.id === state.activePageId ? { ...p, edges } : p)
+      })),
+
+      updateViewport: (viewport) => set((state) => ({
+          pages: state.pages.map(p => p.id === state.activePageId ? { ...p, viewport } : p)
       })),
       
       getSnapshot: () => {

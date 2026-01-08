@@ -40,6 +40,7 @@ function GraphContent() {
       pages, activePageId, 
       setPages, setActivePage, setSelectedNode,
       setNodes: setStoreNodes, setEdges: setStoreEdges,
+      updateViewport,
       getSnapshot 
   } = useGraphStore();
 
@@ -59,6 +60,7 @@ function GraphContent() {
   const [projectSlug, setProjectSlug] = useState<string | null>(null);
 
   const constraintsRef = useRef(null);
+  const { setViewport } = useReactFlow();
 
   // Cast store to any to avoid Zundo type issues for now
   const store = useGraphStore as any;
@@ -77,11 +79,18 @@ function GraphContent() {
              // Use saved activePageId, or default to first page
              const safeActiveId = data.pages.find((p: any) => p.id === data.activePageId) ? data.activePageId : data.pages[0].id;
              setActivePage(safeActiveId);
+             
+             // Restore viewport if exists
+             const page = data.pages.find((p: any) => p.id === safeActiveId);
+             if (page && page.viewport) {
+                 setViewport(page.viewport);
+             }
+
              isLoaded.current = true;
         } else {
              // Fallback if empty
              const defaultPageId = crypto.randomUUID();
-             const newPage: any = { id: defaultPageId, name: 'Story Map', nodes: [], edges: [] };
+             const newPage: any = { id: defaultPageId, name: 'Story Map', nodes: [], edges: [], viewport: { x: 0, y: 0, zoom: 1 } };
              setPages([newPage]);
              setActivePage(defaultPageId);
              isLoaded.current = true;
@@ -89,7 +98,7 @@ function GraphContent() {
       })
       .catch(err => console.error("Failed to load graph", err))
       .finally(() => setLoading(false));
-  }, [initialProjectSlug, setPages, setActivePage]);
+  }, [initialProjectSlug, setPages, setActivePage, setViewport]);
 
   // 2. Sync Active Page (Smart Merge)
   useEffect(() => {
@@ -115,12 +124,37 @@ function GraphContent() {
           });
       });
       setEdges(activePage.edges);
+      
+      // Sync viewport on page switch? 
+      // Only if we haven't touched it... but switching pages implies jump.
+      // But we shouldn't force setViewport on every render.
+      // We can rely on a separate mechanism or just trust the user knows.
+      // Ideally, we only setViewport when `activePageId` actually CHANGES.
+      // But `useEffect` fires on `pages` updates too (dragging).
+      // So we can't put `setViewport` here blindly.
+      // We need a separate effect that tracks *current* activePageId ref.
   }, [activePageId, pages, setNodes, setEdges]);
+  
+  // Separate effect for Viewport Restore on Page Change
+  const prevPageIdRef = useRef(activePageId);
+  useEffect(() => {
+     if (activePageId !== prevPageIdRef.current) {
+         const page = pages.find(p => p.id === activePageId);
+         if (page && page.viewport) {
+             setViewport(page.viewport);
+         }
+         prevPageIdRef.current = activePageId;
+     }
+  }, [activePageId, pages, setViewport]);
+
 
   // 3. Debounced Auto-Save
   useEffect(() => {
     if (!isLoaded.current) return;
     if (!projectSlug) return;
+    
+    // We don't save on every render, but we need to capture viewport.
+    // The viewport is in the store now (if we sync it).
     
     const timeout = setTimeout(() => {
       setSaving(true);
@@ -156,7 +190,6 @@ function GraphContent() {
           setStoreNodes(newNodes);
       }
   }, [pages, activePageId, setStoreNodes]);
-
   // 5. Keyboard Shortcuts
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -245,6 +278,11 @@ function GraphContent() {
     setStoreNodes(newNodes);
   };
 
+  // Viewport Sync
+  const onMoveEnd = useCallback((event: any, viewport: any) => {
+      updateViewport(viewport);
+  }, [updateViewport]);
+
   const [toolbarPos, setToolbarPos] = useState({ x: 0, y: 0 });
   const [toolbarLoaded, setToolbarLoaded] = useState(false);
 
@@ -264,7 +302,7 @@ function GraphContent() {
   }
   
   return (
-    <div className="h-[calc(100vh-4rem)] w-full overflow-hidden bg-[#0a0a0a] relative group" ref={constraintsRef}>
+    <div className="w-full h-screen overflow-hidden bg-[#0a0a0a] relative group" ref={constraintsRef} style={{ height: '100vh' }}>
         <ReactFlow
             nodes={nodes}
             edges={edges}
@@ -272,6 +310,7 @@ function GraphContent() {
             onEdgesChange={onEdgesChange}
             onNodeDragStop={onNodeDragStop}
             onConnect={onConnect}
+            onMoveEnd={onMoveEnd}
             nodeTypes={nodeTypes}
             className="bg-[#050505]"
             colorMode="dark"
@@ -283,7 +322,8 @@ function GraphContent() {
                 style: { stroke: '#555' },
             }}
         >
-            <Background color="#222" gap={20} size={1} variant={BackgroundVariant.Dots} />
+            {/* Boost visibility: lighter color of dots, smaller gap for better debugging */}
+            <Background color="#555" gap={20} size={1} variant={BackgroundVariant.Dots} />
             <Controls className="bg-[#0f1113] border border-white/10 text-white" />
         </ReactFlow>
 
