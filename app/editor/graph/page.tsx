@@ -351,6 +351,23 @@ function GraphContent() {
       setToolbarLoaded(true);
   }, []);
 
+  const [settings, setSettings] = useState({
+      snapToGrid: true,
+      gridSpacing: 20,
+      showControls: true,
+      showMiniMap: false,
+  });
+
+  useEffect(() => {
+      // Load settings just once on mount (or listen to event if we want cross-tab sync)
+      const saved = localStorage.getItem('graph-settings-global');
+      if (saved) {
+          try {
+              setSettings({ ...settings, ...JSON.parse(saved) });
+          } catch (e) { console.error(e); }
+      }
+  }, []);
+
   if (loading && !isLoaded.current) {
       return (
         <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-50">
@@ -374,6 +391,9 @@ function GraphContent() {
             colorMode="dark"
             minZoom={0.1}
             maxZoom={2}
+            snapToGrid={settings.snapToGrid}
+            snapGrid={[settings.gridSpacing, settings.gridSpacing]}
+            proOptions={{ hideAttribution: true }}
             defaultEdgeOptions={{
                 type: 'smoothstep',
                 animated: true,
@@ -382,7 +402,8 @@ function GraphContent() {
         >
             {/* Boost visibility: lighter color of dots, smaller gap for better debugging */}
             <Background color="#555" gap={20} size={1} variant={BackgroundVariant.Dots} />
-            <Controls className="bg-[#0f1113] border border-white/10 text-white" />
+            {settings.showControls && <Controls className="bg-[#0f1113] border border-white/10 text-white" />}
+            {settings.showMiniMap && <MiniMap className="right-4 top-4" style={{ backgroundColor: '#0f1113', height: 100, width: 150 }} maskColor="#050505" nodeColor="#555" />}
         </ReactFlow>
 
         {/* Floating Toolbar */}

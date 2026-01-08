@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { User, Save, Loader2 } from 'lucide-react';
+import GraphSettings from './_components/GraphSettings';
 
 export default function SettingsPage() {
   const [username, setUsername] = useState('');
@@ -81,6 +82,10 @@ export default function SettingsPage() {
                 )}
             </div>
         </div>
+      </div>
+
+      <div className="mt-8">
+        <GraphSettings />
       </div>
     </div>
   );
