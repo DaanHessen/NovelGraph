@@ -13,10 +13,14 @@ function cn(...inputs: (string | undefined | null | false)[]) {
 
 function Logo() {
   return (
-    <div className="flex flex-col items-center mb-12">
-      <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-accent mb-4">
-        <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20" />
-      </svg>
+    <div className="flex flex-col items-center mb-12 select-none pointer-events-none">
+      <pre className="font-mono text-[6px] sm:text-[8px] md:text-[10px] leading-none text-accent font-black tracking-tighter text-center whitespace-pre drop-shadow-[0_0_15px_rgba(167,139,250,0.5)]">
+{`███    ██  ██████  ██    ██ ███████ ██       ██████  ██████   █████  ██████  ██   ██ 
+████   ██ ██    ██ ██    ██ ██      ██      ██       ██   ██ ██   ██ ██   ██ ██   ██ 
+██ ██  ██ ██    ██ ██    ██ █████   ██      ██   ███ ██████  ███████ ██████  ███████ 
+██  ██ ██ ██    ██  ██  ██  ██      ██      ██    ██ ██   ██ ██   ██ ██      ██   ██ 
+██   ████  ██████    ████   ███████ ███████  ██████  ██   ██ ██   ██ ██      ██   ██`}
+      </pre>
     </div>
   );
 }
