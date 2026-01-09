@@ -15,10 +15,24 @@ export interface ManuscriptNode {
   description?: string;
 }
 
+export interface MatterSection {
+    id: string;
+    enabled: boolean;
+    title: string;
+    content: string; // HTML or text
+    type: 'copyright' | 'dedication' | 'epigraph' | 'toc' | 'foreword' | 'preface' | 'acknowledgments' | 'about_author' | 'also_by' | 'custom';
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    data?: any; // For structured data like clauses
+}
+
 interface ManuscriptState {
   nodes: ManuscriptNode[];
   activeNodeId: string | null;
+  activeMatterId: string | null;
+  frontMatter: MatterSection[];
+  backMatter: MatterSection[];
   
+  // existing methods...
   addChapter: (parentId: string | null) => void;
   addPart: () => void;
   deleteNode: (id: string) => void;
@@ -27,8 +41,13 @@ interface ManuscriptState {
   updateNodeContent: (id: string, content: string, wordCount: number) => void;
   togglePartCollapsed: (id: string) => void;
   setActiveNode: (id: string) => void;
+  setActiveMatter: (id: string | null) => void;
   moveNode: (activeId: string, targetId: string, placement: 'inside' | 'before' | 'after') => void;
   reorderNodes: (newNodes: ManuscriptNode[]) => void;
+  
+  toggleMatterSection: (sectionId: string, isFront: boolean) => void;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  updateMatterContent: (sectionId: string, isFront: boolean, content: string, data?: any) => void;
 }
 
 export const useManuscriptStore = create<ManuscriptState>()(
@@ -46,6 +65,20 @@ export const useManuscriptStore = create<ManuscriptState>()(
         }
       ],
       activeNodeId: 'chapter-1',
+      activeMatterId: null,
+      frontMatter: [
+          { id: 'copyright', title: 'Copyright', enabled: true, type: 'copyright', content: '' },
+          { id: 'dedication', title: 'Dedication', enabled: false, type: 'dedication', content: '' },
+          { id: 'epigraph', title: 'Epigraph', enabled: false, type: 'epigraph', content: '' },
+          { id: 'toc', title: 'Table of Contents', enabled: true, type: 'toc', content: '' },
+          { id: 'foreword', title: 'Foreword', enabled: false, type: 'foreword', content: '' },
+          { id: 'preface', title: 'Preface', enabled: false, type: 'preface', content: '' },
+          { id: 'acknowledgments', title: 'Acknowledgments', enabled: false, type: 'acknowledgments', content: '' },
+      ],
+      backMatter: [
+          { id: 'about_author', title: 'About the Author', enabled: false, type: 'about_author', content: '' },
+          { id: 'also_by', title: 'Also by {author}', enabled: false, type: 'also_by', content: '' },
+      ],
 
       addChapter: (parentId) => set((state) => {
         const id = `chapter-${Date.now()}`;
@@ -112,11 +145,17 @@ export const useManuscriptStore = create<ManuscriptState>()(
         nodes: state.nodes.map(n => n.id === id ? { ...n, description } : n)
       })),
 
+      setNodeCollapsed: (id: string, collapsed: boolean) => set((state) => ({
+        nodes: state.nodes.map((n) => (n.id === id ? { ...n, collapsed } : n)),
+      })),
+
       togglePartCollapsed: (id) => set((state) => ({
           nodes: state.nodes.map(n => n.id === id ? { ...n, collapsed: !n.collapsed } : n)
       })),
 
-      setActiveNode: (id) => set({ activeNodeId: id }),
+      setActiveNode: (id) => set({ activeNodeId: id, activeMatterId: null }), // Modified to clear activeMatterId
+
+      setActiveMatter: (id) => set({ activeMatterId: id, activeNodeId: null }), // New method
 
       moveNode: (activeId: string, targetId: string, placement: 'inside' | 'before' | 'after') => set((state) => {
 
@@ -141,7 +180,21 @@ export const useManuscriptStore = create<ManuscriptState>()(
            return { nodes: updatedNodes };
       }),
 
-      reorderNodes: (newNodes) => set({ nodes: newNodes })
+      reorderNodes: (newNodes) => set({ nodes: newNodes }),
+
+      toggleMatterSection: (sectionId, isFront) => set((state) => {
+          const list = isFront ? 'frontMatter' : 'backMatter';
+          return {
+              [list]: state[list].map(s => s.id === sectionId ? { ...s, enabled: !s.enabled } : s)
+          };
+      }),
+
+      updateMatterContent: (sectionId, isFront, content, data) => set((state) => {
+          const list = isFront ? 'frontMatter' : 'backMatter';
+          return {
+              [list]: state[list].map(s => s.id === sectionId ? { ...s, content, data: data ?? s.data } : s)
+          };
+      })
 
     }),
     {

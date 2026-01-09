@@ -107,7 +107,13 @@ export default function ChapterEditor() {
                         <label className="text-xs uppercase font-bold text-gray-500">Description / Subtext</label>
                         <textarea 
                             value={activeNode.description || ''}
-                            onChange={(e) => updateNodeDescription(activeNode.id, e.target.value)}
+                            onChange={(e) => {
+                                const text = e.target.value;
+                                const words = text.trim().split(/\s+/).filter(Boolean).length;
+                                if (words <= 500) {
+                                    updateNodeDescription(activeNode.id, text);
+                                }
+                            }}
                             className="w-full bg-transparent text-lg text-gray-300 outline-none border-b border-white/10 focus:border-purple-500 transition-colors pb-2 resize-none h-32 placeholder-gray-600"
                             placeholder="Add a brief description or subtext for this part..."
                         />
@@ -123,15 +129,11 @@ export default function ChapterEditor() {
 
     return (
         <div className="max-w-3xl mx-auto py-10 animate-in fade-in duration-500">
-            <div className="mb-8 flex items-end justify-between">
+            <div className="mb-8 flex items-end justify-between animate-in fade-in slide-in-from-bottom-4 duration-200">
                 <div>
                     <h1 className="text-4xl font-serif text-white mb-2">{activeNode.title}</h1>
                     <div className="flex items-center gap-3 text-gray-400 font-serif italic text-sm">
                         <span>{editor?.storage.characterCount.words()} words</span>
-                        <span className="w-1 h-1 bg-gray-600 rounded-full" />
-                        <span className="uppercase text-[10px] tracking-wider not-italic font-sans opacity-50">
-                            {language === 'nl' ? 'Dutch' : language === 'de' ? 'German' : language === 'fr' ? 'French' : language === 'es' ? 'Spanish' : 'English'} Detected
-                        </span>
                     </div>
                 </div>
             </div>
