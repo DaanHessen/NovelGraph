@@ -7,6 +7,7 @@ import CharacterCount from '@tiptap/extension-character-count';
 import { useEffect, useState } from 'react';
 import { useManuscriptStore } from '../_store/useManuscriptStore';
 import { FolderOpen } from 'lucide-react';
+import { franc } from 'franc-min';
 
 export default function ChapterEditor() {
     const { activeNodeId, nodes, updateNodeContent, updateNodeTitle, updateNodeDescription } = useManuscriptStore();
@@ -45,7 +46,35 @@ export default function ChapterEditor() {
                 editor.commands.setContent(activeNode.content || '');
             }
         }
-    }, [activeNodeId, editor, activeNode]); 
+    }, [activeNodeId, editor, activeNode]);
+
+    useEffect(() => {
+        if (!editor) return;
+        
+        const detectLanguage = () => {
+            const text = editor.getText();
+            if (text.length < 10) return; // Too short to detect
+
+            const detected = franc(text);
+            // Map franc codes (3 letter) to HTML lang codes (2 letter)
+            const map: Record<string, string> = {
+                'nld': 'nl',
+                'deu': 'de',
+                'fra': 'fr',
+                'spa': 'es',
+                'eng': 'en'
+            };
+            
+            const lang2 = map[detected] || 'en';
+            if (lang2 !== language) {
+                setLanguage(lang2);
+            }
+        };
+
+        const timeout = setTimeout(detectLanguage, 1000);
+        return () => clearTimeout(timeout);
+    }, [editor, language]); 
+
 
     if (!activeNode) {
         return (
@@ -97,22 +126,14 @@ export default function ChapterEditor() {
             <div className="mb-8 flex items-end justify-between">
                 <div>
                     <h1 className="text-4xl font-serif text-white mb-2">{activeNode.title}</h1>
-                    <p className="text-gray-400 font-serif italic text-sm">
-                        {editor?.storage.characterCount.words()} words
-                    </p>
+                    <div className="flex items-center gap-3 text-gray-400 font-serif italic text-sm">
+                        <span>{editor?.storage.characterCount.words()} words</span>
+                        <span className="w-1 h-1 bg-gray-600 rounded-full" />
+                        <span className="uppercase text-[10px] tracking-wider not-italic font-sans opacity-50">
+                            {language === 'nl' ? 'Dutch' : language === 'de' ? 'German' : language === 'fr' ? 'French' : language === 'es' ? 'Spanish' : 'English'} Detected
+                        </span>
+                    </div>
                 </div>
-                
-                <select 
-                    value={language}
-                    onChange={(e) => setLanguage(e.target.value)}
-                    className="bg-zinc-900 border border-white/10 text-xs text-gray-400 rounded px-2 py-1 outline-none hover:border-purple-500 transition-colors"
-                >
-                    <option value="en">English</option>
-                    <option value="nl">Dutch</option>
-                    <option value="de">German</option>
-                    <option value="fr">French</option>
-                    <option value="es">Spanish</option>
-                </select>
             </div>
             
             <EditorContent editor={editor} />
