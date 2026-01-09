@@ -8,7 +8,6 @@ import { Download, Book, FileText, ChevronRight, PenTool } from 'lucide-react';
 export default function ExportPage() {
     const { nodes } = useManuscriptStore();
     
-    // Default config
     const [config, setConfig] = useState<ExportConfig>({
         title: 'Untitled Story',
         author: 'Unknown Author',
@@ -17,17 +16,11 @@ export default function ExportPage() {
         language: 'en'
     });
     
-    // UI State
-    const [activeTab, setActiveTab] = useState<'general' | 'content'>('general');
     const [foreword, setForeword] = useState('');
     const [afterword, setAfterword] = useState('');
     const [customCopyright, setCustomCopyright] = useState(false);
 
-    // Load defaults from first chapter or store?
     useEffect(() => {
-        // Try to guess title from manuscript or project settings later
-        // For now, static defaults or user input.
-        // Maybe load author profile?
         const loadProfile = async () => {
              try {
                 const res = await fetch('/api/settings/profile');
@@ -35,18 +28,12 @@ export default function ExportPage() {
                     const data = await res.json();
                     if(data.first_name) setConfig(c => ({ ...c, author: `${data.first_name} ${data.last_name || ''}`.trim()}));
                 }
-             } catch(e) {}
+             } catch {}
         };
         loadProfile();
     }, []);
 
     const getChapters = () => {
-        // Flatten and sort chapters
-        // We only export Chapters, not Folders (unless folders denote sections?)
-        // Usually we export active chapters.
-        // Let's grab all nodes of type 'chapter', sorted by index (conceptually).
-        // A real robust export would walk the tree.
-        // MVP: Filter 'chapters' and try to respect order.
         return nodes
             .filter(n => n.type === 'chapter')
             .map(n => ({ title: n.title, content: n.content || '', id: n.id }));
@@ -79,10 +66,8 @@ export default function ExportPage() {
             <main className="flex-1 overflow-y-auto p-8">
                 <div className="max-w-5xl mx-auto w-full grid grid-cols-1 lg:grid-cols-3 gap-8">
                     
-                    {/* Left Column: Configuration */}
                     <div className="lg:col-span-2 space-y-6">
                         
-                        {/* Metadata Card */}
                         <div className="bg-zinc-900/50 border border-white/5 rounded-2xl p-6 space-y-4">
                             <h2 className="text-lg font-medium text-white flex items-center gap-2">
                                 <PenTool size={18} className="text-purple-400"/> Book Metadata
@@ -125,7 +110,6 @@ export default function ExportPage() {
                             </div>
                         </div>
 
-                         {/* Front/Back Matter */}
                          <div className="bg-zinc-900/50 border border-white/5 rounded-2xl p-6 space-y-6">
                             <h2 className="text-lg font-medium text-white flex items-center gap-2">
                                 <Book size={18} className="text-purple-400"/> Front & Back Matter
@@ -158,7 +142,7 @@ export default function ExportPage() {
                             <input 
                                 type="checkbox" 
                                 id="toc"
-                                checked={config.includeTOC} // using config.includeTOC
+                                checked={config.includeTOC}
                                 onChange={(e) => setConfig({...config, includeTOC: e.target.checked })}
                                 className="rounded bg-white/10 border-white/20 text-purple-500 focus:ring-purple-500"
                             />
@@ -167,7 +151,6 @@ export default function ExportPage() {
 
                     </div>
 
-                    {/* Right Column: Actions */}
                     <div className="space-y-4">
                         <div className="bg-zinc-900 p-6 rounded-2xl border border-white/10 sticky top-24">
                             <h3 className="text-sm font-bold text-white uppercase tracking-widest mb-6">Download Formats</h3>

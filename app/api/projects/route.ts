@@ -45,7 +45,6 @@ export async function POST(request: Request) {
 
     const id = uuidv4();
     const slug = generateSlug(name);
-    // Ensure slug uniqueness could be retried, but relying on random suffix for now as minimal implementation.
 
     const result = await db.query(
       `INSERT INTO projects (id, slug, name, description, author)

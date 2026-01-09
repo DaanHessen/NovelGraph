@@ -10,7 +10,6 @@ function cn(...inputs: (string | undefined | null | false)[]) {
 }
 
 const StoryNode = ({ data, selected }: NodeProps) => {
-  // Determine icon based on type (default to FileText)
   const type = data.type || 'chapter';
   
   let Icon = FileText;
@@ -38,7 +37,6 @@ const StoryNode = ({ data, selected }: NodeProps) => {
             selected ? "border-accent shadow-[0_0_30px_rgba(var(--accent-rgb),0.2)]" : "border-white/10 hover:border-white/20 hover:bg-[#0f1113]"
         )}
     >
-      {/* Ghost Handles - All Sides */}
       <Handle type="target" position={Position.Top} className="w-3! h-3! bg-white/50! border-0! rounded-full opacity-0 group-hover:opacity-100 transition-all duration-200 hover:bg-accent! hover:scale-125" />
       <Handle type="source" position={Position.Top} className="w-3! h-3! bg-white/50! border-0! rounded-full opacity-0 group-hover:opacity-100 transition-all duration-200 hover:bg-accent! hover:scale-125 z-50" />
       
@@ -51,7 +49,6 @@ const StoryNode = ({ data, selected }: NodeProps) => {
       <Handle type="target" position={Position.Left} className="w-3! h-3! bg-white/50! border-0! rounded-full opacity-0 group-hover:opacity-100 transition-all duration-200 hover:bg-accent! hover:scale-125" />
       <Handle type="source" position={Position.Left} className="w-3 h-3 bg-white/50 border-0 rounded-full opacity-0 group-hover:opacity-100 transition-all duration-200 hover:bg-accent hover:scale-125 z-50" />
 
-      {/* Header with Type Indicator */}
       <div className="flex items-center gap-3 p-3 border-b border-white/5 bg-white/5">
         <div className={cn("w-8 h-8 rounded-lg flex items-center justify-center text-white shadow-lg", accentColor, accentShadow)}>
             <Icon size={14} />
@@ -61,7 +58,6 @@ const StoryNode = ({ data, selected }: NodeProps) => {
         </div>
       </div>
 
-      {/* Content */}
       <div className="p-4">
         <div className="text-sm font-bold text-white mb-1">{data.label as string}</div>
         <div className="text-xs text-gray-400 line-clamp-2">

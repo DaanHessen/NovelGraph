@@ -6,7 +6,6 @@ import clsx from 'clsx';
 import SettingsHeader from '../_components/SettingsHeader';
 
 
-// Use React.ComponentType for the icon prop to avoid 'any'
 function Select({ value, onChange, options, icon: Icon }: { value: string, onChange: (v: string) => void, options: { label: string, value: string }[], icon: React.ComponentType<{ size: number }> }) {
     return (
         <div className="relative">
@@ -50,7 +49,6 @@ function Toggle({ value, onChange }: { value: boolean, onChange: (v: boolean) =>
     );
 }
 
-// Shared components for clean settings list
 function SettingsSection({ title, children }: { title: string, children: React.ReactNode }) {
     return (
         <div className="space-y-3">

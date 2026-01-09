@@ -74,7 +74,6 @@ function EditorContent() {
          <StatsCard title="Locations" value={stats.locations.toString()} icon={Target} />
       </div>
 
-       {/* Placeholder for future detailed metrics if needed, currently clean as requested */}
        <div className="bg-white/5 border border-white/5 rounded-3xl p-12 text-center text-gray-500">
            <p>Start writing in the &quot;Write&quot; tab or plan in the &quot;Graph&quot; tab to see your progress grow!</p>
        </div>

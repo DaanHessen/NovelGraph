@@ -6,7 +6,6 @@ import { Loader2 } from 'lucide-react';
 import SettingsHeader from '../_components/SettingsHeader';
 
 export default function AccountSettingsPage() {
-    // ... (keep state)
     const [username, setUsername] = useState('');
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
@@ -21,7 +20,6 @@ export default function AccountSettingsPage() {
           .finally(() => setLoading(false));
     }, []);
 
-    // Auto-save debouncer
     useEffect(() => {
         if (loading || !username) return;
 

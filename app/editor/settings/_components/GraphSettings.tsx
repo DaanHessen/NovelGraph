@@ -15,7 +15,6 @@ interface GraphSettingsState {
 }
 
 export default function GraphSettings() {
-    // Lazy initialization to read from localStorage just once on mount
     const [settings, setSettings] = useState<GraphSettingsState>(() => {
         if (typeof window !== 'undefined') {
             const saved = localStorage.getItem('graph-settings-global');
@@ -47,7 +46,6 @@ export default function GraphSettings() {
         };
     });
 
-    // Auto-save effect with debounce
     useEffect(() => {
         const timeout = setTimeout(() => {
             localStorage.setItem('graph-settings-global', JSON.stringify(settings));
@@ -59,7 +57,6 @@ export default function GraphSettings() {
         setSettings(prev => ({ ...prev, [key]: value }));
     };
 
-    // Derived states for UI
     const gridOptions = ['dots', 'lines', 'cross'];
     const edgeOptions = ['default', 'straight', 'step', 'smoothstep', 'simple_bezier'];
 
@@ -72,7 +69,6 @@ export default function GraphSettings() {
 
             <div className="space-y-6">
                 
-                {/* Grid Settings */}
                 <div className="space-y-4">
                     <h3 className="text-sm font-semibold text-gray-400 uppercase tracking-wider flex items-center gap-2">
                         <Grid3X3 size={14} /> Grid & Snapping
@@ -108,13 +104,11 @@ export default function GraphSettings() {
 
                 <div className="w-full h-px bg-white/5" />
 
-                {/* Visual Customization */}
                 <div className="space-y-4">
                      <h3 className="text-sm font-semibold text-gray-400 uppercase tracking-wider flex items-center gap-2">
                         <Monitor size={14} /> Visual Style
                     </h3>
 
-                    {/* Grid Type */}
                     <div className="space-y-2">
                         <label className="text-xs text-gray-500">Grid Style</label>
                         <div className="flex bg-black/20 rounded-lg p-1 border border-white/5">
@@ -130,7 +124,6 @@ export default function GraphSettings() {
                         </div>
                     </div>
 
-                    {/* Edge Style */}
                     <div className="space-y-2">
                         <label className="text-xs text-gray-500">Edge Style</label>
                          <div className="grid grid-cols-3 gap-2">
@@ -146,7 +139,6 @@ export default function GraphSettings() {
                         </div>
                     </div>
 
-                     {/* Connection Line Style */}
                     <div className="space-y-2">
                         <label className="text-xs text-gray-500">Connection Line Style</label>
                          <div className="grid grid-cols-3 gap-2">
@@ -165,7 +157,6 @@ export default function GraphSettings() {
 
                 <div className="w-full h-px bg-white/5" />
 
-                {/* UI Controls */}
                 <div className="space-y-4">
                     <h3 className="text-sm font-semibold text-gray-400 uppercase tracking-wider flex items-center gap-2">
                         <Monitor size={14} /> Interface

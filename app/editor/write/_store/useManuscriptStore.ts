@@ -7,7 +7,7 @@ export interface ManuscriptNode {
   id: string;
   type: NodeType;
   title: string;
-  content?: string; // HTML or JSON content for chapters
+  content?: string;
   parentId: string | null;
   index: number;
   collapsed?: boolean;
@@ -19,7 +19,6 @@ interface ManuscriptState {
   nodes: ManuscriptNode[];
   activeNodeId: string | null;
   
-  // Actions
   addChapter: (parentId: string | null) => void;
   addPart: () => void;
   deleteNode: (id: string) => void;
@@ -34,7 +33,7 @@ interface ManuscriptState {
 
 export const useManuscriptStore = create<ManuscriptState>()(
   persist(
-    (set, get) => ({
+    (set) => ({
       nodes: [
         {
           id: 'chapter-1',
@@ -79,9 +78,6 @@ export const useManuscriptStore = create<ManuscriptState>()(
       }),
 
       deleteNode: (id) => set((state) => {
-          // Recursive delete? Or just move children to root?
-          // For now, let's just delete the node and move children to root (or delete them too?)
-          // Usually dragging out is safer. Let's delete children for now to be safe, but warn user in UI.
           const nodesToDelete = new Set<string>();
           const findChildren = (parentId: string) => {
               state.nodes.forEach(n => {
@@ -123,12 +119,6 @@ export const useManuscriptStore = create<ManuscriptState>()(
       setActiveNode: (id) => set({ activeNodeId: id }),
 
       moveNode: (activeId: string, targetId: string, placement: 'inside' | 'before' | 'after') => set((state) => {
-          // 'placement' can be 'inside', 'before', 'after'
-          // Logic:
-          // 1. Find active node.
-          // 2. Find target node.
-          // 3. Update active node's parentId and index based on placement.
-          // 4. Update indices of siblings.
 
           const activeNode = state.nodes.find(n => n.id === activeId);
           const targetNode = state.nodes.find(n => n.id === targetId);
@@ -140,25 +130,14 @@ export const useManuscriptStore = create<ManuscriptState>()(
 
           if (placement === 'inside') {
               newParentId = targetId;
-              // Add to end of children
               newIndex = state.nodes.filter(n => n.parentId === targetId).length;
           } else {
-             // Placing before or after target
              newParentId = targetNode.parentId;
-             // Calculate new index
-              // We need to re-index all siblings of targetNode
-              // This is complex to do transactionally in one go without full list reorder.
-              // Easier: Just return the state and let reorderNodes handle bulk sort?
-              // BUT, 'inside' changes parentId which reorderNodes (flat list) might not capture if we don't display it right.
-              
-              // Let's rely on `reorderNodes` to set the whole new state including parentIds if passed.
-              // So we will change signature of reorderNodes to accept full node list update.
+
               return state;
           }
           
-           // Return updated node
            const updatedNodes = state.nodes.map(n => n.id === activeId ? { ...n, parentId: newParentId, index: newIndex } : n);
-           // We should also normalize indices for the old siblings and new siblings, but for simple 'move inside' append, it's okay.
            return { nodes: updatedNodes };
       }),
 

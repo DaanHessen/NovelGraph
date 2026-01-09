@@ -1,8 +1,3 @@
-import { Download, FileText, Book, FileType } from 'lucide-react';
-import { useManuscriptStore } from '../../write/_store/useManuscriptStore';
-import { useState } from 'react';
-
-// Placeholder for export logic - to be expanded
 export default function ExportSidebarContent() {
     return (
         <div className="space-y-4 animate-in slide-in-from-right duration-300">

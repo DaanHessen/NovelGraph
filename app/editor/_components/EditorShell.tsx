@@ -10,10 +10,8 @@ export default function EditorShell({ children }: { children: React.ReactNode })
   const isContextRoute = pathname.includes('/settings') || pathname.includes('/write') || pathname.includes('/graph');
   const [rightOpen, setRightOpen] = useState(true);
   
-  // If route doesn't support context, it's effectively closed
   const isActuallyOpen = isContextRoute && rightOpen;
   
-  // Base margin is 20 (IconRail, 5rem). Extra sidebar is 64 (16rem).
   const contentMargin = isActuallyOpen ? 'md:ml-[21rem]' : 'md:ml-20';
 
   return (

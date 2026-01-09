@@ -12,7 +12,6 @@ export default function ChapterEditor() {
     const { activeNodeId, nodes, updateNodeContent, updateNodeTitle, updateNodeDescription } = useManuscriptStore();
     const activeNode = nodes.find(n => n.id === activeNodeId);
     
-    // Language state for spellcheck
     const [language, setLanguage] = useState('en');
 
     const editor = useEditor({
@@ -29,7 +28,7 @@ export default function ChapterEditor() {
             attributes: {
                 class: 'prose prose-invert prose-lg max-w-none focus:outline-none min-h-[50vh]',
                 spellcheck: 'true',
-                lang: language, // Explicit language for spellcheck
+                lang: language,
             },
         },
         onUpdate: ({ editor }) => {
@@ -37,7 +36,7 @@ export default function ChapterEditor() {
                 updateNodeContent(activeNodeId, editor.getHTML(), editor.storage.characterCount.words());
             }
         },
-    }, [activeNodeId, language]); // Re-create editor if ID or Language changes
+    }, [activeNodeId, language]); 
 
     useEffect(() => {
         if (editor && activeNode && activeNode.type === 'chapter') {
@@ -56,7 +55,6 @@ export default function ChapterEditor() {
         );
     }
 
-    // Part / Folder View
     if (activeNode.type === 'part') {
         return (
              <div className="max-w-2xl mx-auto py-20 animate-in fade-in duration-300">
@@ -104,7 +102,6 @@ export default function ChapterEditor() {
                     </p>
                 </div>
                 
-                {/* Language / Spellcheck Selection */}
                 <select 
                     value={language}
                     onChange={(e) => setLanguage(e.target.value)}

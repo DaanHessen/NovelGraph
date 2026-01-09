@@ -20,13 +20,11 @@ export interface GraphSettings {
 }
 
 interface GraphState {
-    // ... (keep unused parts simple/same if not changing)
     pages: GraphPage[];
     activePageId: string;
     selectedNodeId: string | null;
     graphSettings: GraphSettings;
   
-    // Actions
     setPages: (pages: GraphPage[]) => void;
     setActivePage: (id: string) => void;
     setSelectedNode: (id: string | null) => void;
@@ -35,16 +33,13 @@ interface GraphState {
     updatePageName: (id: string, name: string) => void;
     deletePage: (id: string) => void;
 
-    // Node Actions
     updateNodeData: (id: string, data: Record<string, unknown>) => void;
     deleteNode: (id: string) => void;
 
-    // Active Page Helpers
     setNodes: (nodes: Node[]) => void;
     setEdges: (edges: Edge[]) => void;
     updateViewport: (viewport: { x: number; y: number; zoom: number }) => void;
   
-    // Persistence Helper
     getSnapshot: () => { pages: GraphPage[], activePageId: string, graphSettings: GraphSettings };
 }
 
@@ -130,7 +125,7 @@ export const useGraphStore = create<GraphState>()(
         }
       }),
     {
-      partialize: (state) => ({ pages: state.pages, graphSettings: state.graphSettings }), // Track pages and settings history
+      partialize: (state) => ({ pages: state.pages, graphSettings: state.graphSettings }),
       limit: 100
     }
   )

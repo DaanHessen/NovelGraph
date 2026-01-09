@@ -21,7 +21,6 @@ export async function GET(req: NextRequest) {
 
     let data = res.rows[0].graph_data || {};
     
-    // Migration: If old format (has nodes/edges at top level), wrap in default page
     if (data.nodes && Array.isArray(data.nodes) && !data.pages) {
         const defaultPageId = crypto.randomUUID();
         data = {
@@ -35,7 +34,6 @@ export async function GET(req: NextRequest) {
         };
     }
     
-    // Ensure default structure if empty
     if (!data.pages) {
         const defaultPageId = crypto.randomUUID();
         data = {
@@ -66,7 +64,6 @@ export async function POST(req: NextRequest) {
 
   try {
     const body = await req.json();
-    // Validate body structure briefly if needed, but JSONB handles storage.
     
     await db.query(
       'UPDATE projects SET graph_data = $1 WHERE slug = $2',

@@ -39,7 +39,6 @@ function GraphContent() {
   const initialProjectSlug = searchParams.get('project');
   const { screenToFlowPosition } = useReactFlow();
 
-  // Store access
   const { 
       pages, activePageId, 
       setPages, setActivePage, setSelectedNode,
@@ -57,11 +56,9 @@ function GraphContent() {
     },
   });
 
-  // Local ReactFlow state (synced with store)
   const [nodes, setNodes, onNodesChange] = useNodesState<Node>([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>([]);
 
-  // Use the extracted hook for syncing
   useGraphSync(graphSettings, setEdges, setStoreEdges);
   
   const [loading, setLoading] = useState(true);
@@ -77,14 +74,12 @@ function GraphContent() {
       getState: () => { deleteNode: (id: string) => void }
   };
 
-  // 1. Initial Load (Modified for Project-Scoped Persistence)
   useEffect(() => {
     if (!initialProjectSlug) {
         setLoading(false);
         return;
     }
     
-    // Reset store if switching projects
     if (projectSlug && projectSlug !== initialProjectSlug) {
         setPages([]);
         setActivePage('');
@@ -95,7 +90,6 @@ function GraphContent() {
     }
 
     setProjectSlug(initialProjectSlug);
-    // Persist slug globally for navigation recovery
     localStorage.setItem('last_project_slug', initialProjectSlug);
     setLoading(true);
 
@@ -117,8 +111,6 @@ function GraphContent() {
 
                  isLoaded.current = true;
                  setLoading(false);
-                 // We trust local data, but we could trigger background sync here if needed.
-                 // For now, local wins.
                  return;
             }
         } catch (e) {
@@ -126,7 +118,6 @@ function GraphContent() {
         }
     }
 
-    // Fallback to API if no local data
     fetch(`/api/projects/graph?project_slug=${initialProjectSlug}`)
       .then(res => res.json())
       .then(data => {
@@ -153,10 +144,7 @@ function GraphContent() {
       .finally(() => setLoading(false));
   }, [initialProjectSlug, setPages, setActivePage, setViewport, projectSlug, setNodes, setEdges]);
 
-  // 2. Sync Active Page (Smart Merge)
   useEffect(() => {
-      // NOTE: We relaxed the check for activePageId/pages length in the dependency array
-      // to avoid weird loops, but we need to ensure local state sync
       if (!isLoaded.current && pages.length === 0) return;
       if (!activePageId) return;
       
@@ -180,10 +168,8 @@ function GraphContent() {
       });
       setEdges(activePage.edges);
       
-      // Viewport sync logic remains separate
   }, [activePageId, pages, setNodes, setEdges]);
   
-  // Separate effect for Viewport Restore on Page Change
   const prevPageIdRef = useRef(activePageId);
   useEffect(() => {
      if (activePageId !== prevPageIdRef.current) {
@@ -196,18 +182,15 @@ function GraphContent() {
   }, [activePageId, pages, setViewport]);
 
 
-  // 3. Debounced Auto-Save (Local + Remote)
   useEffect(() => {
     if (!projectSlug) return;
     
-    // Save to LocalStorage immediately (or throttled slightly)
     const snapshot = getSnapshot();
     if (snapshot.pages.length > 0) {
         const storageKey = `graph-store-${projectSlug}`;
         localStorage.setItem(storageKey, JSON.stringify(snapshot));
     }
 
-    // Remote Save
     const timeout = setTimeout(() => {
       setSaving(true);
       fetch('/api/projects/graph', {
@@ -237,12 +220,9 @@ function GraphContent() {
       }
   }, [pages, activePageId, setStoreNodes]);
 
-  // 5. Keyboard Shortcuts
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-        // Delete Node
         if (e.key === 'Delete' || e.key === 'Backspace') {
-             // Avoid deleting if editing text inputs (though we are in a graph, check target?)
              const target = e.target as HTMLElement;
              if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable) return;
 
@@ -252,15 +232,9 @@ function GraphContent() {
                  selected.forEach(node => {
                      store.getState().deleteNode(node.id);
                  });
-                 // Also remove from local state immediately to feel snappy
-                 // setNodes(nodes => nodes.filter(n => !n.selected));
-                 // (But re-render from store update will handle it?)
-                 // Store update -> useEffect syncs nodes -> UI updates.
-                 // Ideally we want it instant.
              }
         }
 
-        // Undo/Redo
         if ((e.metaKey || e.ctrlKey) && e.key === 'z') {
             e.preventDefault();
             if (e.shiftKey) {
@@ -274,7 +248,6 @@ function GraphContent() {
             store.temporal.getState().redo();
         }
 
-        // Copy/Paste
         if ((e.metaKey || e.ctrlKey) && e.key === 'c') {
              const selected = nodes.filter(n => n.selected);
              if (selected.length > 0) {
@@ -295,7 +268,6 @@ function GraphContent() {
                             selected: true,
                         }));
                         
-                        // Deselect current
                         const current = nodes.map(n => ({...n, selected: false}));
                         const finalNodes = [...current, ...newNodes];
                         setNodes(finalNodes);
@@ -322,7 +294,6 @@ function GraphContent() {
         y: window.innerHeight / 2,
     });
 
-    // Add jitter
     position.x += Math.random() * 50 - 25;
     position.y += Math.random() * 50 - 25;
 
@@ -337,15 +308,12 @@ function GraphContent() {
         },
     };
 
-    // Update Local
     const newNodes = nodes.concat(newNode);
     setNodes(newNodes);
 
-    // Update Store IMMEDIATELY
     setStoreNodes(newNodes);
   };
 
-  // Viewport Sync
   const onMoveEnd = useCallback((event: unknown, viewport: { x: number; y: number; zoom: number }) => {
       updateViewport(viewport);
   }, [updateViewport]);
@@ -366,7 +334,6 @@ function GraphContent() {
 
 
 
-  // Performance Metrics
   const [metrics, setMetrics] = useState({ x: 0, y: 0, zoom: 1, fps: 60 });
   const lastTimeRef = useRef(performance.now());
   const frameCountRef = useRef(0);
@@ -387,7 +354,6 @@ function GraphContent() {
       return () => cancelAnimationFrame(rafId);
   }, []);
 
-  // Viewport Metric Sync
   const onMove = useCallback((evt: unknown, viewport: { x: number; y: number; zoom: number }) => {
      setMetrics(prev => ({
          ...prev,

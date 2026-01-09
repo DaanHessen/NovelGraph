@@ -18,7 +18,6 @@ export default function IconRail() {
 
 
   useEffect(() => {
-     // Fetch profile for avatar
     const loadProfile = async () => {
         try {
             const res = await fetch('/api/settings/profile');
@@ -35,26 +34,21 @@ export default function IconRail() {
   }, []);
 
 
-  // State to hold the active project slug for navigation
   const [storedSlug, setStoredSlug] = useState<string | null>(null);
 
   useEffect(() => {
-      // Load saved slug on mount
       const saved = localStorage.getItem('last_project_slug');
       if (saved) {
-          // Defer to avoid synchronous update warning
           setTimeout(() => setStoredSlug(saved), 0);
       }
   }, []);
 
   useEffect(() => {
-      // Sync URL slug to local storage
       if (projectSlug) {
           localStorage.setItem('last_project_slug', projectSlug);
       }
   }, [projectSlug]);
 
-  // Derived active slug: URL content takes precedence
   const activeProjectSlug = projectSlug || storedSlug;
 
   const navItems = [
@@ -65,13 +59,8 @@ export default function IconRail() {
     { label: 'Export', icon: Download, href: '/editor/export' },
   ];
   
-  // Helper to construct href with slug if needed
   const getHref = (baseHref: string) => {
-      // If we have an active slug, append it to graph/write/world links
-      // (Assuming these pages require context)
       if (activeProjectSlug && (baseHref.includes('/graph') || baseHref.includes('/write') || baseHref.includes('/world'))) {
-          // If the baseHref matches the current path, preserve current params is handled by simple link, 
-          // but here we are forcing the slug back in if we lost it.
           return `${baseHref}?project=${activeProjectSlug}`;
       }
       return baseHref;
@@ -80,12 +69,10 @@ export default function IconRail() {
   return (
     <div className="fixed top-0 left-0 h-full w-20 bg-background/90 backdrop-blur-xl border-r border-white/5 z-50 flex flex-col items-center py-6 shadow-2xl">
 
-       {/* Logo Icon */}
        <div className="mb-8 p-2 rounded-xl bg-linear-to-br from-accent to-purple-600 text-white shadow-[0_0_15px_var(--accent)]">
           <Globe size={24} />
        </div>
 
-       {/* Primary Nav */}
        <nav className="flex-1 flex flex-col gap-4 w-full px-2">
           {navItems.map((item) => {
             const isActive = pathname === item.href;
@@ -109,7 +96,6 @@ export default function IconRail() {
                  )}
                  <item.icon size={22} className={cn("relative z-10 transition-transform duration-300 group-hover:scale-110", isActive && "text-accent drop-shadow-[0_0_8px_rgba(var(--accent-rgb),0.5)]")} />
                  
-                 {/* Tooltip */}
                     <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-1.5 bg-linear-to-br from-gray-800 to-black text-xs font-medium text-white rounded-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none border border-white/10 shadow-xl z-50 p-px">
                         <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-black border-r border-b border-white/10 rotate-45 transform"></div>
                         {item.label}
@@ -119,13 +105,11 @@ export default function IconRail() {
           })}
        </nav>
 
-       {/* Bottom Actions */}
        <div className="flex flex-col gap-4 w-full px-2 mt-auto">
            
 
 
 
-          {/* Settings - Special Placement (Global / Profile) */}
            <Link
                 href={getHref('/editor/settings')}
                 className={cn(
@@ -139,7 +123,6 @@ export default function IconRail() {
                  <Settings size={22} />
             </Link>
 
-           {/* Exit */}
            <Link
                 href="/"
                 className={clsx("w-full aspect-square rounded-2xl flex items-center justify-center transition-all duration-300",
@@ -150,7 +133,6 @@ export default function IconRail() {
                  <LogOut size={22} />
             </Link>
 
-             {/* Profile */}
             <div className="relative group w-10 h-10 rounded-full bg-linear-to-br from-indigo-500 to-pink-500 p-px shadow-lg mt-2 mx-auto cursor-default">
                  <div className="w-full h-full rounded-full bg-black flex items-center justify-center text-xs font-bold text-white overflow-hidden">
                     {username ? username[0].toUpperCase() : <User size={14} />}

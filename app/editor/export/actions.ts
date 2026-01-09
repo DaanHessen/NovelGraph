@@ -2,10 +2,10 @@
 
 import epub from 'epub-gen-memory';
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export async function generateEpub(options: any, content: any[]) {
     try {
         const buffer = await epub(options, content);
-        // Convert buffer to base64 string
         return buffer.toString('base64');
     } catch (error) {
         console.error("Server EPUB gen failed:", error);

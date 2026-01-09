@@ -1,6 +1,6 @@
 import { usePathname } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import { PanelRightClose, PanelRightOpen, Map as MapIcon, Plus, Trash2, User, SlidersHorizontal, Settings } from 'lucide-react';
+import { PanelRightClose, PanelRightOpen, Map as MapIcon, Plus, Trash2, User, SlidersHorizontal } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { useGraphStore, type GraphPage } from '../graph/_store/useGraphStore';
 import SidebarItem from './SidebarItem';
@@ -113,7 +113,6 @@ export default function ContextSidebar({ open, setOpen }: { open: boolean, setOp
     }
   }, [isSettings, isWrite, isGraph, isExport, setOpen]);
 
-  // Decide which content to show
   let content = null;
   let title = '';
 

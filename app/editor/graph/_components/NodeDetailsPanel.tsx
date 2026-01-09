@@ -11,7 +11,6 @@ export default function NodeDetailsPanel() {
     const activePage = pages.find(p => p.id === activePageId);
     const node: Node | undefined = activePage?.nodes.find(n => n.id === selectedNodeId);
 
-    // State initializes from prop. Component is re-mounted when selectedNodeId changes via key={selectedNodeId} 
     const [label, setLabel] = useState(node?.data.label as string || '');
     const [description, setDescription] = useState(node?.data.description as string || '');
     const [type, setType] = useState(node?.data.type as string || 'chapter');
@@ -26,10 +25,8 @@ export default function NodeDetailsPanel() {
 
     return (
         <div className="flex flex-col h-full animate-in slide-in-from-right duration-300">
-            {/* Header */}
             <div className="flex items-center justify-between pointer-events-none mb-4">
                 <span className="text-xs font-bold text-gray-500 uppercase tracking-widest px-1">Details</span>
-                {/* Close/Back Button */}
                 <button 
                     onClick={() => setSelectedNode(null)}
                     className="pointer-events-auto p-1 rounded-lg hover:bg-white/10 text-gray-500 hover:text-white transition-colors"
@@ -39,10 +36,8 @@ export default function NodeDetailsPanel() {
                 </button>
             </div>
 
-            {/* Content */}
             <div className="space-y-6 flex-1 overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent">
                 
-                {/* Visual Type Selector */}
                 <div className="space-y-2">
                     <label className="text-[10px] font-semibold text-gray-600 uppercase flex items-center gap-2">
                         <Type size={12} /> Node Type
@@ -74,7 +69,6 @@ export default function NodeDetailsPanel() {
                     </div>
                 </div>
 
-                {/* Name Input */}
                 <div className="space-y-2">
                      <label className="text-[10px] font-semibold text-gray-600 uppercase flex items-center gap-2">
                         <Type size={12} /> Label
@@ -91,7 +85,6 @@ export default function NodeDetailsPanel() {
                     />
                 </div>
 
-                {/* Description Input */}
                 <div className="space-y-2">
                      <label className="text-[10px] font-semibold text-gray-600 uppercase flex items-center gap-2">
                         <AlignLeft size={12} /> Description
@@ -108,7 +101,6 @@ export default function NodeDetailsPanel() {
                     />
                 </div>
 
-                {/* Meta Info */}
                 <div className="pt-4 border-t border-white/5">
                     <div className="flex items-center justify-between text-[9px] text-gray-700 font-mono">
                         <span>ID: {node.id.slice(0,8)}</span>

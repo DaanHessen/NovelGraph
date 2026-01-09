@@ -14,7 +14,6 @@
   --card: #0f1113;
   --card-foreground: #f8fafc;
   
-  /* Glassmorphism helpers */
   --glass-border: rgba(255, 255, 255, 0.05);
   --glass-bg: rgba(15, 17, 19, 0.8);
 }
