@@ -66,7 +66,7 @@ function DraggableItem({ node, depth = 0, onToggle, isActive, onDelete, onSelect
                 "group relative flex items-center gap-2 px-2 py-1.5 rounded-md transition-all cursor-pointer border select-none mb-0.5",
                 isActive 
                     ? "bg-accent/10 border-accent/20 text-accent" 
-                    : "border-transparent text-gray-400 hover:bg-white/5 hover:text-white",
+                    : "border-transparent text-muted-foreground hover:bg-white/5 hover:text-foreground",
                 isInside && "bg-accent/20 border-accent", // Highlight folder when hovering inside
                 isDragging && "opacity-30" // Simple dimming
             )}
@@ -145,7 +145,7 @@ function MatterItem({ section, onToggle, onSelect, isActive }: { section: Matter
                 }}
                 className={clsx(
                     "w-8 h-4 rounded-full relative transition-colors duration-200 border border-transparent hover:brightness-110",
-                    section.enabled ? "bg-accent" : "bg-white/10"
+                    section.enabled ? "bg-accent" : "bg-muted/50"
                 )}
             >
                 <div className={clsx(
@@ -306,8 +306,8 @@ export default function WriteSidebarContent() {
     if (viewMode === 'front') {
         return (
             <div className="h-full flex flex-col animate-in slide-in-from-right duration-200">
-                <div className="flex items-center justify-between p-3 border-b border-white/5">
-                    <span className="text-sm font-bold text-gray-300">Front Matter</span>
+                <div className="flex items-center justify-between p-3 border-b border-border">
+                    <span className="text-sm font-bold text-muted-foreground">Front Matter</span>
                     <button onClick={() => setViewMode('manuscript')} className="text-xs uppercase font-bold text-accent hover:text-accent/80">Done</button>
                 </div>
                 <div className="flex-1 overflow-y-auto p-2 space-y-1">
@@ -328,8 +328,8 @@ export default function WriteSidebarContent() {
     if (viewMode === 'back') {
         return (
             <div className="h-full flex flex-col animate-in slide-in-from-right duration-200">
-                <div className="flex items-center justify-between p-3 border-b border-white/5">
-                    <span className="text-sm font-bold text-gray-300">Back Matter</span>
+                <div className="flex items-center justify-between p-3 border-b border-border">
+                    <span className="text-sm font-bold text-muted-foreground">Back Matter</span>
                     <button onClick={() => setViewMode('manuscript')} className="text-xs uppercase font-bold text-accent hover:text-accent/80">Done</button>
                 </div>
                 <div className="flex-1 overflow-y-auto p-2 space-y-1">
@@ -359,7 +359,7 @@ export default function WriteSidebarContent() {
             
             <button 
                 onClick={() => setViewMode('front')}
-                className="mx-2 p-2 rounded-lg border border-dashed border-white/10 text-gray-500 hover:text-white hover:bg-white/5 hover:border-white/20 transition-all text-xs font-medium flex items-center gap-2"
+                className="mx-2 p-2 rounded-lg border border-dashed border-border/40 text-muted-foreground hover:text-foreground hover:bg-white/5 hover:border-border transition-all text-xs font-medium flex items-center gap-2"
             >
                 <BookOpen size={12} />
                 <span>Front Matter</span>
@@ -399,9 +399,9 @@ export default function WriteSidebarContent() {
                     </SortableContext>
                     <DragOverlay dropAnimation={null}>
                         {activeDragId ? (
-                            <div className="p-2 bg-[#1a1a1a] rounded-lg border border-white/10 shadow-xl opacity-90 cursor-grabbing flex items-center gap-2">
-                                <FileText size={14} className="text-gray-400" />
-                                <span className="text-xs font-medium text-white">
+                            <div className="p-2 bg-popover rounded-lg border border-border shadow-xl opacity-90 cursor-grabbing flex items-center gap-2">
+                                <FileText size={14} className="text-muted-foreground" />
+                                <span className="text-xs font-medium text-foreground">
                                     {nodes.find(n => n.id === activeDragId)?.title}
                                 </span>
                             </div>
@@ -410,10 +410,10 @@ export default function WriteSidebarContent() {
                 </DndContext>
 
                 <div className="pt-2 pb-8">
-                     <div className="my-2 h-px bg-white/5" />
+                     <div className="my-2 h-px bg-border" />
                      <button 
                         onClick={() => setViewMode('back')}
-                        className="w-full p-2 rounded-lg border border-dashed border-white/10 text-gray-500 hover:text-white hover:bg-white/5 hover:border-white/20 transition-all text-xs font-medium flex items-center gap-2"
+                        className="w-full p-2 rounded-lg border border-dashed border-border/40 text-muted-foreground hover:text-foreground hover:bg-white/5 hover:border-border transition-all text-xs font-medium flex items-center gap-2"
                     >
                         <User size={12} />
                         <span>Back Matter</span>

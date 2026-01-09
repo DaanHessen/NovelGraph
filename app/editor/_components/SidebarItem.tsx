@@ -37,14 +37,14 @@ export default function SidebarItem({
         size={16} 
         className={cn(
           "transition-colors duration-200 shrink-0",
-          isActive ? "text-accent" : isDanger ? "text-red-400" : "text-gray-600 group-hover:text-gray-400"
+          isActive ? "text-primary" : isDanger ? "text-destructive" : "text-muted-foreground group-hover:text-foreground"
         )} 
       />
       <div className="flex-1 min-w-0 flex items-center justify-between gap-2">
         {children ? children : (
             <div className="flex-1 min-w-0">
-                 <div className={cn("text-xs font-medium truncate", isDanger && "text-red-400")}>{label}</div>
-                 {subLabel && <div className="text-[10px] text-gray-600 truncate">{subLabel}</div>}
+                 <div className={cn("text-xs font-medium truncate", isDanger && "text-destructive")}>{label}</div>
+                 {subLabel && <div className="text-[10px] text-muted-foreground truncate">{subLabel}</div>}
             </div>
         )}
         {customRightElement && !children && (
@@ -59,9 +59,9 @@ export default function SidebarItem({
   const className = cn(
     "relative flex items-center gap-3 px-3 py-2 rounded-lg transition-all cursor-pointer group mb-1 border select-none",
     isActive 
-      ? "bg-white/5 text-white border-white/5 shadow-sm" 
-      : "text-gray-400 hover:bg-white/5 hover:text-white border-transparent",
-    isDanger && "hover:bg-red-500/10 hover:border-red-500/20"
+      ? "bg-primary/10 text-primary border-primary/20 shadow-sm" 
+      : "text-muted-foreground hover:bg-accent/5 hover:text-foreground border-transparent",
+    isDanger && "hover:bg-destructive/10 hover:border-destructive/20"
   );
 
   if (href) {

@@ -54,11 +54,11 @@ export default function ExportPage() {
 
     return (
         <div className="h-full flex flex-col animate-in fade-in duration-500">
-             <header className="px-8 py-8 border-b border-white/5 bg-background/50 backdrop-blur-xl sticky top-0 z-30">
+             <header className="px-8 py-8 border-b border-border bg-background/50 backdrop-blur-xl sticky top-0 z-30">
                 <div className="flex items-center justify-between max-w-5xl mx-auto w-full">
                     <div>
-                        <h1 className="text-3xl font-serif text-white mb-2">Export Manuscript</h1>
-                        <p className="text-gray-400 text-sm">Turn your writing into a polished book.</p>
+                        <h1 className="text-3xl font-serif text-foreground mb-2">Export Manuscript</h1>
+                        <p className="text-muted-foreground text-sm">Turn your writing into a polished book.</p>
                     </div>
                 </div>
             </header>
@@ -68,32 +68,32 @@ export default function ExportPage() {
                     
                     <div className="lg:col-span-2 space-y-6">
                         
-                        <div className="bg-zinc-900/50 border border-white/5 rounded-2xl p-6 space-y-4">
-                            <h2 className="text-lg font-medium text-white flex items-center gap-2">
+                        <div className="bg-card/50 border border-border rounded-2xl p-6 space-y-4">
+                            <h2 className="text-lg font-medium text-foreground flex items-center gap-2">
                                 <PenTool size={18} className="text-purple-400"/> Book Metadata
                             </h2>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div className="space-y-1">
-                                    <label className="text-xs uppercase font-bold text-gray-500">Book Title</label>
+                                    <label className="text-xs uppercase font-bold text-muted-foreground">Book Title</label>
                                     <input 
                                         value={config.title}
                                         onChange={(e) => setConfig({ ...config, title: e.target.value })}
-                                        className="w-full bg-black/20 border border-white/10 rounded-lg px-3 py-2 text-white outline-none focus:border-purple-500 transition-colors"
+                                        className="w-full bg-input/50 border border-input rounded-lg px-3 py-2 text-foreground outline-none focus:border-primary transition-colors"
                                     />
                                 </div>
                                 <div className="space-y-1">
-                                    <label className="text-xs uppercase font-bold text-gray-500">Author Name</label>
+                                    <label className="text-xs uppercase font-bold text-muted-foreground">Author Name</label>
                                     <input 
                                         value={config.author}
                                         onChange={(e) => setConfig({ ...config, author: e.target.value })}
-                                        className="w-full bg-black/20 border border-white/10 rounded-lg px-3 py-2 text-white outline-none focus:border-purple-500 transition-colors"
+                                        className="w-full bg-input/50 border border-input rounded-lg px-3 py-2 text-foreground outline-none focus:border-primary transition-colors"
                                     />
                                 </div>
                             </div>
                             
                             <div className="space-y-1 pt-2">
                                 <div className="flex items-center justify-between mb-1">
-                                     <label className="text-xs uppercase font-bold text-gray-500">Copyright</label>
+                                     <label className="text-xs uppercase font-bold text-muted-foreground">Copyright</label>
                                      <button 
                                         onClick={() => setCustomCopyright(!customCopyright)}
                                         className="text-[10px] text-purple-400 hover:text-purple-300"
@@ -105,33 +105,33 @@ export default function ExportPage() {
                                     value={config.copyright}
                                     onChange={(e) => setConfig({ ...config, copyright: e.target.value })}
                                     disabled={!customCopyright}
-                                    className={`w-full bg-black/20 border border-white/10 rounded-lg px-3 py-2 text-white outline-none focus:border-purple-500 transition-colors text-sm min-h-[80px] ${!customCopyright ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                    className={`w-full bg-input/50 border border-input rounded-lg px-3 py-2 text-foreground outline-none focus:border-primary transition-colors text-sm min-h-[80px] ${!customCopyright ? 'opacity-50 cursor-not-allowed' : ''}`}
                                 />
                             </div>
                         </div>
 
-                         <div className="bg-zinc-900/50 border border-white/5 rounded-2xl p-6 space-y-6">
-                            <h2 className="text-lg font-medium text-white flex items-center gap-2">
+                         <div className="bg-card/50 border border-border rounded-2xl p-6 space-y-6">
+                            <h2 className="text-lg font-medium text-foreground flex items-center gap-2">
                                 <Book size={18} className="text-purple-400"/> Front & Back Matter
                             </h2>
                             
                             <div className="space-y-4">
                                 <div className="space-y-1">
-                                    <label className="text-xs uppercase font-bold text-gray-500">Foreword (Before Story)</label>
+                                    <label className="text-xs uppercase font-bold text-muted-foreground">Foreword (Before Story)</label>
                                     <textarea 
                                         value={foreword}
                                         onChange={(e) => setForeword(e.target.value)}
-                                        className="w-full bg-black/20 border border-white/10 rounded-lg px-3 py-2 text-white outline-none focus:border-purple-500 transition-colors min-h-[100px]"
+                                        className="w-full bg-input/50 border border-input rounded-lg px-3 py-2 text-foreground outline-none focus:border-primary transition-colors min-h-[100px]"
                                         placeholder="Introduction, dedication, or prologue..."
                                     />
                                 </div>
 
                                 <div className="space-y-1">
-                                    <label className="text-xs uppercase font-bold text-gray-500">Afterword (End of Story)</label>
+                                    <label className="text-xs uppercase font-bold text-muted-foreground">Afterword (End of Story)</label>
                                     <textarea 
                                         value={afterword}
                                         onChange={(e) => setAfterword(e.target.value)}
-                                        className="w-full bg-black/20 border border-white/10 rounded-lg px-3 py-2 text-white outline-none focus:border-purple-500 transition-colors min-h-[100px]"
+                                        className="w-full bg-input/50 border border-input rounded-lg px-3 py-2 text-foreground outline-none focus:border-primary transition-colors min-h-[100px]"
                                         placeholder="Acknowledgements, about the author, or teaser for next book..."
                                     />
                                 </div>
@@ -144,29 +144,29 @@ export default function ExportPage() {
                                 id="toc"
                                 checked={config.includeTOC}
                                 onChange={(e) => setConfig({...config, includeTOC: e.target.checked })}
-                                className="rounded bg-white/10 border-white/20 text-purple-500 focus:ring-purple-500"
+                                className="rounded bg-input border-input text-purple-500 focus:ring-purple-500"
                             />
-                            <label htmlFor="toc" className="text-sm text-gray-300">Include Table of Contents</label>
+                            <label htmlFor="toc" className="text-sm text-foreground">Include Table of Contents</label>
                         </div>
 
                     </div>
 
                     <div className="space-y-4">
-                        <div className="bg-zinc-900 p-6 rounded-2xl border border-white/10 sticky top-24">
-                            <h3 className="text-sm font-bold text-white uppercase tracking-widest mb-6">Download Formats</h3>
+                        <div className="bg-card p-6 rounded-2xl border border-border sticky top-24">
+                            <h3 className="text-sm font-bold text-foreground uppercase tracking-widest mb-6">Download Formats</h3>
                             
                             <div className="space-y-3">
                                 <button 
                                     onClick={() => handleExport('pdf')}
-                                    className="w-full flex items-center justify-between p-4 rounded-xl bg-white/5 hover:bg-white/10 border border-white/5 hover:border-purple-500/50 transition-all group"
+                                    className="w-full flex items-center justify-between p-4 rounded-xl bg-accent/5 hover:bg-accent/10 border border-border hover:border-primary/50 transition-all group"
                                 >
                                     <div className="flex items-center gap-3">
                                         <div className="p-2 rounded-lg bg-red-500/20 text-red-400">
                                             <FileText size={20} />
                                         </div>
                                         <div className="text-left">
-                                            <div className="text-sm font-bold text-white">PDF Document</div>
-                                            <div className="text-xs text-gray-500">Print-ready format</div>
+                                            <div className="text-sm font-bold text-foreground">PDF Document</div>
+                                            <div className="text-xs text-muted-foreground">Print-ready format</div>
                                         </div>
                                     </div>
                                     <ExternalIcon />
@@ -174,15 +174,15 @@ export default function ExportPage() {
 
                                 <button 
                                     onClick={() => handleExport('epub')}
-                                    className="w-full flex items-center justify-between p-4 rounded-xl bg-white/5 hover:bg-white/10 border border-white/5 hover:border-purple-500/50 transition-all group"
+                                    className="w-full flex items-center justify-between p-4 rounded-xl bg-accent/5 hover:bg-accent/10 border border-border hover:border-primary/50 transition-all group"
                                 >
                                     <div className="flex items-center gap-3">
                                         <div className="p-2 rounded-lg bg-blue-500/20 text-blue-400">
                                             <Book size={20} />
                                         </div>
                                         <div className="text-left">
-                                            <div className="text-sm font-bold text-white">EPUB eBook</div>
-                                            <div className="text-xs text-gray-500">For Kindle, Apple Books</div>
+                                            <div className="text-sm font-bold text-foreground">EPUB eBook</div>
+                                            <div className="text-xs text-muted-foreground">For Kindle, Apple Books</div>
                                         </div>
                                     </div>
                                     <ExternalIcon />
@@ -190,23 +190,23 @@ export default function ExportPage() {
 
                                 <button 
                                     onClick={() => handleExport('md')}
-                                    className="w-full flex items-center justify-between p-4 rounded-xl bg-white/5 hover:bg-white/10 border border-white/5 hover:border-purple-500/50 transition-all group"
+                                    className="w-full flex items-center justify-between p-4 rounded-xl bg-accent/5 hover:bg-accent/10 border border-border hover:border-primary/50 transition-all group"
                                 >
                                     <div className="flex items-center gap-3">
                                         <div className="p-2 rounded-lg bg-emerald-500/20 text-emerald-400">
                                             <Download size={20} />
                                         </div>
                                         <div className="text-left">
-                                            <div className="text-sm font-bold text-white">Markdown</div>
-                                            <div className="text-xs text-gray-500">Raw text format</div>
+                                            <div className="text-sm font-bold text-foreground">Markdown</div>
+                                            <div className="text-xs text-muted-foreground">Raw text format</div>
                                         </div>
                                     </div>
                                     <ExternalIcon />
                                 </button>
                             </div>
                              
-                             <div className="mt-6 pt-6 border-t border-white/5 text-center">
-                                 <p className="text-xs text-gray-500">
+                             <div className="mt-6 pt-6 border-t border-border text-center">
+                                 <p className="text-xs text-muted-foreground">
                                      Exporting {getChapters().length} chapters.
                                  </p>
                              </div>
@@ -220,5 +220,5 @@ export default function ExportPage() {
 }
 
 function ExternalIcon() {
-    return <ChevronRight size={16} className="text-gray-600 group-hover:text-white transition-colors" />;
+    return <ChevronRight size={16} className="text-muted-foreground group-hover:text-foreground transition-colors" />;
 }

@@ -22,6 +22,7 @@ import {
 import '@xyflow/react/dist/style.css';
 import { useSearchParams } from 'next/navigation';
 import { Loader2, User, MapPin, FileText, GripHorizontal, Undo, Redo } from 'lucide-react';
+import { Button } from '@/app/_components/ui/Button';
 import { motion } from 'framer-motion';
 
 
@@ -365,15 +366,15 @@ function GraphContent() {
 
   if (loading && !isLoaded.current) {
       return (
-        <div className="flex h-screen w-full items-center justify-center bg-[#0a0a0a] z-50">
-            <Loader2 className="animate-spin text-gray-500" />
+        <div className="flex h-screen w-full items-center justify-center bg-background z-50">
+            <Loader2 className="animate-spin text-muted-foreground" />
         </div>
       );
   }
 
   if (!initialProjectSlug) {
       return (
-          <div className="flex h-screen w-full items-center justify-center bg-[#0a0a0a] text-gray-500">
+          <div className="flex h-screen w-full items-center justify-center bg-background text-muted-foreground">
               <p>No project selected.</p>
           </div>
       );
@@ -391,7 +392,7 @@ function GraphContent() {
             onMoveEnd={onMoveEnd}
             onMove={onMove}
             nodeTypes={nodeTypes}
-            className="bg-[#050505]"
+            className="bg-background"
             colorMode="dark"
             minZoom={0.1}
             maxZoom={2}
@@ -422,19 +423,19 @@ function GraphContent() {
                     }
                 />
             )}
-            <Controls className="bg-[#0f1113] border border-white/10 text-white" />
+            <Controls className="bg-[#0f1113] border border-border text-white" />
             {graphSettings?.showMinimap && (
                 <MiniMap
                     position="top-right"
-                    className="m-4 rounded-xl border border-white/10 overflow-hidden shadow-2xl backdrop-blur-md"
-                    style={{ height: 100, width: 150, backgroundColor: 'rgba(15, 17, 19, 0.5)' }}
+                    className="m-4 rounded-xl border border-glass-border overflow-hidden shadow-2xl backdrop-blur-md"
+                    style={{ height: 100, width: 150, backgroundColor: 'var(--glass-bg)' }}
                     maskColor="rgba(0,0,0,0.3)"
                     nodeColor="#555"
                 />
             )}
             <Panel position="bottom-center" className="mb-8 z-40">
                 <motion.div
-                    className="pointer-events-auto flex items-center gap-2 p-1.5 bg-panel/80 backdrop-blur-xl border border-white/10 rounded-full shadow-2xl cursor-grab active:cursor-grabbing"
+                    className="pointer-events-auto flex items-center gap-2 p-1.5 bg-panel/80 backdrop-blur-xl border border-border rounded-full shadow-2xl cursor-grab active:cursor-grabbing"
                     drag
                     dragMomentum={false}
                     dragConstraints={constraintsRef}
@@ -450,41 +451,47 @@ function GraphContent() {
                      </div>
                      <div className="w-px h-4 bg-white/10" />
 
-                     <button
+                     <Button
                        onClick={() => addNode('chapter')}
-                       className="flex items-center gap-2 px-3 py-1.5 rounded-full hover:bg-white/10 transition-colors text-xs font-medium text-white"
+                       variant="ghost"
+                       size="sm"
+                       className="rounded-full hover:bg-white/10 text-xs gap-2"
                      >
                          <FileText size={14} className="text-accent" />
                          <span>Chapter</span>
-                     </button>
-                      <button
+                     </Button>
+                      <Button
                        onClick={() => addNode('character')}
-                       className="flex items-center gap-2 px-3 py-1.5 rounded-full hover:bg-white/10 transition-colors text-xs font-medium text-white"
+                       variant="ghost"
+                       size="sm"
+                       className="rounded-full hover:bg-white/10 text-xs gap-2"
                      >
                          <User size={14} className="text-pink-500" />
                          <span>Character</span>
-                     </button>
-                      <button
+                     </Button>
+                      <Button
                        onClick={() => addNode('location')}
-                       className="flex items-center gap-2 px-3 py-1.5 rounded-full hover:bg-white/10 transition-colors text-xs font-medium text-white"
+                       variant="ghost"
+                       size="sm"
+                       className="rounded-full hover:bg-white/10 text-xs gap-2"
                      >
                          <MapPin size={14} className="text-emerald-500" />
                          <span>Location</span>
-                     </button>
+                     </Button>
 
                      <div className="w-px h-4 bg-white/10" />
 
-                     <button onClick={() => useGraphStore.temporal.getState().undo()} className="p-2 rounded-full hover:bg-white/10 text-white/50 hover:text-white transition-colors" title="Undo (Ctrl+Z)">
+                     <Button variant="ghost" size="icon" onClick={() => useGraphStore.temporal.getState().undo()} className="rounded-full h-8 w-8 hover:bg-white/10 text-muted-foreground hover:text-foreground" title="Undo (Ctrl+Z)">
                          <Undo size={14} />
-                     </button>
-                     <button onClick={() => useGraphStore.temporal.getState().redo()} className="p-2 rounded-full hover:bg-white/10 text-white/50 hover:text-white transition-colors" title="Redo (Ctrl+Y)">
+                     </Button>
+                     <Button variant="ghost" size="icon" onClick={() => useGraphStore.temporal.getState().redo()} className="rounded-full h-8 w-8 hover:bg-white/10 text-muted-foreground hover:text-foreground" title="Redo (Ctrl+Y)">
                          <Redo size={14} />
-                     </button>
+                     </Button>
                 </motion.div>
             </Panel>
 
             <Panel position="bottom-right" className="m-4">
-                <div className="text-[10px] font-mono text-gray-600 flex items-center gap-4 bg-[#0f1113]/80 backdrop-blur border border-white/5 px-3 py-1.5 rounded-full pointer-events-none select-none">
+                <div className="text-[10px] font-mono text-muted-foreground flex items-center gap-4 bg-panel/80 backdrop-blur border border-glass-border px-3 py-1.5 rounded-full pointer-events-none select-none">
                      <span>{metrics.fps} FPS</span>
                      <span className="text-gray-700">|</span>
                      <span>X: {metrics.x}</span>

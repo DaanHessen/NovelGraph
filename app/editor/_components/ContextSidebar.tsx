@@ -37,10 +37,10 @@ function GraphSidebarContent() {
         <div className="space-y-4 animate-in slide-in-from-right duration-300">
              <div className="space-y-1">
                 <div className="flex items-center justify-between px-2 pb-2">
-                    <span className="text-[10px] uppercase tracking-wider text-gray-500 font-bold">Your Graphs</span>
+                    <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-bold">Your Graphs</span>
                     <button 
                         onClick={handleCreatePage}
-                        className="p-1 hover:bg-white/10 rounded text-gray-500 hover:text-white transition-colors"
+                        className="p-1 hover:bg-white/10 rounded text-muted-foreground hover:text-foreground transition-colors"
                         title="New Graph"
                     >
                         <Plus size={14} />
@@ -160,7 +160,7 @@ export default function ContextSidebar({ open, setOpen }: { open: boolean, setOp
                     animate={{ opacity: 1, x: 0 }}
                     exit={{ opacity: 0, x: -10 }}
                     onClick={() => setOpen(true)}
-                    className="fixed top-4 left-24 z-50 p-2 bg-panel/50 backdrop-blur-md border border-white/10 rounded-lg text-gray-400 hover:text-white hover:bg-white/10 transition-colors"
+                    className="fixed top-4 left-24 z-50 p-2 bg-panel/50 backdrop-blur-md border border-border rounded-lg text-muted-foreground hover:text-foreground hover:bg-white/10 transition-colors"
                 >
                     <PanelRightOpen size={18} />
                 </motion.button>
@@ -173,13 +173,13 @@ export default function ContextSidebar({ open, setOpen }: { open: boolean, setOp
                         initial={{ x: -100, opacity: 0 }}
                         animate={{ x: 0, opacity: 1, transition: { duration: 0.5, ease: [0.19, 1, 0.22, 1] } }}
                         exit={{ x: -50, opacity: 0, transition: { duration: 0.3, ease: "easeIn" } }}
-                        className="fixed top-0 left-20 h-full w-64 bg-background/90 backdrop-blur-2xl z-40 py-6 px-4 flex flex-col shadow-2xl border-r border-white/5"
+                        className="fixed top-0 left-20 h-full w-64 bg-background/90 backdrop-blur-2xl z-40 py-6 px-4 flex flex-col shadow-2xl"
                     >
                         <div className="flex items-center justify-between mb-6 px-2">
                         <motion.h2 
                             initial={{ opacity: 0, y: 5 }}
                             animate={{ opacity: 1, y: 0, transition: { delay: 0.1 } }}
-                            className="text-[10px] font-bold text-gray-400 uppercase tracking-widest"
+                            className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest"
                         >
                             {title}
                         </motion.h2>

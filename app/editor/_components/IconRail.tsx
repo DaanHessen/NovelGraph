@@ -67,10 +67,10 @@ export default function IconRail() {
   };
 
   return (
-    <div className="fixed top-0 left-0 h-full w-20 bg-background/90 backdrop-blur-xl border-r border-white/5 z-50 flex flex-col items-center py-6 shadow-2xl">
+    <div className="fixed top-0 left-0 h-full w-20 bg-background/90 backdrop-blur-xl z-50 flex flex-col items-center py-6 shadow-2xl">
 
        <div className="mb-8 flex justify-center">
-          <pre className="font-mono text-[5px] leading-[5px] text-accent/90 font-black tracking-tighter select-none pointer-events-none drop-shadow-[0_0_10px_rgba(167,139,250,0.5)]">
+          <pre className="font-mono text-[5px] leading-[5px] text-accent/90 font-black tracking-tighter select-none pointer-events-none drop-shadow-[0_0_10px_rgba(var(--accent-rgb),0.5)]">
 {`███    ██  ██████  
 ████   ██ ██       
 ██ ██  ██ ██   ███ 
@@ -88,22 +88,22 @@ export default function IconRail() {
                 href={getHref(item.href)}
                 className={cn(
                   "relative group flex items-center justify-center w-full aspect-square rounded-2xl transition-all duration-300",
-                  isActive ? "text-white" : "text-gray-500 hover:text-white hover:bg-white/5"
+                  isActive ? "text-foreground" : "text-muted-foreground hover:text-foreground hover:bg-white/5"
                 )}
                 title={item.label}
               >
                  {isActive && (
                     <motion.div 
                         layoutId="rail-active"
-                        className="absolute inset-0 bg-linear-to-br from-white/10 to-white/5 border border-white/10 rounded-2xl shadow-[0_0_20px_rgba(255,255,255,0.05)]"
+                        className="absolute inset-0 bg-linear-to-br from-white/10 to-white/5 border border-border rounded-2xl shadow-[0_0_20px_rgba(255,255,255,0.05)]"
                         initial={false}
                         transition={{ type: "spring", stiffness: 300, damping: 30 }}
                     />
                  )}
                  <item.icon size={22} className={cn("relative z-10 transition-transform duration-300 group-hover:scale-110", isActive && "text-accent drop-shadow-[0_0_8px_rgba(var(--accent-rgb),0.5)]")} />
                  
-                    <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-1.5 bg-linear-to-br from-gray-800 to-black text-xs font-medium text-white rounded-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none border border-white/10 shadow-xl z-50 p-px">
-                        <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-black border-r border-b border-white/10 rotate-45 transform"></div>
+                    <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-1.5 bg-linear-to-br from-gray-800 to-black text-xs font-medium text-white rounded-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none border border-border shadow-xl z-50 p-px">
+                        <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-black border-r border-b border-border rotate-45 transform"></div>
                         {item.label}
                     </div>
               </Link>
@@ -121,8 +121,8 @@ export default function IconRail() {
                 className={cn(
                   "relative group flex items-center justify-center w-full aspect-square rounded-2xl transition-all duration-300",
                   pathname.includes('/settings') 
-                ? "bg-white/5 border border-purple-500/50 text-white shadow-[0_0_15px_rgba(168,85,247,0.2)] scale-110" 
-                : "text-gray-500 hover:text-gray-300 hover:bg-white/5"
+                ? "bg-accent/10 border border-accent/50 text-foreground shadow-[0_0_15px_rgba(var(--accent-rgb),0.2)] scale-110" 
+                : "text-muted-foreground hover:text-foreground hover:bg-white/5"
                 )}
                 title="Settings"
             >
@@ -132,7 +132,7 @@ export default function IconRail() {
            <Link
                 href="/"
                 className={clsx("w-full aspect-square rounded-2xl flex items-center justify-center transition-all duration-300",
-                  "text-gray-500 hover:text-red-400 hover:bg-red-500/10"
+                  "text-muted-foreground hover:text-destructive hover:bg-destructive/10"
                 )}
                 title="Exit"
             >

@@ -3,13 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FolderOpen, Plus, FileJson, CheckCircle, XCircle, Loader2 } from 'lucide-react';
-import clsx from 'clsx';
-import { twMerge } from 'tailwind-merge';
-
-function cn(...inputs: (string | undefined | null | false)[]) {
-  return twMerge(clsx(inputs));
-}
+import { FolderOpen, Plus, Loader2 } from 'lucide-react';
 
 function Logo() {
   return (
@@ -274,7 +268,7 @@ export default function HomePage() {
                 exit={{ opacity: 0, scale: 0.95, y: 10 }}
                 className="relative w-full max-w-lg bg-[#161618] border border-border shadow-2xl rounded-2xl p-6 overflow-hidden"
             >
-                <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-accent to-transparent opacity-50" />
+                <div className="absolute top-0 left-0 w-full h-1 bg-linear-to-r from-transparent via-accent to-transparent opacity-50" />
                 
                 <h2 className="text-2xl font-bold mb-6 text-white text-center">New Story</h2>
                 

@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { Loader2 } from 'lucide-react';
 
 import SettingsHeader from '../_components/SettingsHeader';
+import { Input } from '@/app/_components/ui/Input';
 
 export default function AccountSettingsPage() {
     const [username, setUsername] = useState('');
@@ -51,16 +52,16 @@ export default function AccountSettingsPage() {
              <div className="space-y-8">
                  <div className="space-y-3">
                     <h3 className="text-sm font-medium text-gray-500 uppercase tracking-wider px-1">Public Profile</h3>
-                    <div className="bg-[#0a0a0a]/50 backdrop-blur-sm border border-white/5 rounded-2xl overflow-hidden divide-y divide-white/5">
+                    <div className="bg-[#0a0a0a]/50 backdrop-blur-sm border border-border rounded-2xl overflow-hidden divide-y divide-border">
                         <div className="p-4 hover:bg-white/2 transition-colors">
                             <div className="flex flex-col gap-3">
                                 <label className="text-sm font-medium text-gray-200">Author Name</label>
                                 <div className="relative group/input max-w-md">
-                                    <input 
+                                    <Input 
                                         type="text" 
                                         value={username}
                                         onChange={(e) => setUsername(e.target.value)}
-                                        className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-emerald-500/50 focus:ring-4 focus:ring-emerald-500/10 transition-all duration-300"
+                                        className="w-full"
                                         placeholder="Enter your pen name..."
                                         disabled={loading}
                                     />

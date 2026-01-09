@@ -87,24 +87,24 @@ export default function ChapterEditor() {
     if (activeNode.type === 'part') {
         return (
              <div className="max-w-2xl mx-auto py-20 animate-in fade-in duration-300">
-                <div className="bg-white/5 border border-white/10 rounded-xl p-8 space-y-6">
-                    <div className="flex items-center gap-4 text-purple-400 mb-4">
+                <div className="bg-card/50 backdrop-blur-sm border border-border rounded-xl p-8 space-y-6">
+                    <div className="flex items-center gap-4 text-primary mb-4">
                         <FolderOpen size={32} />
-                        <h2 className="text-sm font-bold uppercase tracking-widest text-gray-400">Folder Details</h2>
+                        <h2 className="text-sm font-bold uppercase tracking-widest text-muted-foreground">Folder Details</h2>
                     </div>
                     
                     <div className="space-y-2">
-                        <label className="text-xs uppercase font-bold text-gray-500">Title</label>
+                        <label className="text-xs uppercase font-bold text-muted-foreground">Title</label>
                         <input 
                             value={activeNode.title}
                             onChange={(e) => updateNodeTitle(activeNode.id, e.target.value)}
-                            className="w-full bg-transparent text-3xl font-serif text-white outline-none border-b border-white/10 focus:border-purple-500 transition-colors pb-2 placeholder-gray-600"
+                            className="w-full bg-transparent text-3xl font-serif text-foreground outline-none border-b border-border focus:border-primary transition-colors pb-2 placeholder-muted-foreground"
                             placeholder="Folder Name"
                         />
                     </div>
 
                     <div className="space-y-2">
-                        <label className="text-xs uppercase font-bold text-gray-500">Description / Subtext</label>
+                        <label className="text-xs uppercase font-bold text-muted-foreground">Description / Subtext</label>
                         <textarea 
                             value={activeNode.description || ''}
                             onChange={(e) => {
@@ -114,12 +114,12 @@ export default function ChapterEditor() {
                                     updateNodeDescription(activeNode.id, text);
                                 }
                             }}
-                            className="w-full bg-transparent text-lg text-gray-300 outline-none border-b border-white/10 focus:border-purple-500 transition-colors pb-2 resize-none h-32 placeholder-gray-600"
+                            className="w-full bg-transparent text-lg text-muted-foreground outline-none border-b border-border focus:border-primary transition-colors pb-2 resize-none h-32 placeholder-muted-foreground/50"
                             placeholder="Add a brief description or subtext for this part..."
                         />
                     </div>
                     
-                    <div className="pt-4 flex items-center gap-2 text-xs text-gray-500">
+                    <div className="pt-4 flex items-center gap-2 text-xs text-muted-foreground">
                         <span>Folder ID: {activeNode.id}</span>
                     </div>
                 </div>
@@ -131,8 +131,8 @@ export default function ChapterEditor() {
         <div className="max-w-3xl mx-auto py-10 animate-in fade-in duration-500">
             <div className="mb-8 flex items-end justify-between animate-in fade-in slide-in-from-bottom-4 duration-200">
                 <div>
-                    <h1 className="text-4xl font-serif text-white mb-2">{activeNode.title}</h1>
-                    <div className="flex items-center gap-3 text-gray-400 font-serif italic text-sm">
+                    <h1 className="text-4xl font-serif text-foreground mb-2">{activeNode.title}</h1>
+                    <div className="flex items-center gap-3 text-muted-foreground font-serif italic text-sm">
                         <span>{editor?.storage.characterCount.words()} words</span>
                     </div>
                 </div>

@@ -52,9 +52,9 @@ export default function MatterEditor() {
 
     return (
         <div className="max-w-3xl mx-auto py-10 animate-in fade-in duration-500">
-            <div className="mb-8 border-b border-white/10 pb-4">
-                <h1 className="text-4xl font-serif text-white mb-2">{activeSection.title.replace('{author}', username || 'Author')}</h1>
-                <p className="text-sm text-gray-400 font-serif italic">
+            <div className="mb-8 border-b border-border pb-4">
+                <h1 className="text-4xl font-serif text-foreground mb-2">{activeSection.title.replace('{author}', username || 'Author')}</h1>
+                <p className="text-sm text-muted-foreground font-serif italic">
                     {isFront ? 'Front Matter' : 'Back Matter'}
                 </p>
             </div>
@@ -68,7 +68,7 @@ export default function MatterEditor() {
             )}
 
             {activeSection.type === 'toc' && (
-                 <div className="p-4 bg-white/5 rounded-lg border border-white/10 text-center text-gray-400">
+                 <div className="p-4 bg-accent/5 rounded-lg border border-border text-center text-muted-foreground">
                      <Info className="mx-auto mb-2" />
                      <p>Table of Contents is generated automatically during export.</p>
                  </div>
@@ -112,7 +112,7 @@ function CopyrightEditor({ section, onChange }: { section: MatterSection, onChan
     return (
         <div className="space-y-8">
             <div className="space-y-4">
-                <h3 className="text-xs uppercase tracking-wider font-bold text-gray-500">Clauses</h3>
+                <h3 className="text-xs uppercase tracking-wider font-bold text-muted-foreground">Clauses</h3>
                 <div className="grid gap-3">
                     {CLAUSES.map(clause => {
                         const isEnabled = enabledClauses.includes(clause.id);
@@ -121,20 +121,20 @@ function CopyrightEditor({ section, onChange }: { section: MatterSection, onChan
                                 key={clause.id}
                                 onClick={() => toggleClause(clause.id)}
                                 className={clsx(
-                                    "p-4 rounded-lg border cursor-pointer transition-all hover:bg-white/5",
-                                    isEnabled ? "border-accent bg-accent/5" : "border-white/10"
+                                    "p-4 rounded-lg border cursor-pointer transition-all hover:bg-accent/10",
+                                    isEnabled ? "border-primary bg-primary/10" : "border-border"
                                 )}
                             >
                                 <div className="flex items-start gap-3">
                                     <div className={clsx(
                                         "w-4 h-4 rounded border mt-0.5 flex items-center justify-center shrink-0 transition-colors",
-                                        isEnabled ? "bg-accent border-accent text-black" : "border-gray-600"
+                                        isEnabled ? "bg-primary border-primary text-primary-foreground" : "border-muted-foreground"
                                     )}>
                                         {isEnabled && <Check size={10} strokeWidth={4} />}
                                     </div>
                                     <div>
-                                        <h4 className={clsx("text-sm font-bold mb-1", isEnabled ? "text-white" : "text-gray-400")}>{clause.title}</h4>
-                                        <p className="text-xs text-gray-500 leading-relaxed">{clause.text}</p>
+                                        <h4 className={clsx("text-sm font-bold mb-1", isEnabled ? "text-foreground" : "text-muted-foreground")}>{clause.title}</h4>
+                                        <p className="text-xs text-muted-foreground leading-relaxed">{clause.text}</p>
                                     </div>
                                 </div>
                             </div>
@@ -149,7 +149,7 @@ function CopyrightEditor({ section, onChange }: { section: MatterSection, onChan
                     value={customText}
                     onChange={(e) => onChange(e.target.value, section.data)}
                     placeholder="Add any custom copyright notices or details..."
-                    className="w-full h-40 bg-zinc-900/50 border border-white/10 rounded-lg p-4 text-sm text-gray-300 focus:border-accent/50 focus:ring-1 focus:ring-accent/50 outline-none transition-all placeholder:text-gray-600"
+                    className="w-full h-40 bg-zinc-900/50 border border-border rounded-lg p-4 text-sm text-gray-300 focus:border-accent/50 focus:ring-1 focus:ring-accent/50 outline-none transition-all placeholder:text-gray-600"
                  />
             </div>
         </div>
@@ -199,24 +199,24 @@ function AboutAuthorEditor({ section, onChange }: { section: MatterSection, onCh
     return (
          <div className="flex gap-8">
              <div className="shrink-0 space-y-3">
-                 <div className="w-48 h-64 bg-white/5 border border-white/10 rounded-lg flex items-center justify-center relative overflow-hidden group">
+                 <div className="w-48 h-64 bg-muted/10 border border-border rounded-lg flex items-center justify-center relative overflow-hidden group">
                      {defaultImage ? (
                          <img src={defaultImage} alt="Author" className="w-full h-full object-cover" />
                      ) : (
-                         <div className="text-center text-gray-500">
+                         <div className="text-center text-muted-foreground">
                              <User size={32} className="mx-auto mb-2 opacity-50" />
                              <span className="text-xs">No Photo</span>
                          </div>
                      )}
                      
                      <label className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center cursor-pointer transition-opacity">
-                         <span className="text-xs font-bold text-white border border-white/50 px-3 py-1 rounded-full hover:bg-white hover:text-black transition-colors">
+                         <span className="text-xs font-bold text-white border border-border px-3 py-1 rounded-full hover:bg-white hover:text-black transition-colors">
                              {defaultImage ? 'Change Photo' : 'Add Photo'}
                          </span>
                          <input type="file" accept="image/*" onChange={handleImageUpload} className="hidden" />
                      </label>
                  </div>
-                 <p className="text-[10px] text-gray-500 text-center uppercase tracking-widest">Author Portrait</p>
+                 <p className="text-[10px] text-muted-foreground text-center uppercase tracking-widest">Author Portrait</p>
              </div>
 
              <div className="flex-1">
@@ -224,7 +224,7 @@ function AboutAuthorEditor({ section, onChange }: { section: MatterSection, onCh
                     value={section.content}
                     onChange={(e) => onChange(e.target.value, section.data)}
                     placeholder="Write about the author..."
-                    className="w-full h-[60vh] bg-transparent resize-none outline-none text-lg leading-relaxed font-serif placeholder:font-sans placeholder:text-gray-600 focus:placeholder:text-gray-500/50"
+                    className="w-full h-[60vh] bg-transparent resize-none outline-none text-lg leading-relaxed font-serif placeholder:font-sans placeholder:text-muted-foreground focus:placeholder:text-muted-foreground/50 text-foreground"
                 />
              </div>
          </div>
@@ -270,31 +270,31 @@ function AlsoByEditor({ section, onChange }: { section: MatterSection, onChange:
             <div className="grid gap-3">
                 {books.map(book => (
                     <div key={book.id} className="flex gap-3 group items-start">
-                        <div className="flex-1 space-y-2 p-4 rounded-lg border border-white/5 bg-white/5 hover:border-white/10 transition-colors">
+                        <div className="flex-1 space-y-2 p-4 rounded-lg border border-border bg-card/50 hover:bg-card hover:border-border/80 transition-colors">
                             <input 
                                 value={book.title}
                                 onChange={(e) => updateBook(book.id, 'title', e.target.value)}
                                 placeholder="Book Title"
-                                className="w-full bg-transparent border-none outline-none font-serif text-xl italic placeholder:text-gray-600"
+                                className="w-full bg-transparent border-none outline-none font-serif text-xl italic placeholder:text-muted-foreground text-foreground"
                             />
                             <div className="flex gap-4">
                                 <input 
                                     value={book.link || ''}
                                     onChange={(e) => updateBook(book.id, 'link', e.target.value)}
                                     placeholder="Amazon/Store Link (optional)"
-                                    className="flex-1 bg-transparent border-none outline-none text-xs text-blue-400 placeholder:text-gray-700 font-mono"
+                                    className="flex-1 bg-transparent border-none outline-none text-xs text-primary placeholder:text-muted-foreground font-mono"
                                 />
                                 <input 
                                     value={book.year || ''}
                                     onChange={(e) => updateBook(book.id, 'year', e.target.value)}
                                     placeholder="Year"
-                                    className="w-16 bg-transparent border-none outline-none text-xs text-gray-500 placeholder:text-gray-700 text-right"
+                                    className="w-16 bg-transparent border-none outline-none text-xs text-muted-foreground placeholder:text-muted-foreground/50 text-right"
                                 />
                             </div>
                         </div>
                         <button 
                             onClick={() => removeBook(book.id)}
-                            className="mt-4 p-2 text-gray-600 hover:text-red-400 hover:bg-white/5 rounded transition-colors opacity-0 group-hover:opacity-100"
+                            className="mt-4 p-2 text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded transition-colors opacity-0 group-hover:opacity-100"
                         >
                             <Trash2 size={16} />
                         </button>
@@ -304,7 +304,7 @@ function AlsoByEditor({ section, onChange }: { section: MatterSection, onChange:
             
             <button 
                 onClick={addBook}
-                className="w-full py-4 rounded-lg border border-dashed border-white/10 text-gray-500 hover:text-white hover:bg-white/5 hover:border-white/20 transition-all text-sm font-medium flex items-center justify-center gap-2"
+                className="w-full py-4 rounded-lg border border-dashed border-border text-muted-foreground hover:text-foreground hover:bg-accent/5 hover:border-accent/20 transition-all text-sm font-medium flex items-center justify-center gap-2"
             >
                 <Plus size={16} />
                 <span>Add Book</span>

@@ -34,7 +34,7 @@ const StoryNode = ({ data, selected }: NodeProps) => {
     <div 
         className={cn(
             "relative min-w-[200px] rounded-2xl bg-[#0f1113]/95 border transition-all duration-300 group overflow-hidden will-change-transform",
-            selected ? "border-accent shadow-[0_0_30px_rgba(var(--accent-rgb),0.2)]" : "border-white/10 hover:border-white/20 hover:bg-[#0f1113]"
+            selected ? "border-accent shadow-[0_0_30px_rgba(var(--accent-rgb),0.2)]" : "border-border hover:border-border/50 hover:bg-[#0f1113]"
         )}
     >
       <Handle type="target" position={Position.Top} className="w-3! h-3! bg-white/50! border-0! rounded-full opacity-0 group-hover:opacity-100 transition-all duration-200 hover:bg-accent! hover:scale-125" />
@@ -49,7 +49,7 @@ const StoryNode = ({ data, selected }: NodeProps) => {
       <Handle type="target" position={Position.Left} className="w-3! h-3! bg-white/50! border-0! rounded-full opacity-0 group-hover:opacity-100 transition-all duration-200 hover:bg-accent! hover:scale-125" />
       <Handle type="source" position={Position.Left} className="w-3 h-3 bg-white/50 border-0 rounded-full opacity-0 group-hover:opacity-100 transition-all duration-200 hover:bg-accent hover:scale-125 z-50" />
 
-      <div className="flex items-center gap-3 p-3 border-b border-white/5 bg-white/5">
+      <div className="flex items-center gap-3 p-3 border-b border-border bg-white/5">
         <div className={cn("w-8 h-8 rounded-lg flex items-center justify-center text-white shadow-lg", accentColor, accentShadow)}>
             <Icon size={14} />
         </div>

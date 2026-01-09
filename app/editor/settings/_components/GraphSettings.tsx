@@ -74,7 +74,7 @@ export default function GraphSettings() {
                         <Grid3X3 size={14} /> Grid & Snapping
                     </h3>
                     
-                    <div className="flex items-center justify-between p-4 bg-black/20 rounded-xl border border-white/5">
+                    <div className="flex items-center justify-between p-4 bg-black/20 rounded-xl border border-border">
                         <span className="text-white text-sm">Snap to Grid</span>
                         <button 
                             onClick={() => handleChange('snapToGrid', !settings.snapToGrid)}
@@ -111,7 +111,7 @@ export default function GraphSettings() {
 
                     <div className="space-y-2">
                         <label className="text-xs text-gray-500">Grid Style</label>
-                        <div className="flex bg-black/20 rounded-lg p-1 border border-white/5">
+                        <div className="flex bg-black/20 rounded-lg p-1 border border-border">
                             {gridOptions.map(opt => (
                                 <button
                                     key={opt}
@@ -131,7 +131,7 @@ export default function GraphSettings() {
                                 <button
                                     key={opt}
                                     onClick={() => handleChange('edgeStyle', opt)}
-                                    className={`py-2 px-2 text-[10px] font-medium rounded-lg border transition-all uppercase truncate ${settings.edgeStyle === opt ? 'bg-accent/20 border-accent text-accent' : 'bg-black/20 border-transparent text-gray-500 hover:border-white/10'}`}
+                                    className={`py-2 px-2 text-[10px] font-medium rounded-lg border transition-all uppercase truncate ${settings.edgeStyle === opt ? 'bg-accent/20 border-accent text-accent' : 'bg-black/20 border-transparent text-muted-foreground hover:border-border/50'}`}
                                 >
                                     {opt.replace('_', ' ')}
                                 </button>
@@ -146,7 +146,7 @@ export default function GraphSettings() {
                                 <button
                                     key={opt}
                                     onClick={() => handleChange('connectionLineStyle', opt)}
-                                    className={`py-2 px-2 text-[10px] font-medium rounded-lg border transition-all uppercase truncate ${settings.connectionLineStyle === opt ? 'bg-accent/20 border-accent text-accent' : 'bg-black/20 border-transparent text-gray-500 hover:border-white/10'}`}
+                                    className={`py-2 px-2 text-[10px] font-medium rounded-lg border transition-all uppercase truncate ${settings.connectionLineStyle === opt ? 'bg-accent/20 border-accent text-accent' : 'bg-black/20 border-transparent text-muted-foreground hover:border-border/50'}`}
                                 >
                                     {opt.replace('_', ' ')}
                                 </button>
@@ -162,7 +162,7 @@ export default function GraphSettings() {
                         <Monitor size={14} /> Interface
                     </h3>
 
-                    <div className="flex items-center justify-between p-4 bg-black/20 rounded-xl border border-white/5">
+                    <div className="flex items-center justify-between p-4 bg-black/20 rounded-xl border border-border">
                         <span className="text-white text-sm">Show Controls (Zoom/Fit)</span>
                         <button 
                             onClick={() => handleChange('showControls', !settings.showControls)}
@@ -172,7 +172,7 @@ export default function GraphSettings() {
                         </button>
                     </div>
 
-                    <div className="flex items-center justify-between p-4 bg-black/20 rounded-xl border border-white/5">
+                    <div className="flex items-center justify-between p-4 bg-black/20 rounded-xl border border-border">
                          <div className="flex items-center gap-2">
                             <span className="text-white text-sm">Show MiniMap</span>
                             <Map size={14} className="text-gray-500" />
