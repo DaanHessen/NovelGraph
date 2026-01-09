@@ -1,5 +1,6 @@
 import { useManuscriptStore, MatterSection } from '../_store/useManuscriptStore';
-import { Check, Info, AlignCenter } from 'lucide-react';
+import { Check, Info, AlignCenter, User, Plus, Trash2 } from 'lucide-react';
+import { useAuthorProfile } from '../../_hooks/useAuthorProfile';
 import clsx from 'clsx';
 // Use the same editor engine or a simplified version?
 // For now, simple text areas or specialized UI as requested.
@@ -34,6 +35,7 @@ const CLAUSES = [
 
 export default function MatterEditor() {
     const { activeMatterId, frontMatter, backMatter, updateMatterContent } = useManuscriptStore();
+    const { username } = useAuthorProfile();
     
     // Determine active section
     const activeFront = frontMatter.find(m => m.id === activeMatterId);
@@ -51,7 +53,7 @@ export default function MatterEditor() {
     return (
         <div className="max-w-3xl mx-auto py-10 animate-in fade-in duration-500">
             <div className="mb-8 border-b border-white/10 pb-4">
-                <h1 className="text-4xl font-serif text-white mb-2">{activeSection.title}</h1>
+                <h1 className="text-4xl font-serif text-white mb-2">{activeSection.title.replace('{author}', username || 'Author')}</h1>
                 <p className="text-sm text-gray-400 font-serif italic">
                     {isFront ? 'Front Matter' : 'Back Matter'}
                 </p>
@@ -73,16 +75,15 @@ export default function MatterEditor() {
             )}
             
             {activeSection.type === 'about_author' && (
-                <textarea
-                    value={activeSection.content}
-                    onChange={(e) => handleChange(e.target.value)}
-                    placeholder="Write about the author..."
-                    className="w-full h-[60vh] bg-transparent resize-none outline-none text-lg leading-relaxed font-serif placeholder:font-sans placeholder:text-gray-600 focus:placeholder:text-gray-500/50"
-                />
+                <AboutAuthorEditor section={activeSection} onChange={handleChange} />
+            )}
+
+            {activeSection.type === 'also_by' && (
+                 <AlsoByEditor section={activeSection} onChange={handleChange} />
             )}
 
             {/* Default Editor for others */}
-            {['dedication', 'foreword', 'preface', 'acknowledgments', 'also_by', 'custom'].includes(activeSection.type) && (
+            {['dedication', 'foreword', 'preface', 'acknowledgments', 'custom'].includes(activeSection.type) && (
                 <textarea
                     value={activeSection.content}
                     onChange={(e) => handleChange(e.target.value)}
@@ -176,16 +177,139 @@ function EpigraphEditor({ section, onChange }: { section: MatterSection, onChang
                 style={{ minHeight: '100px' }}
             />
             
-            <div className="flex items-center gap-2 text-gray-500 font-serif">
-                <span>—</span>
-                <input 
-                    type="text"
-                    value={author}
-                    onChange={(e) => update(quote, e.target.value)}
-                    placeholder="Author or Reference"
-                    className="bg-transparent border-none outline-none text-base placeholder:text-gray-700 w-64"
-                />
-            </div>
         </div>
     );
 }
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function AboutAuthorEditor({ section, onChange }: { section: MatterSection, onChange: (c: string, d?: any) => void }) {
+    const defaultImage = section.data?.image || null;
+    
+    const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                onChange(section.content, { ...section.data, image: reader.result });
+            };
+            reader.readAsDataURL(file);
+        }
+    };
+
+    return (
+         <div className="flex gap-8">
+             <div className="shrink-0 space-y-3">
+                 <div className="w-48 h-64 bg-white/5 border border-white/10 rounded-lg flex items-center justify-center relative overflow-hidden group">
+                     {defaultImage ? (
+                         <img src={defaultImage} alt="Author" className="w-full h-full object-cover" />
+                     ) : (
+                         <div className="text-center text-gray-500">
+                             <User size={32} className="mx-auto mb-2 opacity-50" />
+                             <span className="text-xs">No Photo</span>
+                         </div>
+                     )}
+                     
+                     <label className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center cursor-pointer transition-opacity">
+                         <span className="text-xs font-bold text-white border border-white/50 px-3 py-1 rounded-full hover:bg-white hover:text-black transition-colors">
+                             {defaultImage ? 'Change Photo' : 'Add Photo'}
+                         </span>
+                         <input type="file" accept="image/*" onChange={handleImageUpload} className="hidden" />
+                     </label>
+                 </div>
+                 <p className="text-[10px] text-gray-500 text-center uppercase tracking-widest">Author Portrait</p>
+             </div>
+
+             <div className="flex-1">
+                <textarea
+                    value={section.content}
+                    onChange={(e) => onChange(e.target.value, section.data)}
+                    placeholder="Write about the author..."
+                    className="w-full h-[60vh] bg-transparent resize-none outline-none text-lg leading-relaxed font-serif placeholder:font-sans placeholder:text-gray-600 focus:placeholder:text-gray-500/50"
+                />
+             </div>
+         </div>
+    );
+}
+
+interface BookItem {
+    id: string;
+    title: string;
+    link?: string;
+    year?: string;
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function AlsoByEditor({ section, onChange }: { section: MatterSection, onChange: (c: string, d?: any) => void }) {
+    const books: BookItem[] = section.data?.books || [];
+    
+    // Convert current structure to simple text for preview if needed, but we mostly store in data
+    
+    const addBook = () => {
+        const newBook: BookItem = { id: crypto.randomUUID(), title: '' };
+        updateBooks([...books, newBook]);
+    };
+
+    const updateBooks = (newBooks: BookItem[]) => {
+        // Also update content string for simple exports
+        const textContent = newBooks.map(b => b.title + (b.year ? ` (${b.year})` : '')).join('\n');
+        onChange(textContent, { ...section.data, books: newBooks });
+    };
+
+    const updateBook = (id: string, field: keyof BookItem, value: string) => {
+        const newBooks = books.map(b => b.id === id ? { ...b, [field]: value } : b);
+        updateBooks(newBooks);
+    };
+
+    const removeBook = (id: string) => {
+        const newBooks = books.filter(b => b.id !== id);
+        updateBooks(newBooks);
+    };
+
+    return (
+        <div className="space-y-6">
+            <div className="grid gap-3">
+                {books.map(book => (
+                    <div key={book.id} className="flex gap-3 group items-start">
+                        <div className="flex-1 space-y-2 p-4 rounded-lg border border-white/5 bg-white/5 hover:border-white/10 transition-colors">
+                            <input 
+                                value={book.title}
+                                onChange={(e) => updateBook(book.id, 'title', e.target.value)}
+                                placeholder="Book Title"
+                                className="w-full bg-transparent border-none outline-none font-serif text-xl italic placeholder:text-gray-600"
+                            />
+                            <div className="flex gap-4">
+                                <input 
+                                    value={book.link || ''}
+                                    onChange={(e) => updateBook(book.id, 'link', e.target.value)}
+                                    placeholder="Amazon/Store Link (optional)"
+                                    className="flex-1 bg-transparent border-none outline-none text-xs text-blue-400 placeholder:text-gray-700 font-mono"
+                                />
+                                <input 
+                                    value={book.year || ''}
+                                    onChange={(e) => updateBook(book.id, 'year', e.target.value)}
+                                    placeholder="Year"
+                                    className="w-16 bg-transparent border-none outline-none text-xs text-gray-500 placeholder:text-gray-700 text-right"
+                                />
+                            </div>
+                        </div>
+                        <button 
+                            onClick={() => removeBook(book.id)}
+                            className="mt-4 p-2 text-gray-600 hover:text-red-400 hover:bg-white/5 rounded transition-colors opacity-0 group-hover:opacity-100"
+                        >
+                            <Trash2 size={16} />
+                        </button>
+                    </div>
+                ))}
+            </div>
+            
+            <button 
+                onClick={addBook}
+                className="w-full py-4 rounded-lg border border-dashed border-white/10 text-gray-500 hover:text-white hover:bg-white/5 hover:border-white/20 transition-all text-sm font-medium flex items-center justify-center gap-2"
+            >
+                <Plus size={16} />
+                <span>Add Book</span>
+            </button>
+        </div>
+    );
+}
+

@@ -169,13 +169,13 @@ export default function ContextSidebar({ open, setOpen }: { open: boolean, setOp
 
         <AnimatePresence mode="wait">
             {open && (
-                <motion.div 
-                    initial={{ x: -100, opacity: 0 }}
-                    animate={{ x: 0, opacity: 1, transition: { duration: 0.5, ease: [0.19, 1, 0.22, 1] } }}
-                    exit={{ x: -50, opacity: 0, transition: { duration: 0.3, ease: "easeIn" } }}
-                    className="fixed top-0 left-20 h-full w-64 bg-background/95 backdrop-blur-xl z-40 py-8 px-4 flex flex-col shadow-2xl border-r border-white/5"
-                >
-                    <div className="flex items-center justify-between mb-6 px-2">
+                    <motion.div 
+                        initial={{ x: -100, opacity: 0 }}
+                        animate={{ x: 0, opacity: 1, transition: { duration: 0.5, ease: [0.19, 1, 0.22, 1] } }}
+                        exit={{ x: -50, opacity: 0, transition: { duration: 0.3, ease: "easeIn" } }}
+                        className="fixed top-0 left-20 h-full w-64 bg-background/90 backdrop-blur-2xl z-40 py-6 px-4 flex flex-col shadow-2xl border-r border-white/5"
+                    >
+                        <div className="flex items-center justify-between mb-6 px-2">
                         <motion.h2 
                             initial={{ opacity: 0, y: 5 }}
                             animate={{ opacity: 1, y: 0, transition: { delay: 0.1 } }}

@@ -22,7 +22,7 @@ export interface MatterSection {
     content: string; // HTML or text
     type: 'copyright' | 'dedication' | 'epigraph' | 'toc' | 'foreword' | 'preface' | 'acknowledgments' | 'about_author' | 'also_by' | 'custom';
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    data?: any; // For structured data like clauses
+    data?: any; // For structured data like clauses, books list, or image URLs
 }
 
 interface ManuscriptState {

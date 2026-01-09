@@ -1,4 +1,5 @@
 import { useManuscriptStore, ManuscriptNode, MatterSection } from '../_store/useManuscriptStore';
+import { useAuthorProfile } from '../../_hooks/useAuthorProfile';
 import { FileText, Folder, FolderOpen, Plus, Trash2, ChevronRight, ChevronDown, BookOpen, User, AlignLeft, Scale } from 'lucide-react';
 import { useState } from 'react';
 import { DndContext, DragOverlay, pointerWithin, KeyboardSensor, PointerSensor, useSensor, useSensors, DragEndEvent, DragStartEvent } from '@dnd-kit/core';
@@ -26,7 +27,8 @@ function DraggableItem({ node, depth = 0, onToggle, isActive, onDelete, onSelect
         isDragging
     } = useSortable({ 
         id: node.id, 
-        data: { node } 
+        data: { node },
+        animateLayoutChanges: () => false // Prevent auto-layout animations that cause jumping
     });
 
     const style = {
@@ -96,7 +98,9 @@ function DraggableItem({ node, depth = 0, onToggle, isActive, onDelete, onSelect
 }
 
 function MatterItem({ section, onToggle, onSelect, isActive }: { section: MatterSection, onToggle: () => void, onSelect: () => void, isActive?: boolean }) {
+    const { username } = useAuthorProfile();
     const Icon = section.type === 'copyright' ? Scale : section.type === 'about_author' ? User : AlignLeft;
+    const displayTitle = section.title.replace('{author}', username || 'Author');
     
     return (
         <div 
@@ -108,7 +112,7 @@ function MatterItem({ section, onToggle, onSelect, isActive }: { section: Matter
         >
             <div className={clsx("flex items-center gap-3", isActive ? "text-white" : "")}>
                 <Icon size={14} className={clsx("transition-colors", isActive ? "text-white" : "group-hover:text-white")} />
-                <span className={clsx("text-xs font-medium transition-colors", isActive ? "text-white" : "group-hover:text-white")}>{section.title}</span>
+                <span className={clsx("text-xs font-medium transition-colors", isActive ? "text-white" : "group-hover:text-white")}>{displayTitle}</span>
             </div>
             <button 
                 onClick={(e) => {
@@ -344,15 +348,18 @@ export default function WriteSidebarContent() {
                         ) : null}
                     </DragOverlay>
                 </DndContext>
+
+                <div className="pt-2 pb-8">
+                     <div className="my-2 h-px bg-white/5" />
+                     <button 
+                        onClick={() => setViewMode('back')}
+                        className="w-full p-2 rounded-lg border border-dashed border-white/10 text-gray-500 hover:text-white hover:bg-white/5 hover:border-white/20 transition-all text-xs font-medium flex items-center gap-2"
+                    >
+                        <User size={12} />
+                        <span>Back Matter</span>
+                    </button>
+                </div>
             </div>
-            
-            <button 
-                onClick={() => setViewMode('back')}
-                className="mt-2 mx-2 mb-4 p-2 rounded-lg border border-dashed border-white/10 text-gray-500 hover:text-white hover:bg-white/5 hover:border-white/20 transition-all text-xs font-medium flex items-center gap-2"
-            >
-                <User size={12} />
-                <span>Back Matter</span>
-            </button>
         </div>
     );
 }
