@@ -8,6 +8,7 @@ import { useEffect, useState } from 'react';
 import { useManuscriptStore } from '../_store/useManuscriptStore';
 import { FolderOpen } from 'lucide-react';
 import { franc } from 'franc-min';
+import SpeechInput from './SpeechInput';
 
 export default function ChapterEditor() {
     const { activeNodeId, nodes, updateNodeContent, updateNodeTitle, updateNodeDescription } = useManuscriptStore();
@@ -38,6 +39,12 @@ export default function ChapterEditor() {
             }
         },
     }, [activeNodeId, language]); 
+
+    const handleSpeech = (text: string) => {
+        if (!editor) return;
+        // Insert text at cursor with a space before if needed
+        editor.commands.insertContent(` ${text.trim()}`);
+    };
 
     useEffect(() => {
         if (editor && activeNode && activeNode.type === 'chapter') {
@@ -129,12 +136,20 @@ export default function ChapterEditor() {
 
     return (
         <div className="max-w-3xl mx-auto py-10 animate-in fade-in duration-500">
-            <div className="mb-8 flex items-end justify-between animate-in fade-in slide-in-from-bottom-4 duration-200">
-                <div>
-                    <h1 className="text-4xl font-serif text-foreground mb-2">{activeNode.title}</h1>
+            <div className="mb-8 group relative">
+                <input 
+                    value={activeNode.title}
+                    onChange={(e) => updateNodeTitle(activeNode.id, e.target.value)}
+                    className="w-full bg-transparent text-4xl font-serif text-foreground outline-none border-b border-transparent focus:border-border hover:border-border/30 transition-all pb-2 mb-2 placeholder-muted-foreground/50"
+                    placeholder="Chapter Title"
+                />
+                <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3 text-muted-foreground font-serif italic text-sm">
                         <span>{editor?.storage.characterCount.words()} words</span>
+                        <span className="text-muted-foreground/30">•</span>
+                        <span>{editor?.storage.characterCount.characters()} characters</span>
                     </div>
+                    <SpeechInput onTranscript={handleSpeech} />
                 </div>
             </div>
             

@@ -169,32 +169,32 @@ export default function ContextSidebar({ open, setOpen }: { open: boolean, setOp
 
         <AnimatePresence mode="wait">
             {open && (
-                    <motion.div 
+                <motion.div 
                         initial={{ x: -100, opacity: 0 }}
-                        animate={{ x: 0, opacity: 1, transition: { duration: 0.5, ease: [0.19, 1, 0.22, 1] } }}
-                        exit={{ x: -50, opacity: 0, transition: { duration: 0.3, ease: "easeIn" } }}
-                        className="fixed top-0 left-20 h-full w-64 bg-background/90 backdrop-blur-2xl z-40 py-6 px-4 flex flex-col shadow-2xl"
+                        animate={{ x: 0, opacity: 1, transition: { duration: 0.4, ease: [0.2, 0, 0, 1] } }}
+                        exit={{ x: -20, opacity: 0, transition: { duration: 0.2 } }}
+                        className="fixed top-0 left-20 h-full w-72 bg-neutral-900/90 backdrop-blur-xl z-40 py-8 px-5 flex flex-col border-r border-white/5 shadow-[20px_0_40px_-10px_rgba(0,0,0,0.5)]"
                     >
-                        <div className="flex items-center justify-between mb-6 px-2">
+                        <div className="flex items-center justify-between mb-8 px-1">
                         <motion.h2 
                             initial={{ opacity: 0, y: 5 }}
                             animate={{ opacity: 1, y: 0, transition: { delay: 0.1 } }}
-                            className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest"
+                            className="text-[11px] font-bold text-neutral-400 uppercase tracking-[0.2em] select-none"
                         >
                             {title}
                         </motion.h2>
                         <button 
                             onClick={() => setOpen(false)}
-                            className="text-gray-600 hover:text-white transition-colors"
+                            className="text-neutral-500 hover:text-white transition-colors p-1 hover:bg-white/5 rounded-md"
                         >
-                            <PanelRightClose size={14} />
+                            <PanelRightClose size={16} />
                         </button>
                     </div>
 
                     <motion.div
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0, transition: { delay: 0.2, staggerChildren: 0.05 } }}
-                        className="flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-white/10"
+                        className="flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent -mx-2 px-2"
                     >
                         {content}
                     </motion.div>

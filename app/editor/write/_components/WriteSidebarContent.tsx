@@ -350,10 +350,10 @@ export default function WriteSidebarContent() {
     return (
         <div className="space-y-4 animate-in slide-in-from-right duration-200 h-full flex flex-col">
              <div className="flex items-center justify-between px-2 pb-2 shrink-0">
-                <span className="text-[10px] uppercase tracking-wider text-gray-500 font-bold">Manuscript</span>
+                <span className="text-[10px] uppercase tracking-[0.15em] text-neutral-400 font-bold select-none">Manuscript</span>
                 <div className="flex gap-1">
-                    <button onClick={() => addPart()} title="New Folder" className="p-1 hover:bg-white/10 rounded text-gray-500 hover:text-white transition-colors"><Folder size={14} /></button>
-                    <button onClick={() => addChapter(null)} title="New Chapter" className="p-1 hover:bg-white/10 rounded text-gray-500 hover:text-white transition-colors"><Plus size={14} /></button>
+                    <button onClick={() => addPart()} title="New Folder" className="p-1 hover:bg-white/10 rounded text-neutral-500 hover:text-white transition-colors"><Folder size={14} /></button>
+                    <button onClick={() => addChapter(null)} title="New Chapter" className="p-1 hover:bg-white/10 rounded text-neutral-500 hover:text-white transition-colors"><Plus size={14} /></button>
                 </div>
             </div>
             

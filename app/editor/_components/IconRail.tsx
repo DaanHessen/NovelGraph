@@ -1,3 +1,4 @@
+import Logo from '@/app/_components/Logo';
 import Link from 'next/link';
 import { usePathname, useSearchParams } from 'next/navigation';
 import { Home, Globe, Network, PenTool, Settings, LogOut, User, Download } from 'lucide-react';
@@ -70,13 +71,7 @@ export default function IconRail() {
     <div className="fixed top-0 left-0 h-full w-20 bg-background/90 backdrop-blur-xl z-50 flex flex-col items-center py-6 shadow-2xl">
 
        <div className="mb-8 flex justify-center">
-          <pre className="font-mono text-[5px] leading-[5px] text-accent/90 font-black tracking-tighter select-none pointer-events-none drop-shadow-[0_0_10px_rgba(var(--accent-rgb),0.5)]">
-{`███    ██  ██████  
-████   ██ ██       
-██ ██  ██ ██   ███ 
-██  ██ ██ ██    ██ 
-██   ████  ██████`}
-          </pre>
+          <Logo />
        </div>
 
        <nav className="flex-1 flex flex-col gap-4 w-full px-2">
@@ -132,7 +127,7 @@ export default function IconRail() {
            <Link
                 href="/"
                 className={clsx("w-full aspect-square rounded-2xl flex items-center justify-center transition-all duration-300",
-                  "text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+                  "text-muted-foreground hover:text-red-500 hover:bg-red-500/10"
                 )}
                 title="Exit"
             >

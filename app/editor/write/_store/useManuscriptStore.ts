@@ -48,6 +48,9 @@ interface ManuscriptState {
   toggleMatterSection: (sectionId: string, isFront: boolean) => void;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   updateMatterContent: (sectionId: string, isFront: boolean, content: string, data?: any) => void;
+  
+  totalTimeSpent: number; // in seconds
+  addTimeSpent: (seconds: number) => void;
 }
 
 export const useManuscriptStore = create<ManuscriptState>()(
@@ -194,7 +197,10 @@ export const useManuscriptStore = create<ManuscriptState>()(
           return {
               [list]: state[list].map(s => s.id === sectionId ? { ...s, content, data: data ?? s.data } : s)
           };
-      })
+      }),
+
+      totalTimeSpent: 0,
+      addTimeSpent: (seconds) => set((state) => ({ totalTimeSpent: (state.totalTimeSpent || 0) + seconds }))
 
     }),
     {

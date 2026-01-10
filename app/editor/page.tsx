@@ -1,12 +1,13 @@
 'use client';
 
 import { Suspense, useMemo } from 'react';
-import { BookOpen, Users, FileText, Target, ArrowUpRight } from 'lucide-react';
+import Link from 'next/link';
+import { BookOpen, Users, FileText, Target, ArrowUpRight, Clock, BarChart } from 'lucide-react';
 import { useManuscriptStore } from './write/_store/useManuscriptStore';
 import { useGraphStore } from './graph/_store/useGraphStore';
 import { Card, CardContent } from '@/app/_components/ui/Card';
 import { Badge } from '@/app/_components/ui/Badge';
-import { Button } from '@/app/_components/ui/Button'; // Importing Button for potential future use or consistency check
+import { Button } from '@/app/_components/ui/Button';
 
 function StatsCard({ title, value, icon: Icon, trend }: { title: string, value: string, icon: React.ComponentType<{ size: number }>, trend?: string }) {
   return (
@@ -36,7 +37,7 @@ function StatsCard({ title, value, icon: Icon, trend }: { title: string, value: 
 }
 
 function EditorContent() {
-  const { nodes } = useManuscriptStore();
+  const { nodes, totalTimeSpent, activeNodeId } = useManuscriptStore();
   const { pages } = useGraphStore();
 
   const stats = useMemo(() => {
@@ -46,14 +47,27 @@ function EditorContent() {
       const allNodes = pages.flatMap(p => p.nodes);
       const characters = allNodes.filter(n => n.data.type === 'character').length;
       const locations = allNodes.filter(n => n.data.type === 'location').length;
+      
+      const hours = Math.max(0.01, totalTimeSpent / 3600);
+      const avgWordsPerHour = totalWords > 0 ? Math.round(totalWords / hours) : 0;
 
       return {
           words: totalWords,
           chapters: chapters.length,
           characters,
-          locations
+          locations,
+          time: totalTimeSpent || 0,
+          avgWords: avgWordsPerHour,
       };
-  }, [nodes, pages]);
+  }, [nodes, pages, totalTimeSpent]);
+  
+  const activeNode = useMemo(() => nodes.find(n => n.id === activeNodeId), [nodes, activeNodeId]);
+
+  const formatTime = (seconds: number) => {
+      const h = Math.floor(seconds / 3600);
+      const m = Math.floor((seconds % 3600) / 60);
+      return `${h}h ${m}m`;
+  };
 
   return (
     <div className="max-w-6xl mx-auto py-12 px-6">
@@ -66,24 +80,37 @@ function EditorContent() {
       
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
          <StatsCard title="Total Words" value={stats.words.toLocaleString()} icon={FileText} />
+         <StatsCard title="Est. Words / Hour" value={stats.avgWords.toString()} icon={BarChart} />
+         <StatsCard title="Time Spent" value={formatTime(stats.time)} icon={Clock} />
          <StatsCard title="Chapters" value={stats.chapters.toString()} icon={BookOpen} />
          <StatsCard title="Characters" value={stats.characters.toString()} icon={Users} />
          <StatsCard title="Locations" value={stats.locations.toString()} icon={Target} />
       </div>
 
-       <div className="bg-linear-to-b from-card/50 to-card/30 border border-border rounded-3xl p-12 text-center">
-           <h2 className="text-2xl font-semibold text-foreground mb-4">Ready to continue?</h2>
-           <p className="text-muted-foreground mb-8 max-w-lg mx-auto">
-               Jump back into writing your next chapter or organize your thoughts in the graph view.
-           </p>
-           <div className="flex justify-center gap-4">
-               {/* These buttons are placeholders mainly, but using the UI component ensures style consistency if we made them functional */}
-               <Button size="lg" className="w-40 font-semibold text-md shadow-lg shadow-primary/20">
-                   Start Writing
-               </Button>
-               <Button variant="outline" size="lg" className="w-40 font-semibold text-md">
-                   Open Graph
-               </Button>
+       <div className="bg-linear-to-b from-card/50 to-card/30 border border-border rounded-3xl p-12 text-center relative overflow-hidden">
+           <div className="absolute inset-0 bg-linear-to-r from-primary/5 via-transparent to-primary/5 opacity-50" />
+           <div className="relative z-10">
+                <h2 className="text-2xl font-semibold text-foreground mb-4">
+                    {activeNode ? `Pick up where you left off` : 'Ready to start?'}
+                </h2>
+                <p className="text-muted-foreground mb-8 max-w-lg mx-auto text-lg">
+                    {activeNode 
+                        ? <span>You were working on <span className="text-foreground font-medium">&quot;{activeNode.title}&quot;</span>. continue writing?</span>
+                        : "Start writing your first chapter or organize your thoughts in the graph view."
+                    }
+                </p>
+                <div className="flex justify-center gap-4">
+                    <Link href="/editor/write">
+                        <Button size="lg" className="min-w-40 font-semibold text-md shadow-lg shadow-primary/20 h-12">
+                            {activeNode ? 'Resume Editing' : 'Start Writing'}
+                        </Button>
+                    </Link>
+                    <Link href="/editor/graph">
+                        <Button variant="outline" size="lg" className="min-w-40 font-semibold text-md h-12 bg-background/50 backdrop-blur-sm">
+                            Open Graph
+                        </Button>
+                    </Link>
+                </div>
            </div>
        </div>
     </div>
