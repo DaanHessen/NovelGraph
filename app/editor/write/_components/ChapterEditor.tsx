@@ -4,7 +4,7 @@ import Placeholder from '@tiptap/extension-placeholder';
 import Underline from '@tiptap/extension-underline';
 import Typography from '@tiptap/extension-typography';
 import CharacterCount from '@tiptap/extension-character-count';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useManuscriptStore } from '../_store/useManuscriptStore';
 import { FolderOpen } from 'lucide-react';
 import { franc } from 'franc-min';
@@ -15,6 +15,7 @@ export default function ChapterEditor() {
     const activeNode = nodes.find(n => n.id === activeNodeId);
     
     const [language, setLanguage] = useState('en');
+    const lastInterimLength = useRef(0);
 
     const editor = useEditor({
         extensions: [
@@ -40,10 +41,47 @@ export default function ChapterEditor() {
         },
     }, [activeNodeId, language]); 
 
+    const handleInterim = (text: string) => {
+        if (!editor) return;
+        if (!text) return; // Should we handle empty text?
+        
+        editor.chain().focus()
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            .command(({ tr, dispatch }: { tr: any, dispatch: any }) => {
+                if (dispatch && lastInterimLength.current > 0) {
+                     const end = tr.selection.to;
+                     const start = end - lastInterimLength.current;
+                     if (start >= 0) {
+                        tr.delete(start, end);
+                     }
+                }
+                return true;
+            })
+            .insertContent(` ${text}`) 
+            .run();
+            
+        lastInterimLength.current = text.length + 1;
+    };
+
     const handleSpeech = (text: string) => {
         if (!editor) return;
-        // Insert text at cursor with a space before if needed
-        editor.commands.insertContent(` ${text.trim()}`);
+        
+        editor.chain().focus()
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            .command(({ tr, dispatch }: { tr: any, dispatch: any }) => {
+                 if (dispatch && lastInterimLength.current > 0) {
+                     const end = tr.selection.to;
+                     const start = end - lastInterimLength.current;
+                     if (start >= 0) {
+                        tr.delete(start, end);
+                     }
+                }
+                return true;
+            })
+            .insertContent(` ${text.trim()}`)
+            .run();
+            
+        lastInterimLength.current = 0;
     };
 
     useEffect(() => {
@@ -149,7 +187,7 @@ export default function ChapterEditor() {
                         <span className="text-muted-foreground/30">•</span>
                         <span>{editor?.storage.characterCount.characters()} characters</span>
                     </div>
-                    <SpeechInput onTranscript={handleSpeech} />
+                    <SpeechInput onTranscript={handleSpeech} onInterim={handleInterim} />
                 </div>
             </div>
             

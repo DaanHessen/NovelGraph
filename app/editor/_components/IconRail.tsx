@@ -5,6 +5,7 @@ import { Home, Globe, Network, PenTool, Settings, LogOut, User, Download } from 
 import { motion } from 'framer-motion';
 import clsx from 'clsx';
 import { useState, useEffect } from 'react';
+import SettingsModal from './SettingsModal';
 
 function cn(...inputs: (string | undefined | null | false)[]) {
   return clsx(inputs);
@@ -15,6 +16,7 @@ export default function IconRail() {
   const searchParams = useSearchParams();
   const projectSlug = searchParams.get('project');
   const [username, setUsername] = useState<string | null>(null);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
 
 
@@ -111,36 +113,37 @@ export default function IconRail() {
 
 
 
-           <Link
-                href={getHref('/editor/settings')}
-                className={cn(
-                  "relative group flex items-center justify-center w-full aspect-square rounded-2xl transition-all duration-300",
-                  pathname.includes('/settings') 
-                ? "bg-accent/10 border border-accent/50 text-foreground shadow-[0_0_15px_rgba(var(--accent-rgb),0.2)] scale-110" 
-                : "text-muted-foreground hover:text-foreground hover:bg-white/5"
-                )}
-                title="Settings"
-            >
-                 <Settings size={22} />
-            </Link>
+            <button
+                 onClick={() => setIsSettingsOpen(true)}
+                 className={cn(
+                   "relative group flex items-center justify-center w-full aspect-square rounded-2xl transition-all duration-300",
+                   isSettingsOpen
+                 ? "bg-accent/10 border border-accent/50 text-foreground shadow-[0_0_15px_rgba(var(--accent-rgb),0.2)] scale-110" 
+                 : "text-muted-foreground hover:text-foreground hover:bg-white/5"
+                 )}
+                 title="Settings"
+             >
+                  <Settings size={22} />
+             </button>
 
-           <Link
-                href="/"
-                className={clsx("w-full aspect-square rounded-2xl flex items-center justify-center transition-all duration-300",
-                  "text-muted-foreground hover:text-red-500 hover:bg-red-500/10"
-                )}
-                title="Exit"
-            >
-                 <LogOut size={22} />
-            </Link>
+            <Link
+                 href="/"
+                 className={clsx("w-full aspect-square rounded-2xl flex items-center justify-center transition-all duration-300",
+                   "text-muted-foreground hover:text-red-500 hover:bg-red-500/10"
+                 )}
+                 title="Exit"
+             >
+                  <LogOut size={22} />
+             </Link>
 
-            <div className="relative group w-10 h-10 rounded-full bg-linear-to-br from-indigo-500 to-pink-500 p-px shadow-lg mt-2 mx-auto cursor-default">
-                 <div className="w-full h-full rounded-full bg-black flex items-center justify-center text-xs font-bold text-white overflow-hidden">
-                    {username ? username[0].toUpperCase() : <User size={14} />}
-                 </div>
-                 <div className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-emerald-500 border-2 border-black rounded-full" />
-            </div>
-       </div>
+             <div className="relative group w-10 h-10 rounded-full bg-linear-to-br from-indigo-500 to-pink-500 p-px shadow-lg mt-2 mx-auto cursor-default">
+                  <div className="w-full h-full rounded-full bg-black flex items-center justify-center text-xs font-bold text-white overflow-hidden">
+                     {username ? username[0].toUpperCase() : <User size={14} />}
+                  </div>
+                  <div className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-emerald-500 border-2 border-black rounded-full" />
+             </div>
+        </div>
+        <SettingsModal isOpen={isSettingsOpen} onClose={() => setIsSettingsOpen(false)} />
     </div>
   );
 }

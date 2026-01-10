@@ -4,7 +4,6 @@ import { useCallback, useEffect, useState, useRef, Suspense } from 'react';
 import {
   ReactFlow,
   Background,
-  Controls,
   MiniMap,
   useNodesState,
   useEdgesState,
@@ -20,26 +19,30 @@ import {
   ConnectionLineType
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
-import { useSearchParams } from 'next/navigation';
-import { Loader2, User, MapPin, FileText, GripHorizontal, Undo, Redo } from 'lucide-react';
+import { useSearchParams, useRouter } from 'next/navigation';
+import { Loader2, User, MapPin, FileText, GripHorizontal, Undo, Redo, ZoomIn, ZoomOut, Maximize } from 'lucide-react';
 import { Button } from '@/app/_components/ui/Button';
 import { motion } from 'framer-motion';
 
-
-import StoryNode from './_components/StoryNode';
+import PortNode from './_components/PortNode';
 import { useGraphStore, type GraphPage } from './_store/useGraphStore';
 import { useGraphSync } from './_hooks/useGraphSync';
 import NodeDetailsPanel from './_components/NodeDetailsPanel';
+import { useManuscriptStore } from '../write/_store/useManuscriptStore';
 
 const nodeTypes = {
-  story: StoryNode,
+  story: PortNode,
 };
 
+const edgeTypes = {};
+
 function GraphContent() {
+  const router = useRouter();
   const searchParams = useSearchParams();
   const initialProjectSlug = searchParams.get('project');
-  const { screenToFlowPosition } = useReactFlow();
+  const { screenToFlowPosition, setViewport, zoomIn, zoomOut, fitView } = useReactFlow();
 
+  const { setActiveNode } = useManuscriptStore();
   const { 
       pages, activePageId, 
       setPages, setActivePage, setSelectedNode,
@@ -49,7 +52,12 @@ function GraphContent() {
       graphSettings
   } = useGraphStore();
 
-
+  const onNodeDoubleClick = useCallback((event: React.MouseEvent, node: Node) => {
+      if (node.data && node.data.linkedChapterId) {
+          setActiveNode(node.data.linkedChapterId as string);
+          router.push(`/editor/write`);
+      }
+  }, [setActiveNode, router]);
 
   useOnSelectionChange({
     onChange: ({ nodes }) => {
@@ -68,7 +76,6 @@ function GraphContent() {
   const [projectSlug, setProjectSlug] = useState<string | null>(null);
 
   const constraintsRef = useRef(null);
-  const { setViewport } = useReactFlow();
 
   const store = useGraphStore as unknown as { 
       temporal: { getState: () => { undo: () => void, redo: () => void } },
@@ -209,8 +216,6 @@ function GraphContent() {
 
     return () => clearTimeout(timeout);
   }, [projectSlug, pages, activePageId, getSnapshot]);
-
-
 
 
   const onNodeDragStop = useCallback((e: React.MouseEvent, node: Node) => {
@@ -389,9 +394,11 @@ function GraphContent() {
             onEdgesChange={onEdgesChange}
             onNodeDragStop={onNodeDragStop}
             onConnect={onConnect}
+            onNodeDoubleClick={onNodeDoubleClick}
             onMoveEnd={onMoveEnd}
             onMove={onMove}
             nodeTypes={nodeTypes}
+            edgeTypes={edgeTypes}
             className="bg-background"
             colorMode="dark"
             minZoom={0.1}
@@ -399,14 +406,9 @@ function GraphContent() {
             snapToGrid={graphSettings?.snapToGrid}
             snapGrid={graphSettings?.snapGrid}
             proOptions={{ hideAttribution: true }}
-            connectionLineType={
-                graphSettings?.connectionLineType === 'straight' ? ConnectionLineType.Straight :
-                graphSettings?.connectionLineType === 'step' ? ConnectionLineType.Step :
-                graphSettings?.connectionLineType === 'smoothstep' ? ConnectionLineType.SmoothStep :
-                ConnectionLineType.Bezier
-            }
+            connectionLineType={ConnectionLineType.SmoothStep}
             defaultEdgeOptions={{
-                type: graphSettings?.edgeType,
+                type: 'smoothstep',
                 animated: true,
                 style: { stroke: '#555' },
             }}
@@ -423,7 +425,7 @@ function GraphContent() {
                     }
                 />
             )}
-            <Controls className="bg-[#0f1113] border border-border text-white" />
+            
             {graphSettings?.showMinimap && (
                 <MiniMap
                     position="top-right"
@@ -486,6 +488,18 @@ function GraphContent() {
                      </Button>
                      <Button variant="ghost" size="icon" onClick={() => useGraphStore.temporal.getState().redo()} className="rounded-full h-8 w-8 hover:bg-white/10 text-muted-foreground hover:text-foreground" title="Redo (Ctrl+Y)">
                          <Redo size={14} />
+                     </Button>
+                     
+                     <div className="w-px h-4 bg-white/10" />
+
+                     <Button variant="ghost" size="icon" onClick={() => zoomIn()} className="rounded-full h-8 w-8 hover:bg-white/10 text-muted-foreground hover:text-foreground" title="Zoom In">
+                         <ZoomIn size={14} />
+                     </Button>
+                     <Button variant="ghost" size="icon" onClick={() => zoomOut()} className="rounded-full h-8 w-8 hover:bg-white/10 text-muted-foreground hover:text-foreground" title="Zoom Out">
+                         <ZoomOut size={14} />
+                     </Button>
+                     <Button variant="ghost" size="icon" onClick={() => fitView()} className="rounded-full h-8 w-8 hover:bg-white/10 text-muted-foreground hover:text-foreground" title="Fit View">
+                         <Maximize size={14} />
                      </Button>
                 </motion.div>
             </Panel>

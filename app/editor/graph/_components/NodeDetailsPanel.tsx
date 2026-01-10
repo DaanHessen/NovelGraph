@@ -1,12 +1,14 @@
 'use client';
 
-import { X, Type, FileText, User, MapPin, AlignLeft } from 'lucide-react';
-import { useState } from 'react';
+import { X, Type, FileText, User, MapPin, AlignLeft, Link as LinkIcon } from 'lucide-react';
+import { useState, useMemo } from 'react';
 import { useGraphStore } from '../_store/useGraphStore';
+import { useManuscriptStore } from '../../write/_store/useManuscriptStore';
 import { Node } from '@xyflow/react';
 
 export default function NodeDetailsPanel() {
     const { pages, activePageId, selectedNodeId, updateNodeData, setSelectedNode } = useGraphStore();
+    const { nodes: manuscriptNodes } = useManuscriptStore();
     
     const activePage = pages.find(p => p.id === activePageId);
     const node: Node | undefined = activePage?.nodes.find(n => n.id === selectedNodeId);
@@ -14,7 +16,11 @@ export default function NodeDetailsPanel() {
     const [label, setLabel] = useState(node?.data.label as string || '');
     const [description, setDescription] = useState(node?.data.description as string || '');
     const [type, setType] = useState(node?.data.type as string || 'chapter');
+    const [linkedChapterId, setLinkedChapterId] = useState(node?.data.linkedChapterId as string || '');
 
+    const chapters = useMemo(() => {
+        return manuscriptNodes.filter(n => n.type === 'chapter');
+    }, [manuscriptNodes]);
 
     const handleSave = (key: string, value: unknown) => {
         if (!node) return;
@@ -83,6 +89,27 @@ export default function NodeDetailsPanel() {
                         className="w-full bg-background border border-border rounded-lg px-3 py-2 text-xs text-white placeholder-gray-600 focus:outline-none focus:border-accent transition-colors"
                         placeholder="Node Name..."
                     />
+                </div>
+
+                <div className="space-y-2">
+                     <label className="text-[10px] font-semibold text-gray-600 uppercase flex items-center gap-2">
+                        <LinkIcon size={12} /> Linked Chapter
+                    </label>
+                    <select
+                        value={linkedChapterId}
+                        onChange={(e) => {
+                            setLinkedChapterId(e.target.value);
+                            handleSave('linkedChapterId', e.target.value);
+                            handleSave('hasLinkedChapter', !!e.target.value);
+                        }}
+                        className="w-full bg-background border border-border rounded-lg px-3 py-2 text-xs text-white placeholder-gray-600 focus:outline-none focus:border-accent transition-colors [&>option]:bg-[#0f1113]"
+                    >
+                        <option value="">No Link</option>
+                        {chapters.map(c => (
+                            <option key={c.id} value={c.id}>{c.title}</option>
+                        ))}
+                    </select>
+                    {linkedChapterId && <p className="text-[10px] text-gray-500">Double-click on the node to navigate.</p>}
                 </div>
 
                 <div className="space-y-2">
