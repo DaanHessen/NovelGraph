@@ -1,6 +1,6 @@
 import { usePathname } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import { PanelRightClose, PanelRightOpen, Map as MapIcon, Plus, Trash2, User, SlidersHorizontal } from 'lucide-react';
+import { PanelRightClose, PanelRightOpen, Map as MapIcon, Plus, Trash2, User, SlidersHorizontal, FileText } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { useGraphStore, type GraphPage } from '../graph/_store/useGraphStore';
 import SidebarItem from './SidebarItem';
@@ -119,6 +119,7 @@ export default function ContextSidebar({ open, setOpen }: { open: boolean, setOp
   if (isSettings) {
       const isProfile = pathname.includes('/account');
       const isGraphSettings = pathname.includes('/settings/graph');
+      const isWriteSettings = pathname.includes('/settings/write');
       
       content = (
         <div className="space-y-1">
@@ -133,6 +134,12 @@ export default function ContextSidebar({ open, setOpen }: { open: boolean, setOp
                 label="Graph Editor"
                 href="/editor/settings/graph"
                 isActive={isGraphSettings}
+            />
+             <SidebarItem 
+                icon={FileText}
+                label="Write"
+                href="/editor/settings/write"
+                isActive={isWriteSettings}
             />
         </div>
       );

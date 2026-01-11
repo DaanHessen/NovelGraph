@@ -88,7 +88,7 @@ export const useManuscriptStore = create<ManuscriptState>()(
         const newChapter: ManuscriptNode = {
           id,
           type: 'chapter',
-          title: 'New Chapter',
+          title: '',
           content: '',
           parentId,
           index: state.nodes.filter(n => n.parentId === parentId).length,
@@ -105,7 +105,7 @@ export const useManuscriptStore = create<ManuscriptState>()(
         const newPart: ManuscriptNode = {
             id,
             type: 'part',
-            title: 'New Part',
+            title: '',
             parentId: null,
             index: state.nodes.filter(n => n.parentId === null).length,
             collapsed: false

@@ -1,3 +1,5 @@
+'use client';
+
 import { useEffect } from 'react';
 import { Edge } from '@xyflow/react';
 import { GraphSettings } from '../_store/useGraphStore';

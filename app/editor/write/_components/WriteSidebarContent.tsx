@@ -95,7 +95,7 @@ function DraggableItem({ node, depth = 0, onToggle, isActive, onDelete, onSelect
             <Icon size={14} className={clsx("shrink-0", !isPart && "ml-[18px]")} />
             
             <span className="text-xs font-medium truncate flex-1 leading-none pt-0.5">
-                {node.title}
+                {node.title || <span className="text-gray-600 italic">Untitled</span>}
             </span>
 
             {node.type === 'chapter' && node.wordCount !== undefined && (

@@ -5,7 +5,6 @@ import { Home, Globe, Network, PenTool, Settings, LogOut, User, Download } from 
 import { motion } from 'framer-motion';
 import clsx from 'clsx';
 import { useState, useEffect } from 'react';
-import SettingsModal from './SettingsModal';
 
 function cn(...inputs: (string | undefined | null | false)[]) {
   return clsx(inputs);
@@ -16,7 +15,6 @@ export default function IconRail() {
   const searchParams = useSearchParams();
   const projectSlug = searchParams.get('project');
   const [username, setUsername] = useState<string | null>(null);
-  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
 
 
@@ -113,18 +111,18 @@ export default function IconRail() {
 
 
 
-            <button
-                 onClick={() => setIsSettingsOpen(true)}
+            <Link
+                 href="/editor/settings/account"
                  className={cn(
                    "relative group flex items-center justify-center w-full aspect-square rounded-2xl transition-all duration-300",
-                   isSettingsOpen
+                   pathname.includes('/settings')
                  ? "bg-accent/10 border border-accent/50 text-foreground shadow-[0_0_15px_rgba(var(--accent-rgb),0.2)] scale-110" 
                  : "text-muted-foreground hover:text-foreground hover:bg-white/5"
                  )}
                  title="Settings"
              >
                   <Settings size={22} />
-             </button>
+             </Link>
 
             <Link
                  href="/"
@@ -143,7 +141,6 @@ export default function IconRail() {
                   <div className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-emerald-500 border-2 border-black rounded-full" />
              </div>
         </div>
-        <SettingsModal isOpen={isSettingsOpen} onClose={() => setIsSettingsOpen(false)} />
     </div>
   );
 }

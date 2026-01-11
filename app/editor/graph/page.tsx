@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useState, useRef, Suspense } from 'react';
+import { useRef, useCallback, useState, useEffect, Suspense } from 'react';
 import {
   ReactFlow,
   Background,
@@ -23,24 +23,112 @@ import { useSearchParams, useRouter } from 'next/navigation';
 import { Loader2, User, MapPin, FileText, GripHorizontal, Undo, Redo, ZoomIn, ZoomOut, Maximize } from 'lucide-react';
 import { Button } from '@/app/_components/ui/Button';
 import { motion } from 'framer-motion';
-
 import PortNode from './_components/PortNode';
+import GroupNode from './_components/GroupNode';
+import ContextMenu from './_components/ContextMenu';
 import { useGraphStore, type GraphPage } from './_store/useGraphStore';
 import { useGraphSync } from './_hooks/useGraphSync';
 import NodeDetailsPanel from './_components/NodeDetailsPanel';
+
 import { useManuscriptStore } from '../write/_store/useManuscriptStore';
 
 const nodeTypes = {
   story: PortNode,
+  group: GroupNode,
 };
 
 const edgeTypes = {};
+
+const getRectOfNodes = (nodes: Node[]) => {
+  if (nodes.length === 0) {
+    return { x: 0, y: 0, width: 0, height: 0 };
+  }
+
+  const xNodes = nodes.map((n) => n.position.x);
+  const yNodes = nodes.map((n) => n.position.y);
+  const x = Math.min(...xNodes);
+  const y = Math.min(...yNodes);
+  const width = Math.max(...xNodes.map((val, i) => val + (nodes[i].measured?.width || nodes[i].width || 0))) - x;
+  const height = Math.max(...yNodes.map((val, i) => val + (nodes[i].measured?.height || nodes[i].height || 0))) - y;
+
+  return { x, y, width, height };
+};
 
 function GraphContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const initialProjectSlug = searchParams.get('project');
-  const { screenToFlowPosition, setViewport, zoomIn, zoomOut, fitView } = useReactFlow();
+  const { screenToFlowPosition, setViewport, zoomIn, zoomOut, fitView, getNodes, setNodes: setReactFlowNodes } = useReactFlow();
+
+  const [menu, setMenu] = useState<{ id: string; top: number; left: number; right?: number; bottom?: number } | null>(null);
+  const ref = useRef<HTMLDivElement>(null);
+
+  const onPaneContextMenu = useCallback((event: React.MouseEvent) => {
+        event.preventDefault();
+        const pane = ref.current?.getBoundingClientRect();
+        setMenu({
+            id: 'pane',
+            top: event.clientY - (pane?.top || 0),
+            left: event.clientX - (pane?.left || 0),
+        });
+    }, []);
+
+    const onNodeContextMenu = useCallback((event: React.MouseEvent, node: Node) => {
+        event.preventDefault();
+        const pane = ref.current?.getBoundingClientRect();
+        setMenu({
+            id: node.id,
+            top: event.clientY - (pane?.top || 0),
+            left: event.clientX - (pane?.left || 0),
+        });
+    }, []);
+
+    const onPaneClick = useCallback(() => setMenu(null), []);
+
+    const groupNodes = useCallback(() => {
+        const nodes = getNodes();
+        const selectedNodes = nodes.filter((n) => n.selected && n.type !== 'group');
+        
+        if (selectedNodes.length === 0) {
+            // alert('Select nodes to group');
+            setMenu(null);
+            return;
+        }
+
+        const rect = getRectOfNodes(selectedNodes);
+        const groupId = `group-${Date.now()}`;
+        const padding = 20;
+
+        const groupNode: Node = {
+            id: groupId,
+            type: 'group',
+            position: { x: rect.x - padding, y: rect.y - padding },
+            style: { 
+                width: rect.width + padding * 2, 
+                height: rect.height + padding * 2,
+                zIndex: -1 
+            },
+            data: { label: 'New Group' },
+        };
+
+        const updatedChildren = selectedNodes.map((node) => {
+            return {
+                ...node,
+                parentId: groupId,
+                extent: 'parent',
+                position: {
+                    x: node.position.x - (rect.x - padding),
+                    y: node.position.y - (rect.y - padding),
+                }
+            };
+        });
+
+        const otherNodes = nodes.filter(n => !n.selected);
+        setReactFlowNodes([...otherNodes, groupNode, ...updatedChildren] as Node[]);
+        
+        setMenu(null);
+    }, [getNodes, setReactFlowNodes]);
+
 
   const { setActiveNode } = useManuscriptStore();
   const { 
@@ -75,7 +163,7 @@ function GraphContent() {
   const isLoaded = useRef(false);
   const [projectSlug, setProjectSlug] = useState<string | null>(null);
 
-  const constraintsRef = useRef(null);
+
 
   const store = useGraphStore as unknown as { 
       temporal: { getState: () => { undo: () => void, redo: () => void } },
@@ -308,7 +396,7 @@ function GraphContent() {
         type: 'story',
         position,
         data: {
-            label: type === 'chapter' ? 'New Chapter' : type === 'character' ? 'New Character' : type === 'family' ? 'Family Member' : 'New Location',
+            label: '',
             type,
             description: 'Click to edit details...'
         },
@@ -386,7 +474,7 @@ function GraphContent() {
   }
 
   return (
-    <div className="w-full h-full text-foreground" ref={constraintsRef}>
+    <div className="w-full h-full text-foreground relative group" ref={ref}>
         <ReactFlow
             nodes={nodes}
             edges={edges}
@@ -440,7 +528,7 @@ function GraphContent() {
                     className="pointer-events-auto flex items-center gap-2 p-1.5 bg-panel/80 backdrop-blur-xl border border-border rounded-full shadow-2xl cursor-grab active:cursor-grabbing"
                     drag
                     dragMomentum={false}
-                    dragConstraints={constraintsRef}
+                    dragConstraints={ref}
                     initial={{ opacity: 0, y: 20 }}
                     animate={{
                         opacity: toolbarLoaded ? 1 : 0,
@@ -517,6 +605,17 @@ function GraphContent() {
             </Panel>
         </ReactFlow>
 
+        {menu && (
+            <ContextMenu
+                id={menu.id}
+                top={menu.top}
+                left={menu.left}
+                right={menu.right}
+                bottom={menu.bottom}
+                onGroup={groupNodes}
+                onClose={() => setMenu(null)}
+            />
+        )}
         <NodeDetailsPanel />
     </div>
   );
