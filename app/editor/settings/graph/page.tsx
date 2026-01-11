@@ -3,38 +3,10 @@
 import { useGraphStore, GraphSettings } from '../../graph/_store/useGraphStore';
 import { Map as MapIcon, Magnet, ArrowRight, Activity, Grid } from 'lucide-react';
 import SettingsHeader from '../_components/SettingsHeader';
+import SettingsSection from '../_components/SettingsSection';
+import SettingItem from '../_components/SettingItem';
 import { Select } from '@/app/_components/ui/Select';
 import { Switch } from '@/app/_components/ui/Switch';
-
-function SettingsSection({ title, children }: { title: string, children: React.ReactNode }) {
-    return (
-        <div className="space-y-3">
-            <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wider px-1">{title}</h3>
-            <div className="bg-card/50 backdrop-blur-sm border border-border rounded-2xl overflow-hidden divide-y divide-border">
-                {children}
-            </div>
-        </div>
-    );
-}
-
-function SettingRow({ icon: Icon, label, description, control }: { icon: React.ComponentType<{ size: number }>, label: string, description?: string, control: React.ReactNode }) {
-    return (
-        <div className="flex items-center justify-between p-4 hover:bg-accent/5 transition-colors">
-            <div className="flex items-start gap-4">
-                <div className="p-2 bg-accent/10 rounded-lg text-primary mt-0.5">
-                    <Icon size={18} />
-                </div>
-                <div className="space-y-0.5 max-w-sm">
-                    <div className="text-sm font-medium text-foreground">{label}</div>
-                    {description && <div className="text-xs text-muted-foreground leading-relaxed">{description}</div>}
-                </div>
-            </div>
-            <div className="shrink-0 ml-4">
-                {control}
-            </div>
-        </div>
-    );
-}
 
 export default function GraphSettingsPage() {
     const { graphSettings, setGraphSettings } = useGraphStore();
@@ -54,7 +26,7 @@ export default function GraphSettingsPage() {
 
              <div className="space-y-8">
                 <SettingsSection title="Visual Style">
-                    <SettingRow 
+                    <SettingItem 
                         icon={Activity}
                         label="Connection Style"
                         description="How nodes connect visually. Affects all edges."
@@ -73,7 +45,7 @@ export default function GraphSettingsPage() {
                             </div>
                         }
                     />
-                    <SettingRow 
+                    <SettingItem 
                         icon={Grid}
                         label="Background Grid"
                         description="The pattern displayed in the infinite canvas."
@@ -94,7 +66,7 @@ export default function GraphSettingsPage() {
                 </SettingsSection>
 
                 <SettingsSection title="Interactions">
-                    <SettingRow 
+                    <SettingItem 
                         icon={ArrowRight}
                         label="Interaction Line"
                         description="Style of the temporary line when connecting nodes."
@@ -113,7 +85,7 @@ export default function GraphSettingsPage() {
                             </div>
                         }
                     />
-                     <SettingRow 
+                     <SettingItem 
                         icon={Grid}
                         label="Show Grid"
                         description="Toggle the visibility of the background pattern."
@@ -121,7 +93,7 @@ export default function GraphSettingsPage() {
                             <Switch checked={graphSettings.showGrid} onCheckedChange={(v) => update('showGrid', v)} />
                         }
                     />
-                    <SettingRow 
+                    <SettingItem 
                         icon={Magnet}
                         label="Snap to Grid"
                         description="Automatically align nodes to the grid layout."
@@ -148,7 +120,7 @@ export default function GraphSettingsPage() {
                             </div>
                         }
                     />
-                     <SettingRow 
+                     <SettingItem 
                         icon={MapIcon}
                         label="Mini Map"
                         description="Show the navigation map in the corner."
@@ -161,3 +133,4 @@ export default function GraphSettingsPage() {
         </div>
     );
 }
+

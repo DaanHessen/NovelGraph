@@ -1,9 +1,11 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Loader2 } from 'lucide-react';
+import { Loader2, User } from 'lucide-react';
 
 import SettingsHeader from '../_components/SettingsHeader';
+import SettingsSection from '../_components/SettingsSection';
+import SettingItem from '../_components/SettingItem';
 import { Input } from '@/app/_components/ui/Input';
 
 export default function AccountSettingsPage() {
@@ -50,37 +52,34 @@ export default function AccountSettingsPage() {
              />
 
              <div className="space-y-8">
-                 <div className="space-y-3">
-                    <h3 className="text-sm font-medium text-gray-500 uppercase tracking-wider px-1">Public Profile</h3>
-                    <div className="bg-[#0a0a0a]/50 backdrop-blur-sm border border-border rounded-2xl overflow-hidden divide-y divide-border">
-                        <div className="p-4 hover:bg-white/2 transition-colors">
-                            <div className="flex flex-col gap-3">
-                                <label className="text-sm font-medium text-gray-200">Author Name</label>
-                                <div className="relative group/input max-w-md">
-                                    <Input 
-                                        type="text" 
-                                        value={username}
-                                        onChange={(e) => setUsername(e.target.value)}
-                                        className="w-full"
-                                        placeholder="Enter your pen name..."
-                                        disabled={loading}
-                                    />
-                                        <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
-                                        {saving ? (
-                                            <Loader2 size={14} className="animate-spin text-emerald-500" />
-                                        ) : (
-                                            <div className="flex items-center gap-2 transition-all duration-500 opacity-0 group-hover/input:opacity-100">
-                                                <span className="text-[10px] uppercase font-bold text-emerald-500/80 tracking-wider">Saved</span>
-                                                <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]" />
-                                            </div>
-                                        )}
-                                    </div>
+                 <SettingsSection title="Public Profile">
+                     <SettingItem
+                        icon={User}
+                        label="Author Name"
+                        description="This name will be displayed on all your exported manuscripts."
+                        control={
+                           <div className="relative group/input max-w-md w-64">
+                                <Input 
+                                    type="text" 
+                                    value={username}
+                                    onChange={(e) => setUsername(e.target.value)}
+                                    className="w-full"
+                                    placeholder="Enter your pen name..."
+                                    disabled={loading}
+                                />
+                                <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
+                                    {saving ? (
+                                        <Loader2 size={14} className="animate-spin text-emerald-500" />
+                                    ) : (
+                                        <div className="flex items-center gap-2 transition-all duration-500 opacity-0 group-hover/input:opacity-100">
+                                            <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]" />
+                                        </div>
+                                    )}
                                 </div>
-                                <p className="text-xs text-gray-500 leading-relaxed">This name will be displayed on all your exported manuscripts.</p>
                             </div>
-                        </div>
-                    </div>
-                 </div>
+                        }
+                     />
+                 </SettingsSection>
              </div>
         </div>
     );
