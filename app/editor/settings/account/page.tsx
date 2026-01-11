@@ -6,7 +6,7 @@ import { User } from 'lucide-react';
 import SettingsHeader from '../_components/SettingsHeader';
 import SettingsSection from '../_components/SettingsSection';
 import SettingItem from '../_components/SettingItem';
-import { Input } from '@/app/_components/ui/Input';
+import { SettingsInput } from '../_components/SettingsInput';
 
 export default function AccountSettingsPage() {
     const [username, setUsername] = useState('');
@@ -59,7 +59,7 @@ export default function AccountSettingsPage() {
                         description="This name will be displayed on all your exported manuscripts."
                         control={
                            <div className="w-64">
-                                <Input 
+                                <SettingsInput 
                                     type="text" 
                                     value={username}
                                     onChange={(e) => setUsername(e.target.value)}

@@ -15,7 +15,7 @@ import SettingItem from './SettingItem';
 import { Slider } from '@/app/_components/ui/Slider';
 import { Switch } from '@/app/_components/ui/Switch';
 import { Select } from '@/app/_components/ui/Select';
-import { Input } from '@/app/_components/ui/Input';
+import { SettingsInput } from './SettingsInput';
 
 export default function WriteSettings() {
     const settings = useWriteSettingsStore();
@@ -159,7 +159,7 @@ export default function WriteSettings() {
                         description="Required for speech-to-text features. Stored locally."
                         control={
                            <div className="w-64">
-                                <Input 
+                                <SettingsInput
                                     type="password" 
                                     value={settings.groqApiKey}
                                     onChange={(e) => settings.setGroqApiKey(e.target.value)}
