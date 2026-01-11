@@ -4,35 +4,35 @@
   --background: #0a0a0a;
   --foreground: #ededed;
   
-  --panel: #0f1113;
+  --panel: #111418;
   --panel-foreground: #e2e8f0;
 
   --primary: #a78bfa;
   --primary-rgb: 167, 139, 250;
   --primary-foreground: #1e1b4b;
 
-  --secondary: #1f2937;
+  --secondary: #27272a;
   --secondary-foreground: #f3f4f6;
 
   --accent: #a78bfa;
   --accent-rgb: 167, 139, 250;
   --accent-foreground: #1e1b4b;
 
-  --muted: #1f2937;
-  --muted-foreground: #9ca3af;
+  --muted: #27272a;
+  --muted-foreground: #a1a1aa;
 
   --destructive: #ef4444;
   --destructive-foreground: #fef2f2;
 
-  --card: #0f1113;
+  --card: #111418;
   --card-foreground: #f8fafc;
   
-  --border: rgba(255, 255, 255, 0.04);
-  --input: rgba(255, 255, 255, 0.04);
+  --border: rgba(255, 255, 255, 0.12);
+  --input: rgba(255, 255, 255, 0.12);
   --ring: #a78bfa;
 
-  --glass-border: rgba(255, 255, 255, 0.04);
-  --glass-bg: rgba(15, 17, 19, 0.7);
+  --glass-border: rgba(255, 255, 255, 0.12);
+  --glass-bg: rgba(17, 20, 24, 0.7);
 }
 
 @theme inline {
