@@ -9,9 +9,11 @@ import { useManuscriptStore } from '../_store/useManuscriptStore';
 import { FolderOpen } from 'lucide-react';
 import { franc } from 'franc-min';
 import SpeechInput from './SpeechInput';
+import { useWriteSettingsStore } from '../_store/useWriteSettingsStore';
 
 export default function ChapterEditor() {
     const { activeNodeId, nodes, updateNodeContent, updateNodeTitle, updateNodeDescription } = useManuscriptStore();
+    const settings = useWriteSettingsStore();
     const activeNode = nodes.find(n => n.id === activeNodeId);
     
     const [language, setLanguage] = useState('en');
@@ -191,7 +193,16 @@ export default function ChapterEditor() {
                 </div>
             </div>
             
-            <EditorContent editor={editor} />
+            <div style={{
+                fontSize: `${settings.fontSize}px`,
+                lineHeight: settings.lineHeight,
+                maxWidth: `${settings.maxWidth}ch`,
+                fontFamily: settings.fontFamily === 'mono' ? 'monospace' : settings.fontFamily === 'serif' ? 'serif' : 'sans-serif',
+                marginLeft: 'auto',
+                marginRight: 'auto',
+            }}>
+                <EditorContent editor={editor} />
+            </div>
         </div>
     );
 }

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Loader2, User } from 'lucide-react';
+import { User } from 'lucide-react';
 
 import SettingsHeader from '../_components/SettingsHeader';
 import SettingsSection from '../_components/SettingsSection';
@@ -58,7 +58,7 @@ export default function AccountSettingsPage() {
                         label="Author Name"
                         description="This name will be displayed on all your exported manuscripts."
                         control={
-                           <div className="relative group/input max-w-md w-64">
+                           <div className="w-64">
                                 <Input 
                                     type="text" 
                                     value={username}
@@ -67,15 +67,7 @@ export default function AccountSettingsPage() {
                                     placeholder="Enter your pen name..."
                                     disabled={loading}
                                 />
-                                <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
-                                    {saving ? (
-                                        <Loader2 size={14} className="animate-spin text-emerald-500" />
-                                    ) : (
-                                        <div className="flex items-center gap-2 transition-all duration-500 opacity-0 group-hover/input:opacity-100">
-                                            <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]" />
-                                        </div>
-                                    )}
-                                </div>
+                                {saving && <span className="text-[10px] text-muted-foreground absolute top-1/2 -right-8 -translate-y-1/2 animate-pulse">Saving...</span>}
                             </div>
                         }
                      />

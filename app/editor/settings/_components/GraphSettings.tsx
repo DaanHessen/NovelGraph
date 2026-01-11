@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { Settings, Grid3X3, Monitor, Map } from 'lucide-react';
+import { Switch } from '@/app/_components/ui/Switch';
 
 interface GraphSettingsState {
     snapToGrid: boolean;
@@ -76,12 +77,10 @@ export default function GraphSettings() {
                     
                     <div className="flex items-center justify-between p-4 bg-black/20 rounded-xl border border-border">
                         <span className="text-white text-sm">Snap to Grid</span>
-                        <button 
-                            onClick={() => handleChange('snapToGrid', !settings.snapToGrid)}
-                            className={`w-12 h-6 rounded-full transition-colors relative ${settings.snapToGrid ? 'bg-accent' : 'bg-white/10'}`}
-                        >
-                            <div className={`absolute top-1 left-1 w-4 h-4 rounded-full bg-white transition-transform ${settings.snapToGrid ? 'translate-x-6' : 'translate-x-0'}`} />
-                        </button>
+                        <Switch 
+                            checked={settings.snapToGrid}
+                            onCheckedChange={(v) => handleChange('snapToGrid', v)}
+                        />
                     </div>
 
                     <div className="space-y-2">
@@ -164,25 +163,21 @@ export default function GraphSettings() {
 
                     <div className="flex items-center justify-between p-4 bg-black/20 rounded-xl border border-border">
                         <span className="text-white text-sm">Show Controls (Zoom/Fit)</span>
-                        <button 
-                            onClick={() => handleChange('showControls', !settings.showControls)}
-                            className={`w-12 h-6 rounded-full transition-colors relative ${settings.showControls ? 'bg-accent' : 'bg-white/10'}`}
-                        >
-                            <div className={`absolute top-1 left-1 w-4 h-4 rounded-full bg-white transition-transform ${settings.showControls ? 'translate-x-6' : 'translate-x-0'}`} />
-                        </button>
+                        <Switch 
+                            checked={settings.showControls}
+                            onCheckedChange={(v) => handleChange('showControls', v)}
+                        />
                     </div>
 
                     <div className="flex items-center justify-between p-4 bg-black/20 rounded-xl border border-border">
-                         <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-2">
                             <span className="text-white text-sm">Show MiniMap</span>
                             <Map size={14} className="text-gray-500" />
                         </div>
-                        <button 
-                            onClick={() => handleChange('showMiniMap', !settings.showMiniMap)}
-                            className={`w-12 h-6 rounded-full transition-colors relative ${settings.showMiniMap ? 'bg-accent' : 'bg-white/10'}`}
-                        >
-                            <div className={`absolute top-1 left-1 w-4 h-4 rounded-full bg-white transition-transform ${settings.showMiniMap ? 'translate-x-6' : 'translate-x-0'}`} />
-                        </button>
+                        <Switch 
+                            checked={settings.showMiniMap}
+                            onCheckedChange={(v) => handleChange('showMiniMap', v)}
+                        />
                     </div>
                 </div>
 

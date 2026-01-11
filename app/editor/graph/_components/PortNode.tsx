@@ -17,26 +17,26 @@ const PortNode = ({ data, selected }: NodeProps<Node<PortNodeData>>) => {
 
   return (
     <div className={cn(
-      "group relative min-w-[180px] bg-card/90 backdrop-blur-md border rounded-xl shadow-lg transition-all duration-300",
+      "group/node relative min-w-[180px] bg-card/90 backdrop-blur-md border rounded-xl shadow-lg transition-all duration-300",
       selected ? "border-accent ring-2 ring-accent/20 shadow-accent/10" : "border-border hover:border-accent/50 hover:shadow-xl"
     )}>
       {/* Handles - Visible on Hover */}
       {/* Handles - Dual Source/Target at every position for flexible connections */}
       {/* TOP */}
-      <Handle type="target" position={Position.Top} id="top-t" className="w-3 h-3 bg-muted-foreground/50 border-2 border-background hover:bg-accent hover:border-accent transition-colors opacity-0! group-hover:opacity-100!" />
-      <Handle type="source" position={Position.Top} id="top-s" className="w-3 h-3 bg-muted-foreground/50 border-2 border-background hover:bg-accent hover:border-accent transition-colors opacity-0! group-hover:opacity-100!" />
+      <Handle type="target" position={Position.Top} id="top-t" className="w-3 h-3 bg-muted-foreground/50 border-2 border-background hover:bg-accent hover:border-accent transition-colors opacity-0! group-hover/node:opacity-100!" />
+      <Handle type="source" position={Position.Top} id="top-s" className="w-3 h-3 bg-muted-foreground/50 border-2 border-background hover:bg-accent hover:border-accent transition-colors opacity-0! group-hover/node:opacity-100!" />
 
       {/* RIGHT */}
-      <Handle type="source" position={Position.Right} id="right-s" className="w-3 h-3 bg-muted-foreground/50 border-2 border-background hover:bg-accent hover:border-accent transition-colors opacity-0! group-hover:opacity-100!" />
-      <Handle type="target" position={Position.Right} id="right-t" className="w-3 h-3 bg-muted-foreground/50 border-2 border-background hover:bg-accent hover:border-accent transition-colors opacity-0! group-hover:opacity-100!" />
+      <Handle type="source" position={Position.Right} id="right-s" className="w-3 h-3 bg-muted-foreground/50 border-2 border-background hover:bg-accent hover:border-accent transition-colors opacity-0! group-hover/node:opacity-100!" />
+      <Handle type="target" position={Position.Right} id="right-t" className="w-3 h-3 bg-muted-foreground/50 border-2 border-background hover:bg-accent hover:border-accent transition-colors opacity-0! group-hover/node:opacity-100!" />
 
       {/* BOTTOM */}
-      <Handle type="source" position={Position.Bottom} id="bottom-s" className="w-3 h-3 bg-muted-foreground/50 border-2 border-background hover:bg-accent hover:border-accent transition-colors opacity-0! group-hover:opacity-100!" />
-      <Handle type="target" position={Position.Bottom} id="bottom-t" className="w-3 h-3 bg-muted-foreground/50 border-2 border-background hover:bg-accent hover:border-accent transition-colors opacity-0! group-hover:opacity-100!" />
+      <Handle type="source" position={Position.Bottom} id="bottom-s" className="w-3 h-3 bg-muted-foreground/50 border-2 border-background hover:bg-accent hover:border-accent transition-colors opacity-0! group-hover/node:opacity-100!" />
+      <Handle type="target" position={Position.Bottom} id="bottom-t" className="w-3 h-3 bg-muted-foreground/50 border-2 border-background hover:bg-accent hover:border-accent transition-colors opacity-0! group-hover/node:opacity-100!" />
 
       {/* LEFT */}
-      <Handle type="target" position={Position.Left} id="left-t" className="w-3 h-3 bg-muted-foreground/50 border-2 border-background hover:bg-accent hover:border-accent transition-colors opacity-0! group-hover:opacity-100!" />
-      <Handle type="source" position={Position.Left} id="left-s" className="w-3 h-3 bg-muted-foreground/50 border-2 border-background hover:bg-accent hover:border-accent transition-colors opacity-0! group-hover:opacity-100!" />
+      <Handle type="target" position={Position.Left} id="left-t" className="w-3 h-3 bg-muted-foreground/50 border-2 border-background hover:bg-accent hover:border-accent transition-colors opacity-0! group-hover/node:opacity-100!" />
+      <Handle type="source" position={Position.Left} id="left-s" className="w-3 h-3 bg-muted-foreground/50 border-2 border-background hover:bg-accent hover:border-accent transition-colors opacity-0! group-hover/node:opacity-100!" />
 
       {/* Linked Chapter Indicator */}
       {!!data.linkedChapterId && (

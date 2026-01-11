@@ -425,7 +425,7 @@ import { useManuscriptStore } from '../write/_store/useManuscriptStore';
         >
             {graphSettings?.showGrid && (
                 <Background
-                    color="#333"
+                    color="#555"
                     gap={graphSettings?.gridType === 'dots' ? 20 : 40}
                     size={1}
                     variant={
