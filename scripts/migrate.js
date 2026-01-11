@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-require-imports */
 const { Client } = require('pg');
 
 const ADJECTIVES = ['Happy', 'Lucky', 'Sunny', 'Clever', 'Brave', 'Quiet', 'Calm', 'Eager', 'Witty', 'Jolly', 'Misty', 'Silent', 'Swift', 'Gentle', 'Wild', 'Noble', 'Bright', 'Cosmic', 'Ancient'];

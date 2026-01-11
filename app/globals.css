@@ -35,6 +35,7 @@
   --glass-bg: rgba(17, 20, 24, 0.7);
 }
 
+/* eslint-disable-next-line */
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);

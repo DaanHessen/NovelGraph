@@ -139,7 +139,7 @@ export default function HomePage() {
         } else {
           alert('Import failed');
         }
-      } catch (err) {
+      } catch {
         alert('Invalid JSON');
       }
     };
