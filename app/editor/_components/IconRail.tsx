@@ -57,7 +57,6 @@ export default function IconRail() {
     { label: 'Write', icon: PenTool, href: '/editor/write' },
     { label: 'World', icon: Globe, href: '/editor/world' },
     { label: 'Graph', icon: Network, href: '/editor/graph' },
-    { label: 'Export', icon: Download, href: '/editor/export' },
   ];
   
   const getHref = (baseHref: string) => {

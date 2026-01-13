@@ -1,7 +1,9 @@
+"use client";
+
 import { usePathname } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { PanelRightClose, PanelRightOpen, Map as MapIcon, Plus, Trash2, User, SlidersHorizontal, FileText } from 'lucide-react';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useGraphStore, type GraphPage } from '../graph/_store/useGraphStore';
 import SidebarItem from './SidebarItem';
 import WriteSidebarContent from '../write/_components/WriteSidebarContent';
@@ -150,7 +152,11 @@ export default function ContextSidebar({ open, setOpen }: { open: boolean, setOp
        content = <WriteSidebarContent />;
   } else if (isExport) {
       title = 'Export';
-      content = <ExportSidebarContent />;
+      content = (
+        <Suspense fallback={<div className="p-4 text-xs text-muted-foreground">Loading options...</div>}>
+            <ExportSidebarContent />
+        </Suspense>
+      );
   } else if (isGraph) {
       title = 'Graphs';
       content = <GraphSidebarContent />;

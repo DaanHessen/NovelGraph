@@ -8,7 +8,7 @@ export const SettingsInput = forwardRef<HTMLInputElement, InputProps>(
             <Input 
                 ref={ref}
                 className={cn(
-                    "bg-white/5 border border-white/10 focus:border-accent/50 focus:bg-accent/5 transition-colors placeholder:text-muted-foreground/50",
+                    "bg-background border border-white/10 focus:border-accent/50 focus:bg-accent/5 transition-colors placeholder:text-muted-foreground/50",
                     className
                 )}
                 {...props}
