@@ -2,7 +2,7 @@
 
 import { usePathname } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import { PanelRightClose, PanelRightOpen, Map as MapIcon, Plus, Trash2, User, SlidersHorizontal, FileText } from 'lucide-react';
+import { PanelRightClose, PanelRightOpen, Map as MapIcon, Plus, Trash2, User, SlidersHorizontal, FileText, Globe } from 'lucide-react';
 import { useState, useEffect, Suspense } from 'react';
 import { useGraphStore, type GraphPage } from '../graph/_store/useGraphStore';
 import SidebarItem from './SidebarItem';
@@ -100,20 +100,23 @@ function GraphSidebarContent() {
     );
 }
 
+import WorldSidebarContent from '../world/_components/WorldSidebarContent';
+
 export default function ContextSidebar({ open, setOpen }: { open: boolean, setOpen: (v: boolean) => void }) {
   const pathname = usePathname();
   const isSettings = pathname.includes('/settings');
   const isWrite = pathname.includes('/write');
   const isGraph = pathname.includes('/graph');
+  const isWorld = pathname.includes('/world');
   const isExport = pathname.includes('/export');
 
   useEffect(() => {
-    if (isSettings || isWrite || isGraph || isExport) {
+    if (isSettings || isWrite || isGraph || isExport || isWorld) {
         setOpen(true);
     } else {
         setOpen(false);
     }
-  }, [isSettings, isWrite, isGraph, isExport, setOpen]);
+  }, [isSettings, isWrite, isGraph, isExport, isWorld, setOpen]);
 
   let content = null;
   let title = '';
@@ -122,6 +125,7 @@ export default function ContextSidebar({ open, setOpen }: { open: boolean, setOp
       const isProfile = pathname.includes('/account');
       const isGraphSettings = pathname.includes('/settings/graph');
       const isWriteSettings = pathname.includes('/settings/write');
+      const isWorldSettings = pathname.includes('/settings/world');
       
       content = (
         <div className="space-y-1">
@@ -143,6 +147,12 @@ export default function ContextSidebar({ open, setOpen }: { open: boolean, setOp
                 href="/editor/settings/write"
                 isActive={isWriteSettings}
             />
+             <SidebarItem 
+                icon={Globe}
+                label="World"
+                href="/editor/settings/world"
+                isActive={isWorldSettings}
+            />
         </div>
       );
       title = 'Settings';
@@ -160,6 +170,9 @@ export default function ContextSidebar({ open, setOpen }: { open: boolean, setOp
   } else if (isGraph) {
       title = 'Graphs';
       content = <GraphSidebarContent />;
+  } else if (isWorld) {
+      title = 'World';
+      content = <WorldSidebarContent />;
   } else {
       return null; 
   }
@@ -167,7 +180,7 @@ export default function ContextSidebar({ open, setOpen }: { open: boolean, setOp
   return (
     <>
         <AnimatePresence>
-            {!open && (isSettings || isWrite || isGraph || isExport) && (
+            {!open && (isSettings || isWrite || isGraph || isExport || isWorld) && (
                 <motion.button
                     initial={{ opacity: 0, x: -10 }}
                     animate={{ opacity: 1, x: 0 }}

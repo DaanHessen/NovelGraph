@@ -1,7 +1,7 @@
 import Logo from '@/app/_components/Logo';
 import Link from 'next/link';
 import { usePathname, useSearchParams } from 'next/navigation';
-import { Home, Globe, Network, PenTool, Settings, LogOut, User, Download } from 'lucide-react';
+import { Home, Globe, Network, PenTool, Settings, LogOut, User } from 'lucide-react';
 import { motion } from 'framer-motion';
 import clsx from 'clsx';
 import { useState, useEffect } from 'react';
