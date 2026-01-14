@@ -34,6 +34,7 @@ interface GraphState {
     deletePage: (id: string) => void;
 
     updateNodeData: (id: string, data: Record<string, unknown>) => void;
+    updateNodeStyle: (id: string, style: Record<string, unknown>) => void;
     deleteNode: (id: string) => void;
 
     setNodes: (nodes: Node[]) => void;
@@ -96,6 +97,13 @@ export const useGraphStore = create<GraphState>()(
             pages: state.pages.map(p => p.id === state.activePageId ? {
                 ...p,
                 nodes: p.nodes.map(n => n.id === id ? { ...n, data: { ...n.data, ...data } } : n)
+            } : p)
+        })),
+
+        updateNodeStyle: (id, style) => set((state) => ({
+            pages: state.pages.map(p => p.id === state.activePageId ? {
+                ...p,
+                nodes: p.nodes.map(n => n.id === id ? { ...n, style: { ...n.style, ...style } } : n)
             } : p)
         })),
 

@@ -20,11 +20,12 @@ import {
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import { useSearchParams, useRouter } from 'next/navigation';
-import { Loader2, User, MapPin, FileText, GripHorizontal, Undo, Redo, ZoomIn, ZoomOut, Maximize } from 'lucide-react';
+import { Loader2, User, MapPin, FileText, GripHorizontal, Undo, Redo, ZoomIn, ZoomOut, Maximize, Lightbulb, Calendar, StickyNote, Box } from 'lucide-react';
 import { Button } from '@/app/_components/ui/Button';
 import { motion } from 'framer-motion';
 import PortNode from './_components/PortNode';
 import GroupNode from './_components/GroupNode';
+import NoteNode from './_components/NoteNode';
 import { useGraphStore, type GraphPage } from './_store/useGraphStore';
 import { useGraphSync } from './_hooks/useGraphSync';
 import NodeDetailsPanel from './_components/NodeDetailsPanel';
@@ -35,6 +36,7 @@ import { useManuscriptStore } from '../write/_store/useManuscriptStore';
   const nodeTypes = {
     story: PortNode,
     group: GroupNode,
+    note: NoteNode,
   };
   
   const edgeTypes = {};
@@ -315,13 +317,14 @@ import { useManuscriptStore } from '../write/_store/useManuscriptStore';
 
     const newNode: Node = {
         id,
-        type: 'story',
+        type: type === 'group' ? 'group' : type === 'note' ? 'note' : 'story',
         position,
         data: {
-            label: '',
-            type,
-            description: 'Click to edit details...'
+            label: type === 'group' ? 'New Group' : '',
+            type: (type === 'group' || type === 'note') ? undefined : type,
+            description: (type === 'group' || type === 'note') ? undefined : 'Click to edit details...'
         },
+        style: type === 'group' ? { width: 300, height: 300, zIndex: -1 } : type === 'note' ? { width: 220, height: 220 } : undefined,
     };
 
     const newNodes = nodes.concat(newNode);
@@ -489,6 +492,46 @@ import { useManuscriptStore } from '../write/_store/useManuscriptStore';
                      >
                          <MapPin size={14} className="text-emerald-500" />
                          <span>Location</span>
+                     </Button>
+
+                     <Button
+                       onClick={() => addNode('theme')}
+                       variant="ghost"
+                       size="sm"
+                       className="rounded-full hover:bg-white/10 text-xs gap-2"
+                     >
+                         <Lightbulb size={14} className="text-amber-500" />
+                         <span>Theme</span>
+                     </Button>
+                      <Button
+                       onClick={() => addNode('event')}
+                       variant="ghost"
+                       size="sm"
+                       className="rounded-full hover:bg-white/10 text-xs gap-2"
+                     >
+                         <Calendar size={14} className="text-orange-500" />
+                         <span>Event</span>
+                     </Button>
+                      <Button
+                       onClick={() => addNode('note')}
+                       variant="ghost"
+                       size="sm"
+                       className="rounded-full hover:bg-white/10 text-xs gap-2"
+                     >
+                         <StickyNote size={14} className="text-yellow-200" />
+                         <span>Note</span>
+                     </Button>
+
+                     <div className="w-px h-4 bg-white/10" />
+
+                      <Button
+                       onClick={() => addNode('group')}
+                       variant="ghost"
+                       size="sm"
+                       className="rounded-full hover:bg-white/10 text-xs gap-2"
+                     >
+                         <Box size={14} className="text-neutral-400" />
+                         <span>Group</span>
                      </Button>
 
                      <div className="w-px h-4 bg-white/10" />

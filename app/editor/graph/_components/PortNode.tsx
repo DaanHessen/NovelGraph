@@ -1,6 +1,6 @@
 import { Handle, Position, NodeProps, Node } from '@xyflow/react';
 import { memo } from 'react';
-import { FileText, User, MapPin, Link as LinkIcon, Users } from 'lucide-react';
+import { FileText, User, MapPin, Link as LinkIcon, Users, Lightbulb, Calendar, StickyNote } from 'lucide-react';
 import { cn } from '@/app/lib/utils';
 
 interface PortNodeData extends Record<string, unknown> {
@@ -14,6 +14,9 @@ const PortNode = ({ data, selected }: NodeProps<Node<PortNodeData>>) => {
   const isChapter = data.type === 'chapter';
   const isCharacter = data.type === 'character';
   const isFamily = data.type === 'family';
+  const isTheme = data.type === 'theme';
+  const isEvent = data.type === 'event';
+  const isNote = data.type === 'note';
 
   return (
     <div className={cn(
@@ -53,11 +56,17 @@ const PortNode = ({ data, selected }: NodeProps<Node<PortNodeData>>) => {
             isChapter ? "bg-blue-500/10 text-blue-400" :
             isCharacter ? "bg-pink-500/10 text-pink-400" :
             isFamily ? "bg-purple-500/10 text-purple-400" :
+            isTheme ? "bg-amber-500/10 text-amber-400" :
+            isEvent ? "bg-orange-500/10 text-orange-400" :
+            isNote ? "bg-yellow-200/10 text-yellow-200" :
             "bg-emerald-500/10 text-emerald-400"
           )}>
             {isChapter ? <FileText size={16} /> :
              isCharacter ? <User size={16} /> :
              isFamily ? <Users size={16} /> :
+             isTheme ? <Lightbulb size={16} /> :
+             isEvent ? <Calendar size={16} /> :
+             isNote ? <StickyNote size={16} /> :
              <MapPin size={16} />}
           </div>
         </div>
